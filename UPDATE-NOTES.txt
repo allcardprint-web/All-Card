@@ -1,0 +1,17 @@
+UPDATE NOTES (is baar kya badla)
+================================
+1) FIRESTORE RULES dobara PUBLISH karein (zaroori): firestore.rules.txt ka naya text Firebase Console > Firestore > Rules me paste karke Publish.
+   (Naya rule: user apni Naam/Email tabhi badal sakta hai jab admin ne "Profile Details Edit" ON kiya ho.)
+2) All Card repo me poora folder upload karein — khaas kar naya "tools" folder (8 files) aur service-worker.js, manifest.json, index.html.
+   index.html ab sirf ~170 KB hai; bade tools alag file me hain aur sirf kholne par load hote hain, isliye app turant khulta hai.
+3) Admin repo me sirf index.html replace karein.
+
+Admin me naya:
+ - User > Manage ab compact hai: Expiry / Password / Devices / Access / Details / Activity band-khule (accordion). Jo khola wo save ke baad bhi khula rehta hai.
+ - +7 / +15 / +30 aur -7 / -15 / -30 buttons hata diye (sirf +90, +365, custom din badhana aur date set bacha).
+ - Access ab toggle-switch cards me; naya "Extra permission: Profile Details Edit".
+
+User app me naya:
+ - Profile me "Details edit karein" button sirf tab dikhta hai jab admin ne permission di ho.
+ - Drawer menu aur Login page par "Install App" option. Android Chrome me install-prompt aata hai; baaki me steps dikhte hain.
+ - Pehli baar ke baad app cache se turant khulta hai, peeche se apne-aap update hota hai (update ke baad ek baar app band karke kholna padta hai).

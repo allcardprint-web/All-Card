@@ -16,9 +16,27 @@ service cloud.firestore {
     }
 
     // ---------- shared admin templates (pehle se chal raha hai) ----------
+    // main = templates/crop, kisan = Kisan card templates, passport = Passport photo API keys (sirf login user padh sakta hai)
     match /publicConfig/{docId} {
-      allow read: if docId == 'main';
-      allow create, update, delete: if docId == 'main' && owner();
+      allow read: if docId == 'main' || docId == 'kisan' || (docId == 'passport' && request.auth != null);
+      allow create, update, delete: if (docId == 'main' || docId == 'kisan' || docId == 'passport') && owner();
+    }
+
+    // ---------- Passport photo: kitne photo process hue (har user apna count +1 kar sakta hai) ----------
+    function statsOk() {
+      return request.resource.data.keys().hasOnly(['n', 'k1', 'k2', 'last', 'mobile', 'name'])
+        && request.resource.data.n is int
+        && request.resource.data.k1 is int
+        && request.resource.data.k2 is int
+        && request.resource.data.last is number
+        && request.resource.data.mobile is string && request.resource.data.mobile.size() <= 15
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60;
+    }
+    match /pstats/{uid} {
+      allow read: if owner() || (request.auth != null && request.auth.uid == uid);
+      allow delete: if owner();
+      allow create: if request.auth != null && request.auth.uid == uid && statsOk() && request.resource.data.n == 1;
+      allow update: if request.auth != null && request.auth.uid == uid && statsOk() && request.resource.data.n == resource.data.n + 1;
     }
 
     // ---------- public: business settings + plans (sirf owner likh sakta hai) ----------

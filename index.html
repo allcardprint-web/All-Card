@@ -117,7 +117,7 @@
 .service.apLock{opacity:.5;filter:grayscale(.65);position:relative}
 .service.apLock:after{content:'🔒';position:absolute;top:12px;right:14px;font-size:24px}
 .apToast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#b91c1c;color:#fff;padding:12px 18px;border-radius:12px;font:600 14px Arial,sans-serif;z-index:3200;max-width:90%;text-align:center;box-shadow:0 6px 20px #0004}
-</style></head><body><div id="apGate" class="show"><div class="gWrap"><div class="gCard" id="apGateBox"><div class="gHead"><div class="gT">Loading…</div></div></div></div></div>
+</style></head><body><div id="apGate" class="show"><div class="gWrap"><div class="gCard" id="apGateBox"><div class="gHead"><div class="gT" id="apGateT">Login to All Print</div><div class="gS">Mobile number se login karein</div></div><div class="gBody"><div class="gMsg" id="gMsg"></div><label>Mobile (User ID)</label><input type="text" id="gMob" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit mobile number" autocomplete="username"><label>Password</label><input type="password" id="gPw" placeholder="Enter password" autocomplete="current-password"><button type="button" class="gBtn" data-g="login">Login</button><div class="gGrid"><a href="#" data-g="toreg">🆕 Register</a><a href="#" data-g="renew">🔁 Renewal</a><a href="#" data-g="pwd">🔑 Password Change Request</a><a href="#" data-g="tostatus">🔍 Payment Status</a><a href="#" data-g="terms">📄 Terms &amp; Conditions</a></div></div></div></div></div><script>(function(){try{var g=document.getElementById("apGate"),s=JSON.parse(localStorage.getItem("ap_session")||"null"),c=JSON.parse(localStorage.getItem("ap_ucache")||"null"),f=JSON.parse(localStorage.getItem("ap_cfg_cache")||"null");if(s&&c&&c.uid===s.uid&&c.expiry>Date.now()&&!c.blocked)g.classList.remove("show");var t=document.getElementById("apGateT");if(t&&f&&f.settings&&f.settings.biz)t.textContent="Login to "+f.settings.biz}catch(e){}})()</script>
 <div id="apFixed"><header class="top"><button class="menuBtn" id="menuBtn" aria-label="Open menu">☰</button><div class="brand"><div class="brandline"><span class="printer">▣</span><span class="all">All</span> <span class="print">Card</span></div><div class="tag">Digital Services　|　Easy　|　Fast　|　Reliable</div></div></header></div><nav class="drawer" id="drawer"><div id="apMenu"></div><div hidden><a id="menuAadhaar"></a><a id="menuVoter"></a><a id="menuIppb"></a></div></nav><div id="apBg"></div>
 <main class="wrap"><section class="grid" id="services">
 <button class="service purple" data-action="aadhaar" data-name="Aadhaar Services"><span class="glyph">🪪</span><span><div class="title">Aadhaar<br>Services</div><div class="sub">New | Update | Download<br>PVC | More</div></span><span class="arrow">›</span></button>
@@ -910,7 +910,7 @@ G.box=()=>document.getElementById('apGateBox');
 G.show=on=>{document.getElementById('apGate').classList.toggle('show',on);document.body.style.overflow=on?'hidden':''};
 G.msg=(t,ok)=>{const e=document.getElementById('gMsg');if(e){e.textContent=t||'';e.className='gMsg'+(ok?' ok':'')}};
 G.head=(t,s)=>'<div class="gHead"><div class="gT">'+t+'</div><div class="gS">'+s+'</div></div>';
-G.render=async(view,msg)=>{G.view=view;const d=await SB.get(),b=G.box();let h='';
+G.render=async(view,msg)=>{G.view=view;const d=view==='login'?SB.getQuick():view==='pay'?await SB.getLive():await SB.get(),b=G.box();let h='';
  if(view==='login'){
   h=G.head('Login to '+pmEsc(d.settings.biz),'Mobile number se login karein')+'<div class="gBody">'+(msg?'<div class="gMsg" id="gMsg">'+pmEsc(msg)+'</div>':'<div class="gMsg" id="gMsg"></div>')+
    '<label>Mobile (User ID)</label><input type="text" id="gMob" inputmode="numeric" maxlength="10" placeholder="Enter 10-digit mobile number" autocomplete="username">'+
@@ -1131,7 +1131,11 @@ if(db){
   db.collection('plans').onSnapshot(q=>{CFG.plans=q.docs.map(d=>Object.assign({id:d.id},d.data()));CFG.live=1;save();first('p')},e=>{console.warn('plans',e);first('p')});
  }catch(e){cfgRes()}
 }else cfgRes();
-const cfgWait=()=>(CFG.got.s&&CFG.got.p)?Promise.resolve():Promise.race([cfgReady,new Promise(r=>setTimeout(r,(CFG.settings||CFG.plans)?1200:4000))]);
+const cfgWait=()=>((CFG.got.s&&CFG.got.p)||CFG.settings||CFG.plans)?Promise.resolve():Promise.race([cfgReady,new Promise(r=>setTimeout(r,2500))]);
+/* login page ko kabhi rukna nahi: jo data abhi hai (cache) wahi turant */
+SB.getQuick=()=>SB.norm({seeded:true,settings:CFG.settings||{},plans:CFG.plans||[],users:ME.u?[ME.u]:[],requests:[],msgs:[]});
+/* payment screen ko taza plans (QR ke saath) chahiye */
+SB.getLive=async()=>{if(!(CFG.got.s&&CFG.got.p))await Promise.race([cfgReady,new Promise(r=>setTimeout(r,4000))]);return SB.get()};
 
 /* ---------- logged-in user doc (live) ---------- */
 const ME={u:null,uid:null,err:null,un:null};
@@ -1277,8 +1281,12 @@ SB.status=async m=>{need();const[p,s]=await Promise.all([db.doc('pending/'+m).ge
  window.apInstall=async()=>{
   if(window.__ip){const p=window.__ip;window.__ip=null;p.prompt();try{await p.userChoice}catch(e){}try{U.drawer()}catch(x){}return}
   const ios=/iPhone|iPad|iPod/.test(navigator.userAgent),inapp=/Telegram|FBAN|FBAV|Instagram|WhatsApp|Line\//i.test(navigator.userAgent);
+  const andr=/Android/.test(navigator.userAgent);
+  const chromeUrl='intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;end';
   const o=document.createElement('div');o.className='gTerms';o.style.zIndex=4000;
-  o.innerHTML='<div class="gTBox"><h3>📲 App Install karein</h3><pre>'+(ios?'1. Safari me niche Share (⬆) dabayein\n2. "Add to Home Screen" chunein\n3. Add dabayein':'1. Is page ko Chrome browser me kholein'+(inapp?' (abhi aap kisi app ke andar ke browser me hain — wahan install nahi hota)':'')+'\n2. Upar ⋮ (teen dot) menu dabayein\n3. "Install app" ya "Add to Home screen" chunein\n\nAgar option na dikhe to page 1-2 baar refresh karke dobara dekhein.')+'</pre><button type="button" class="gBtn">Theek hai</button></div>';
+  const steps=ios?'1. Safari me niche Share (⬆) dabayein\n2. "Add to Home Screen" chunein\n3. Add dabayein'
+   :'1. App install sirf Chrome browser me hota hai'+(inapp||andr?' (Telegram / WhatsApp / kisi app ke andar wale browser me nahi)':'')+'.\n2. Neeche "Chrome me kholein" dabayein.\n3. Chrome me upar ⋮ (teen dot) menu dabayein.\n4. "Install app" ya "Add to Home screen" chunein.\n\nOption na dikhe to page 1-2 baar refresh karke dobara dekhein.';
+  o.innerHTML='<div class="gTBox" style="color:#172033"><h3>📲 App Install karein</h3><pre style="color:#172033;font-size:15px;line-height:1.7">'+steps+'</pre>'+(andr?'<a class="gBtn gBtnA" href="'+chromeUrl+'" style="margin-bottom:8px">🌐 Chrome me kholein</a>':'')+'<button type="button" class="gBtn">Theek hai</button></div>';
   o.onclick=ev=>{if(ev.target===o||ev.target.tagName==='BUTTON')o.remove()};document.body.appendChild(o)};
  if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='updated'){try{G.toast('🔄 Naya version aa gaya — app band karke dobara kholein')}catch(x){}}});
 })();

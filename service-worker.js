@@ -1,7 +1,7 @@
 /* All Card — service worker v5: app turant cache se khulta hai, peeche se update hota rehta hai */
-const CACHE = "all-card-shell-v5";
-const CORE = ["./", "./index.html", "./manifest.json", "./favicon.png", "./assets/icons/icon-192.png", "./assets/icons/icon-512.png", "./assets/icons/icon-512-maskable.png"];
-const TOOLS = ["aadhaar", "voter", "pan", "manualpan", "apaar", "ayushman", "atm", "ippb", "kisan", "passport"].map(n => "./tools/" + n + ".html");
+const CACHE = "all-card-shell-v6";
+const CORE = ["./", "./index.html", "./manifest.json", "./favicon.png", "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png"];
+const TOOLS = [];
 
 self.addEventListener("install", event => {
   // ek file na mile to bhi install fail na ho (pehle cache.addAll se poora install ruk jata tha)

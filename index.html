@@ -1020,9 +1020,9 @@ G.logout=()=>{SB.clearSess();G.bar(null);G.lock('')};
 G.lock=async(msg,view)=>{try{if(typeof closeTool==='function'&&document.getElementById('toolView').classList.contains('show'))closeTool(true);if(typeof closePrintManager==='function'&&document.getElementById('printManagerView').classList.contains('show'))closePrintManager();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open')}catch(e){}
  G.show(true);G.ret=false;await G.render(view||'login',msg)};
 G.watch=()=>{if(G.timer)return;const run=async()=>{if(document.getElementById('apGate').classList.contains('show'))return;let r;try{r=await SB.check()}catch(e){return}
-  if(!r.ok&&!r.expired){G.strike=(G.strike||0)+1;if(G.strike<3){setTimeout(run,4000);return}}G.strike=0;
+  if(!r.ok&&!r.expired){let cb=null;try{cb=await SB.confirmBad()}catch(e){}if(cb===true){G.strike=3}else{G.strike=(G.strike||0)+1;if(G.strike<3){setTimeout(run,cb===false?1500:4000);return}}}G.strike=0;
   if(!r.ok){G.bar(null);if(r.expired){G.exp={name:r.u.name,mobile:r.u.mobile,email:r.u.email,expiry:r.u.expiry};G.reg.name=r.u.name;G.reg.mobile=r.u.mobile;G.reg.email=r.u.email||'';G.dropOff();SB.clearSess();G.lock('','expired')}else{G.dropOff();SB.clearSess();G.lock(r.msg||'')}}else{G.bar(r.u);G.setPerms(r.u,r.d);G.guardOpen()}};
- G.timer=setInterval(run,8000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});window.addEventListener('storage',e=>{if(e.key==='ap_session')run()})};
+ G.timer=setInterval(run,4000);document.addEventListener('apforce',()=>run());document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});window.addEventListener('storage',e=>{if(e.key==='ap_session')run()})};
 
 /* ---------- Access control: section lock ---------- */
 G.perms=null;
@@ -1188,9 +1188,11 @@ SB.startMe=m=>new Promise(res=>{SB.stopMe();ME.uid=m;let first=true;
  ME.un=db.doc('users/'+m).onSnapshot({includeMetadataChanges:false},sn=>{ME.err=null;
   if(!sn.exists&&sn.metadata&&sn.metadata.fromCache){ME.u=null;ME.gone=false;fin();return}   /* cache khali = server ka jawab nahi, hata nahi di gayi */
   const was=first;ME.u=sn.exists?SB.fix(sn.data()):null;ME.gone=!sn.exists;fin();
-  if(!was){clearTimeout(window.__mt);window.__mt=setTimeout(()=>{try{document.dispatchEvent(new Event('visibilitychange'))}catch(e){}},250)}   /* admin ne kuch badla to turant lagao */
+  if(!was){clearTimeout(window.__mt);try{document.dispatchEvent(new Event('apforce'))}catch(e){}}   /* admin ne kuch badla to turant lagao */
  },e=>{ME.err=e;ME.u=null;fin()})});
 const srvUser=async uid=>{try{const sn=await db.doc('users/'+uid).get({source:'server'});return{ok:true,u:sn.exists?SB.fix(sn.data()):null}}catch(e){return{ok:false,e}}};
+/* server se ek baar pakka verify: true = block/hata di gayi/logout confirmed, false = sab theek, null = server tak pahunch nahi paye */
+SB.confirmBad=async()=>{const s=SB.sess();if(!s||s.off)return null;const sv=await srvUser(s.uid);if(!sv.ok)return null;if(!sv.u)return true;const u=sv.u;if(u.blocked)return true;const me=(u.devs||[]).find(x=>x.id===SB.devId());if(!me||me.tok!==s.tok)return true;return false};
 const cachedOk=async s=>{let c=null;try{c=JSON.parse(lsGet('ap_ucache')||'null')}catch(e){}
  if(c&&c.uid===s.uid&&c.expiry>Date.now()&&!c.blocked){SB.fix(c);return{ok:true,u:c,d:await SB.get(),offline:true}}return null};
 const authReady=new Promise(res=>{if(!fbAuth)return res(null);const un=fbAuth.onAuthStateChanged(u=>{try{un()}catch(e){}res(u)})});

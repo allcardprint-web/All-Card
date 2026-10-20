@@ -369,10 +369,11 @@ let apFirestore=null;
 try{if(window.firebase){if(!firebase.apps.length)firebase.initializeApp(AP_FIREBASE_CONFIG);apFirestore=firebase.firestore();}}catch(e){console.error('Firebase init failed',e)}
 /* Admin ka data Firestore (publicConfig/main) se aata hai; offline ho to local cache use hota hai */
 window.apAdminReady=(async()=>{let d=null;
- if(apFirestore){try{const snap=await apFirestore.doc('publicConfig/main').get();if(snap.exists&&snap.data().data){d=snap.data().data;window.apAdminSource='firestore';try{await admSet('data',d)}catch(e){}}}catch(e){console.warn('Firestore read nahi hua',e)}}
- if(!d){d=await admGet('data');if(d)window.apAdminSource='local'}
- if(!d){try{const r=await fetch('admin-data.json?'+Date.now(),{cache:'no-store'});if(r.ok){d=await r.json();window.apAdminSource='published'}}catch(e){}}
- window.apAdminData=admNorm(d);
+  try{d=await admGet('data');if(d)window.apAdminSource='local'}catch(e){}
+  const net=(async()=>{if(!apFirestore)return null;try{const snap=await apFirestore.doc('publicConfig/main').get();if(snap.exists&&snap.data().data){const n=snap.data().data;window.apAdminSource='firestore';try{await admSet('data',n)}catch(e){}return n}}catch(e){console.warn('Firestore read nahi hua',e)}return null})();
+  if(!d)d=await net;else net.then(n=>{if(n)window.apAdminData=admNorm(n)});
+  if(!d){try{const r=await fetch('admin-data.json?'+Date.now(),{cache:'no-store'});if(r.ok){d=await r.json();window.apAdminSource='published'}}catch(e){}}
+  window.apAdminData=admNorm(d);
  /* Live update: admin kuch badle to is phone par bhi apne-aap aa jaye */
  if(apFirestore){try{apFirestore.doc('publicConfig/main').onSnapshot(sn=>{if(sn.exists&&sn.data().data){window.apAdminData=admNorm(sn.data().data);window.apAdminSource='firestore';admSet('data',sn.data().data).catch(()=>{})}},e=>console.warn('live sync error',e))}catch(e){}}
 })();
@@ -1019,8 +1020,9 @@ G.logout=()=>{SB.clearSess();G.bar(null);G.lock('')};
 G.lock=async(msg,view)=>{try{if(typeof closeTool==='function'&&document.getElementById('toolView').classList.contains('show'))closeTool(true);if(typeof closePrintManager==='function'&&document.getElementById('printManagerView').classList.contains('show'))closePrintManager();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open')}catch(e){}
  G.show(true);G.ret=false;await G.render(view||'login',msg)};
 G.watch=()=>{if(G.timer)return;const run=async()=>{if(document.getElementById('apGate').classList.contains('show'))return;let r;try{r=await SB.check()}catch(e){return}
+  if(!r.ok&&!r.expired){G.strike=(G.strike||0)+1;if(G.strike<3){setTimeout(run,4000);return}}G.strike=0;
   if(!r.ok){G.bar(null);if(r.expired){G.exp={name:r.u.name,mobile:r.u.mobile,email:r.u.email,expiry:r.u.expiry};G.reg.name=r.u.name;G.reg.mobile=r.u.mobile;G.reg.email=r.u.email||'';G.dropOff();SB.clearSess();G.lock('','expired')}else{G.dropOff();SB.clearSess();G.lock(r.msg||'')}}else{G.bar(r.u);G.setPerms(r.u,r.d);G.guardOpen()}};
- G.timer=setInterval(run,15000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});window.addEventListener('storage',e=>{if(e.key==='ap_session')run()})};
+ G.timer=setInterval(run,8000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)run()});window.addEventListener('storage',e=>{if(e.key==='ap_session')run()})};
 
 /* ---------- Access control: section lock ---------- */
 G.perms=null;
@@ -1044,10 +1046,14 @@ document.getElementById('services').addEventListener('click',e=>{const b=e.targe
 (()=>{const st=window.showTool;window.showTool=function(w){const k=w==='manualpan'?'pan_manual':w==='kisan'?'farmer':w;if(!G.can(k)){G.deny();return}return st.apply(this,arguments)};
  const pm=window.openPrintManager;if(pm)window.openPrintManager=function(){if(!G.can('print-manager')){G.deny();return}return pm.apply(this,arguments)}})();
 G.boot=async()=>{document.getElementById('apGate').addEventListener('click',G.click);
- const had=!!SB.sess();let cp=null;try{const oo=JSON.parse(localStorage.getItem('ap_offline')||'null');cp=oo&&Array.isArray(oo.perms)?oo.perms:null}catch(e){}
- const inst=had&&!!cp;if(inst){G.perms=new Set(cp);try{G.applyPerms()}catch(e){}G.show(false)}/* login + saved access ho to app turant khule, check peeche chale */
+ const had=!!SB.sess();let cp=null,cu=null;try{const oo=JSON.parse(localStorage.getItem('ap_offline')||'null'),ss=SB.sess();cp=oo&&Array.isArray(oo.perms)?oo.perms:null;let c=null;try{c=JSON.parse(localStorage.getItem('ap_ucache')||'null')}catch(e){}
+  cu=(ss&&c&&c.uid===ss.uid&&c.expiry)?c:((ss&&oo&&oo.uid===ss.uid&&oo.u&&oo.u.expiry)?oo.u:null)}catch(e){}
+ const inst=had&&!!cp;if(inst){G.perms=new Set(cp);try{G.applyPerms()}catch(e){}
+  if(cu){try{SB.fix(cu);G.cur=cu;G.bar(cu)}catch(e){}}   /* naam / mobile / expiry pehle se saved dikhe — online check ka intezar nahi */
+  G.show(false)}/* login + saved access ho to app turant khule, check peeche chale */
  try{const r=await Promise.race([SB.check(),new Promise((_,j)=>setTimeout(()=>j(new Error('timeout')),4000))]);
   if(r.ok){G.enter(r.u);return}if(r.expired){G.show(true);G.exp={name:r.u.name,mobile:r.u.mobile,email:r.u.email,expiry:r.u.expiry};G.reg.name=r.u.name;G.reg.mobile=r.u.mobile;G.reg.email=r.u.email||'';SB.clearSess();G.render('expired');return}
+  if(inst&&!r.ok){G.watch();setTimeout(()=>document.dispatchEvent(new Event('visibilitychange')),1500);return}   /* ek baar ke check se logout nahi — watch 3 baar pakka karke hi karega */
   if(r.msg){G.dropOff();SB.clearSess()}G.show(true);G.render('login',r.msg||'')}catch(e){if(inst){G.watch();return}G.show(true);try{await G.render('login','')}catch(x){G.box().innerHTML='<div class="gBody"><div class="gMsg">Storage load nahi hua: '+pmEsc(e.message||e)+'</div></div>'}}};
 
 /* =====================================================================
@@ -1179,7 +1185,14 @@ SB.me=()=>ME.u;
 SB.stopMe=()=>{try{ME.un&&ME.un()}catch(e){}ME.un=null;ME.u=null;ME.uid=null;ME.err=null};
 SB.startMe=m=>new Promise(res=>{SB.stopMe();ME.uid=m;let first=true;
  const fin=()=>{if(first){first=false;res()}};
- ME.un=db.doc('users/'+m).onSnapshot(sn=>{ME.err=null;ME.u=sn.exists?SB.fix(sn.data()):null;ME.gone=!sn.exists;fin()},e=>{ME.err=e;ME.u=null;fin()})});
+ ME.un=db.doc('users/'+m).onSnapshot({includeMetadataChanges:false},sn=>{ME.err=null;
+  if(!sn.exists&&sn.metadata&&sn.metadata.fromCache){ME.u=null;ME.gone=false;fin();return}   /* cache khali = server ka jawab nahi, hata nahi di gayi */
+  const was=first;ME.u=sn.exists?SB.fix(sn.data()):null;ME.gone=!sn.exists;fin();
+  if(!was){clearTimeout(window.__mt);window.__mt=setTimeout(()=>{try{document.dispatchEvent(new Event('visibilitychange'))}catch(e){}},250)}   /* admin ne kuch badla to turant lagao */
+ },e=>{ME.err=e;ME.u=null;fin()})});
+const srvUser=async uid=>{try{const sn=await db.doc('users/'+uid).get({source:'server'});return{ok:true,u:sn.exists?SB.fix(sn.data()):null}}catch(e){return{ok:false,e}}};
+const cachedOk=async s=>{let c=null;try{c=JSON.parse(lsGet('ap_ucache')||'null')}catch(e){}
+ if(c&&c.uid===s.uid&&c.expiry>Date.now()&&!c.blocked){SB.fix(c);return{ok:true,u:c,d:await SB.get(),offline:true}}return null};
 const authReady=new Promise(res=>{if(!fbAuth)return res(null);const un=fbAuth.onAuthStateChanged(u=>{try{un()}catch(e){}res(u)})});
 
 SB.get=async()=>{await cfgWait();
@@ -1225,7 +1238,9 @@ SB.login=async(mobile,pass,_hh)=>{mobile=String(mobile||'').trim();const hh=_hh|
 /* ---------- session check (live data se, har 15 sec me bhi sasta) ---------- */
 const chk0=async()=>{const s=SB.sess();if(!s)return{ok:false};
  need();await authReady;
- if(!fbAuth.currentUser)return{ok:false,msg:'Login session khatam ho gaya. Dobara login karein.'};
+ if(!fbAuth.currentUser){const o=OFFL.get();let re=false;
+  if(o&&o.uid===s.uid&&o.email&&o.h&&navigator.onLine!==false){try{await fbAuth.signInWithEmailAndPassword(o.email,o.h);re=true}catch(e){if(!isNet(e))return{ok:false,msg:'Aapka password badal gaya hai. Dobara login karein.'}}}
+  if(!re){const c=await cachedOk(s);if(c)return c;return{ok:false,msg:'Login session khatam ho gaya. Dobara login karein.'}}}
  if(ME.uid!==s.uid||!ME.un){
   let c=null;try{c=JSON.parse(lsGet('ap_ucache')||'null')}catch(e){}
   const p=SB.startMe(s.uid);
@@ -1233,16 +1248,26 @@ const chk0=async()=>{const s=SB.sess();if(!s)return{ok:false};
    p.then(()=>{try{window.dispatchEvent(new StorageEvent('storage',{key:'ap_session'}))}catch(e){}});
    SB.fix(c);return{ok:true,u:c,d:await SB.get(),offline:true,fast:1}}
   await Promise.race([p,new Promise(r=>setTimeout(r,3500))])}
- if(ME.err&&ME.err.code==='permission-denied')return{ok:false,msg:'Aapka session ab valid nahi hai (password badla gaya?). Dobara login karein.'};
+ if(ME.err&&ME.err.code==='permission-denied'){let fx=false;
+  try{await fbAuth.currentUser.getIdToken(true);await Promise.race([SB.startMe(s.uid),new Promise(r=>setTimeout(r,3500))]);fx=!!ME.u&&!ME.err}catch(e){if(isNet(e)){const c=await cachedOk(s);if(c)return c}}
+  if(!fx){const c=navigator.onLine===false?await cachedOk(s):null;if(c)return c;return{ok:false,msg:'Aapka session ab valid nahi hai (password badla gaya?). Dobara login karein.'}}}
  if(!ME.u&&!ME.gone){/* server se jawab nahi aaya — offline: pichhla data use karein jab tak plan chal raha hai */
   let c=null;try{c=JSON.parse(lsGet('ap_ucache')||'null')}catch(e){}
   if(c&&c.uid===s.uid&&c.expiry>Date.now()&&!c.blocked){SB.fix(c);return{ok:true,u:c,d:await SB.get(),offline:true}}
   throw new Error(NETMSG)}
- const u=ME.u,d=await SB.get();
+ let u=ME.u;
+ if(!u){const sv=await srvUser(s.uid);
+  if(!sv.ok){const c=await cachedOk(s);if(c)return c;throw new Error(NETMSG)}
+  if(sv.u){ME.u=sv.u;ME.gone=false;u=sv.u}}
+ const d=await SB.get();
  if(!u)return{ok:false,msg:'Aapki ID admin ne hata di hai.'};
  if(u.blocked)return{ok:false,msg:'Aapki ID block kar di gayi hai. Admin se sampark karein.'};
  if(u.expiry<Date.now())return{ok:false,expired:true,u,msg:'Aapka plan '+SB.fmtD(u.expiry)+' ko expire ho gaya hai.'};
- const me=u.devs.find(x=>x.id===SB.devId());if(!me||me.tok!==s.tok)return{ok:false,msg:'Is device se aap logout ho chuke hain (naye device par login hua ya admin ne logout kiya). Dobara login karein.'};
+ let me=u.devs.find(x=>x.id===SB.devId());
+ if(!me||me.tok!==s.tok){const sv=await srvUser(s.uid);
+  if(sv.ok&&sv.u){ME.u=sv.u;u=sv.u;me=u.devs.find(x=>x.id===SB.devId())}
+  else if(!sv.ok){const c=await cachedOk(s);if(c)return c}}
+ if(!me||me.tok!==s.tok)return{ok:false,msg:'Is device se aap logout ho chuke hain (naye device par login hua ya admin ne logout kiya). Dobara login karein.'};
  lsSet('ap_ucache',JSON.stringify(Object.assign({},u,{log:[],devs:u.devs.map(x=>({id:x.id}))})));
  OFFL.save(null,u);
  return{ok:true,u,d}};
@@ -1367,17 +1392,21 @@ window.addEventListener('offline',()=>{try{if(document.getElementById('apGate').
   showSteps()};
  /* ---- Shared configs (Kisan templates, Passport keys, Passport counter) ---- */
  let kc=null,kcAt=0;
- window.apKisanCfg=async()=>{if(kc&&Date.now()-kcAt<60000)return kc;
-  try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/kisan').get();kc=sn.exists?(sn.data().data||null):null;kcAt=Date.now();return kc}catch(e){return null}};
- window.apPassbookCfg=async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/passbook').get();return sn.exists?(sn.data()||null):null}catch(e){return null}};
+ const swr=(key,fetcher)=>{let raw=null;try{raw=localStorage.getItem(key)}catch(e){}
+  const p=fetcher().then(v=>{try{if(v)localStorage.setItem(key,JSON.stringify(v));else localStorage.setItem(key,'none')}catch(e){}return v});
+  if(raw==='none')return Promise.resolve(null);
+  if(raw){try{return Promise.resolve(JSON.parse(raw))}catch(e){}}
+  return p};
+ window.apKisanCfg=()=>swr('ap_c_kisan',async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/kisan').get();return sn.exists?(sn.data().data||null):null}catch(e){return null}});
+ window.apPassbookCfg=()=>swr('ap_c_passbook',async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/passbook').get();if(!sn.exists)return null;const d=sn.data()||{};delete d.updatedAt;return d}catch(e){return null}});
  window.apPassport={
-  cfg:async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/passport').get();return sn.exists?(sn.data()||null):null}catch(e){return null}},
+  cfg:()=>swr('ap_c_passport',async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/passport').get();if(!sn.exists)return null;const d=sn.data()||{};delete d.updatedAt;return d}catch(e){return null}}),
   report:async idx=>{try{const a=window.firebase&&firebase.auth&&firebase.auth().currentUser;if(!a||!apFirestore)return;
    const ref=apFirestore.doc('pstats/'+a.uid),u=(typeof G!=='undefined'&&G.cur)||{};
    await apFirestore.runTransaction(async tx=>{const sn=await tx.get(ref),d=sn.exists?sn.data():{};
     const o={n:(d.n||0)+1,k1:d.k1||0,k2:d.k2||0,last:Date.now(),mobile:String(u.uid||d.mobile||'').slice(0,15),name:String(u.name||d.name||'').slice(0,60)};
     if(idx===1||idx===2)o['k'+idx]+=1;tx.set(ref,o)})}catch(e){console.warn('passport count',e)}}};
- if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='updated'){try{G.toast('🔄 Naya version aa gaya — app band karke dobara kholein')}catch(x){}}});
+ if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='updated'){try{const idle=!document.getElementById('toolView').classList.contains('show')&&!document.getElementById('apGate').classList.contains('show');if(idle)setTimeout(()=>location.reload(),600);else G.toast('🔄 Naya version aa gaya — app band karke dobara kholein')}catch(x){}}});
 })();
 
 G.boot();
@@ -3863,11 +3892,11 @@ window.addEventListener("resize",positionQR);
 window.addEventListener("load",positionQR);
 $("qrIn").addEventListener("change",()=>{const f=$("qrIn").files&&$("qrIn").files[0];if(!f){uploadedQR=null;$("qrOut").style.display="none";return;}if(!f.type.startsWith("image/")){alert("QR code ki image select karein.");$("qrIn").value="";return;}const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{uploadedQR=img;$("qrOut").src=reader.result;positionQR();$("qrOut").style.display="block";};img.onerror=()=>alert("QR image open nahi ho payi.");img.src=reader.result;};reader.readAsDataURL(f);});
 ["nameIn","accIn","cifIn"].forEach(id=>$(id).addEventListener("input",update));
-function renderHDCanvasBase(){
+function renderHDCanvasBase(k){k=k||1;
  const img=$("template"); if(!img.complete||!img.naturalWidth)throw new Error("Template abhi load nahi hua.");
  // 300+ DPI A4 raster. Use the same baked image for print, PDF and image download
- const W=2480,H=3508,c=document.createElement("canvas");c.width=W;c.height=H;
- const ctx=c.getContext("2d");ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);ctx.drawImage(img,0,0,W,H);
+ const W=2480,H=3508,c=document.createElement("canvas");c.width=Math.round(W*k);c.height=Math.round(H*k);
+ const ctx=c.getContext("2d");ctx.scale(k,k);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);ctx.drawImage(img,0,0,W,H);
   // If a replacement QR is uploaded, cover only the existing QR square on the back side.
   if(uploadedQR){const qx=W*.6265,qy=H*.5165,qw=W*.255,qh=H*.178;ctx.fillStyle="#fff";ctx.fillRect(qx,qy,qw,qh);ctx.save();/* Match preview: centered square QR kept safely inside the original white frame with equal margins. */const side=Math.min(qw,qh)*.90,ix=qx+(qw-side)/2,iy=qy+(qh-side)/2;ctx.imageSmoothingEnabled=false;ctx.fillStyle="#fff";ctx.fillRect(ix,iy,side,side);ctx.drawImage(uploadedQR,ix,iy,side,side);ctx.restore();}
  ctx.fillStyle="#000";ctx.strokeStyle="#000";ctx.lineJoin="round";ctx.lineWidth=4.2;ctx.textBaseline="middle";
@@ -3941,9 +3970,9 @@ function __admData(){try{return window.parent.apAdminData||null}catch(e){return 
 function __admCrop(k){const D=__admData();return D&&D.crops&&D.crops[k]||null}
 function __cropFrac(c,r){const o=document.createElement("canvas");o.width=Math.max(1,Math.round(r.w*c.width));o.height=Math.max(1,Math.round(r.h*c.height));o.getContext("2d").drawImage(c,Math.round(r.x*c.width),Math.round(r.y*c.height),o.width,o.height,0,0,o.width,o.height);return o}
 async function __btnRun(btn,fn){const old=btn.textContent;btn.disabled=true;btn.textContent="Saving HD...";try{await fn();btn.textContent="\u2713 Card save ho gaya";__toast("\u2713 Card save ho gaya! Print Manager me dekhein.");}catch(e){btn.textContent=old;__toast("Save nahi hua: "+(e.message||e),true);}setTimeout(()=>{btn.disabled=false;btn.textContent=old;},2400);}
-function __ippbCrops(){const full=renderHDCanvasBase(),W=full.width,H=full.height,R=[[.08858,.09679,.82200,.37025],[.08606,.50059,.82620,.34768]];
- return R.map(r=>{const c=document.createElement("canvas");c.width=2048;c.height=1292;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,2048,1292);x.imageSmoothingQuality="high";x.drawImage(full,r[0]*W,r[1]*H,r[2]*W,r[3]*H,0,0,2048,1292);return c;});}
-let __pt=null;function __ippbPreview(){clearTimeout(__pt);__pt=setTimeout(()=>{try{const [f,b]=__ippbCrops();[["pxF",f],["pxB",b]].forEach(([id,c])=>{const t=document.getElementById(id);t.width=1100;t.height=Math.round(1100*c.height/c.width);t.getContext("2d").drawImage(c,0,0,t.width,t.height);});}catch(e){}},300);}
+function __ippbCrops(k,ow){ow=ow||2048;const oh=Math.round(ow*1292/2048);const full=renderHDCanvasBase(k),W=full.width,H=full.height,R=[[.08858,.09679,.82200,.37025],[.08606,.50059,.82620,.34768]];
+ return R.map(r=>{const c=document.createElement("canvas");c.width=ow;c.height=oh;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,ow,oh);x.imageSmoothingQuality="high";x.drawImage(full,r[0]*W,r[1]*H,r[2]*W,r[3]*H,0,0,ow,oh);return c;});}
+let __pt=null;function __ippbPreview(){clearTimeout(__pt);__pt=setTimeout(()=>{try{const [f,b]=__ippbCrops(.5,1100);[["pxF",f],["pxB",b]].forEach(([id,c])=>{const t=document.getElementById(id);t.width=1100;t.height=Math.round(1100*c.height/c.width);t.getContext("2d").drawImage(c,0,0,t.width,t.height);});}catch(e){}},120);}
 ["nameIn","accIn","cifIn","qrIn"].forEach(id=>{const e=document.getElementById(id);e.addEventListener("input",__ippbPreview);e.addEventListener("change",()=>{__ippbPreview();setTimeout(__ippbPreview,800);});});
 document.getElementById("clearBtn").addEventListener("click",()=>setTimeout(__ippbPreview,100));
 window.addEventListener("load",()=>{__ippbPreview();setTimeout(__ippbPreview,800);});__ippbPreview();

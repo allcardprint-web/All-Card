@@ -3153,9 +3153,6 @@ canvas{display:block;width:85.6mm;height:53.98mm;background:none;border-radius:0
 
 <label for="qrUpload">QR Image अपलोड करें</label>
 <input type="file" id="qrUpload" accept="image/*">
-<div class="buttons">
-<button type="button" class="alt" id="removeQr" disabled>QR हटाएँ</button>
-</div>
 <p class="hint">किसी भी साइज़ का QR डालें, वह अपने-आप पीछे के सफेद डिब्बे के साइज़ में लंबा होकर फिट हो जाएगा। QR एक बार अपलोड करने पर सेव रहता है।</p>
 
 <hr class="sep">
@@ -3260,7 +3257,7 @@ const BACK = {
     signX: 0.33, signW: 0.53,           // हस्ताक्षर पट्टी
     signY: 0.37, signH: 0.14,
     boxX: 0.86, boxW: 0.109,            // CVV डिब्बा
-    qrX: 0.06, qrY: 0.370,              // QR वाला सफेद डिब्बा
+    qrX: 0.06, qrY: 0.340,              // QR वाला सफेद डिब्बा
     qrW: 0.223, qrH: 0.416
 };
 
@@ -3407,7 +3404,6 @@ function trimQrMargins(img){
 
 // QR को डिब्बे के पूरे साइज़ में लंबा/चौड़ा करके भरना (चारों तरफ हल्का सफेद किनारा)
 function drawQr(ctx, w, h){
-    if(!qr.canvas) return;
     const bx = w * BACK.qrX, by = h * BACK.qrY, bw = w * BACK.qrW, bh = h * BACK.qrH;
     const pad = bw * 0.035;
     const dw = bw - 2 * pad, dh = bh - 2 * pad;
@@ -3416,6 +3412,7 @@ function drawQr(ctx, w, h){
     ctx.fillStyle = '#ffffff';
     roundRect(ctx, bx, by, bw, bh, bw * 0.015);
     ctx.fill();
+    if(!qr.canvas){ ctx.restore(); return; }   // QR से पहले भी सफेद डिब्बा दिखे
     // बड़ा करते समय QR के किनारे तेज़ रहें, छोटा करते समय स्मूद
     ctx.imageSmoothingEnabled = dw < qr.canvas.width || dh < qr.canvas.height;
     ctx.drawImage(qr.canvas, bx + pad, by + pad, dw, dh);
@@ -3655,7 +3652,6 @@ function setQrImage(img){
         try{ qr.canvas = trimQrMargins(img); }     // QR के आस-पास का फालतू सफेद हिस्सा हटाएँ
         catch(err){ qr.canvas = plainCanvas(img); }
     }
-    $('removeQr').disabled = !qr.canvas;
 }
 
 $('qrUpload').addEventListener('change', async e => {
@@ -3681,11 +3677,6 @@ $('qrUpload').addEventListener('change', async e => {
     }
 });
 
-$('removeQr').addEventListener('click', async () => {
-    setQrImage(null);
-    drawSide('back');
-    try{ await deleteSavedQr(); }catch(err){}
-});
 
 /* ---------- Events ---------- */
 document.querySelectorAll('.segbtn').forEach(b => b.addEventListener('click', () => switchSide(b.dataset.side)));

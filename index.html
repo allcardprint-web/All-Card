@@ -3257,8 +3257,8 @@ const BACK = {
     signX: 0.33, signW: 0.53,           // हस्ताक्षर पट्टी
     signY: 0.37, signH: 0.14,
     boxX: 0.86, boxW: 0.109,            // CVV डिब्बा
-    qrX: 0.05, qrY: 0.325,              // QR वाला सफेद डिब्बा
-    qrW: 0.245, qrH: 0.416
+    qrX: 0.05, qrY: 0.322,              // QR वाला सफेद डिब्बा
+    qrW: 0.245, qrH: 0.419
 };
 
 /* ---------- सफेद/खाली किनारा काटना ---------- */
@@ -3410,7 +3410,7 @@ function drawQr(ctx, w, h){
 
     ctx.save();
     ctx.fillStyle = '#ffffff';
-    roundRect(ctx, bx, by, bw, bh, bw * 0.05);
+    roundRect(ctx, bx, by, bw, bh, bw * 0.06);
     ctx.fill();
     if(!qr.canvas){ ctx.restore(); return; }   // QR से पहले भी सफेद डिब्बा दिखे
     // बड़ा करते समय QR के किनारे तेज़ रहें, छोटा करते समय स्मूद
@@ -3906,13 +3906,7 @@ async function init(){
         setQrImage(dImg);
         drawSide('back');
     }catch(err){}
-    try{
-        const savedQr = (await storeAll()).filter(r => r.side === 'qr').sort((a, b) => b.added - a.added)[0];
-        if(savedQr){
-            setQrImage(await loadBlob(savedQr.blob));
-            drawSide('back');
-        }
-    }catch(err){}
+    try{ await deleteSavedQr(); }catch(err){}   // पुराना सेव QR हटाएँ ताकि डिफ़ॉल्ट QR ही दिखे
     for(const side of ['front', 'back']){
         let last = null;
         try{

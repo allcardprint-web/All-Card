@@ -542,6 +542,71 @@ A$('admBody').addEventListener('click',e=>{const b=e.target.closest('button[data
 A$('admBody').addEventListener('change',e=>{const i=e.target;if(!i.matches||!i.matches('input[type=file][data-act]'))return;if(admTab==='aad')admAadFile(i);else if(admTab==='atm')admAtmFile(i)});
 const __ma=document.getElementById('menuAdmin');if(__ma)__ma.addEventListener('click',e=>{e.preventDefault();openAdmin()});
 
+
+/* ===== Per-section THEMES (har service ka alag colour + design). Sirf screen par lagta hai, print/PDF par asar nahi ===== */
+(function(){
+const rgba=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
+/* a=main colour, d=dark, l=dark-mode light, t=page tint, i=icon, br=icon shape, v=var-based tool, hs=heading style, box=card accent, pill=primary btn radius */
+const TH={
+ aadhaar :{a:'#6d3fd6',d:'#4a22a8',l:'#a78bfa',t:'#f4f0fe',i:'🪪',br:'12px',box:'top',  hs:'badge',pb:'10px',grad:1},
+ voter   :{a:'#b02a78',d:'#7d1a54',l:'#f0a0cd',t:'#fdf1f7',i:'🗳️',br:'50%', box:'left', hs:'badge',pb:'8px', grad:0},
+ pan     :{a:'#1c64d8',d:'#0b3f9c',l:'#7aa8f5',t:'#edf4ff',i:'▤', br:'8px', box:'shadow',hs:'line', pb:'8px', grad:1,v:1},
+ manualpan:{a:'#0e7490',d:'#0a4f66',l:'#67c3dc',t:'#ebf6f9',i:'✍️',br:'10px',box:'top',  hs:'none', pb:'12px',grad:1},
+ apaar   :{a:'#0f9d58',d:'#0a6b3a',l:'#4fd18b',t:'#eefaf3',i:'🎓',br:'50%', box:'shadow',hs:'badge',pb:'999px',grad:1,v:1},
+ ayushman:{a:'#d6336c',d:'#9c1f4b',l:'#f783ac',t:'#fff1f5',i:'🌿',br:'14px',box:'top',  hs:'badge',pb:'14px',grad:1,v:1},
+ atm     :{a:'#4338ca',d:'#27226f',l:'#a5a0ff',t:'#eff0fb',i:'💳',br:'10px',box:'shadow',hs:'badge',pb:'10px',grad:1},
+ ippb    :{a:'#0b8f7a',d:'#075e50',l:'#4fd1bc',t:'#ecf8f5',i:'🏦',br:'12px',box:'left', hs:'badge',pb:'10px',grad:0},
+ kisan   :{a:'#4d9a1f',d:'#2f6a12',l:'#8fd45a',t:'#f3faec',i:'🌾',br:'50%', box:'left', hs:'badge',pb:'12px',grad:1,v:1},
+ passport:{a:'#e8590c',d:'#a63d06',l:'#ff9f5a',t:'#fff5ec',i:'📷',br:'12px',box:'top',  hs:'badge',pb:'999px',grad:1,v:1}
+};
+window.apThemes=TH;
+window.apThemeCss=key=>{
+  const T=TH[key];if(!T)return '';
+  const a=T.a,d=T.d,t=T.t,G='linear-gradient(135deg,'+a+','+d+')',P=T.grad?G:a,ra=n=>rgba(a,n);
+  let c='@media screen{';
+  /* heading */
+  if(T.hs==='badge')c+='h1{'+(T.v?'':'color:'+d+';')+'}h1::before{content:"'+T.i+'";display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:'+T.br+';background:'+G+';color:#fff;font-size:17px;margin-right:10px;vertical-align:middle;box-shadow:0 3px 10px '+ra(.35)+'}';
+  else if(T.hs==='line')c+='h1{padding-bottom:8px;border-bottom:3px solid '+a+'}';
+  /* colour variables for var-based tools */
+  if(T.v)c+=':root{--ac:'+a+';--bg:'+t+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ac:'+T.l+'}}:root[data-theme="dark"]{--ac:'+T.l+'}.box h2{color:var(--ac)}';
+  /* card accent */
+  const bx=T.box==='top'?'border-top:3px solid '+a+';':T.box==='left'?'border-left:4px solid '+a+';':'box-shadow:0 6px 22px '+ra(.14)+';';
+  const sel={aadhaar:'.c',voter:'.box',pan:'.box',manualpan:'.panel,details',apaar:'.box',ayushman:'.box',atm:'.panel',ippb:'.panel',kisan:'.box',passport:'.box'}[key];
+  c+=sel+'{'+bx+'}';
+  /* common: inputs focus + shared px-* buttons */
+  c+='input:focus,select:focus,textarea:focus{border-color:'+a+';box-shadow:0 0 0 3px '+ra(.18)+'}';
+  c+='.px-btn{background:'+P+'}.px-btn.s{background:transparent;color:'+a+';border:1px solid '+a+'}';
+  c+='button{transition:filter .15s,transform .1s}button:active:not(:disabled){transform:scale(.985)}';
+  /* tool specific */
+  const X={
+   aadhaar:'body{background:'+t+'}button{background:'+P+';border-radius:'+T.pb+'}button.o{background:#fff;color:'+a+';border:1px solid '+a+'}a.d{color:'+a+';border-color:'+a+'}',
+   voter:'body{background:'+t+'}.drop{border-color:'+a+'}.drop.over{background:'+ra(.1)+';border-color:'+d+'}button{background:'+a+';border-radius:'+T.pb+'}button.alt{background:'+d+'}#status{background:'+ra(.1)+';color:'+d+'}.progress{background:'+ra(.2)+'}.progress span{background:'+a+'}',
+   pan:'.box{border-radius:10px}.drop{border-color:var(--ac);background:'+ra(.05)+';color:'+d+'}.btn:not(.s){background:'+G+';border-radius:'+T.pb+'}',
+   manualpan:':root{--navy:'+d+';--navy2:'+a+'}body{background:'+t+'}.top{background:linear-gradient('+t+' 82%,rgba(0,0,0,0))}.seg{background:'+ra(.12)+'}.a4bar button{background:'+a+'}.act.p{background:'+G+'}',
+   apaar:'.box{border-radius:16px}.drop{background:'+ra(.05)+';border-radius:16px}button.p{background:'+G+';border-radius:'+T.pb+'}',
+   ayushman:'.drop{border-radius:18px;background:'+ra(.05)+'}button.p{background:'+G+';border-radius:'+T.pb+'}',
+   atm:'body{background:'+t+'}button{background:'+d+'}.seg button.active{background:'+d+'}.pv.active canvas{outline:3px solid '+a+'}.pv.active figcaption{color:'+d+'}.panel{border-radius:14px}',
+   ippb:'body{background:'+t+'}button{background:'+a+'}input{outline-color:'+a+'}.sub{color:'+d+'}',
+   kisan:'.up{background:'+ra(.05)+'}button.p{background:'+G+';border-radius:'+T.pb+'}',
+   passport:'.box{border-radius:16px}.drop{background:'+ra(.06)+';border-radius:16px}button.p{background:'+G+';border-radius:'+T.pb+'}'
+  }[key]||'';
+  return c+X+'}';
+};
+window.apThemeInject=(key,src)=>{
+  try{const css=window.apThemeCss(key);if(!css)return src;
+    const tag='<style id="apTheme">'+css+'</style>',i=src.indexOf('</head>');
+    return i>-1?src.slice(0,i)+tag+src.slice(i):tag+src;
+  }catch(e){return src}
+};
+/* bahar ka Back/Title bar bhi service ke colour me */
+(function(){
+  let css='';
+  Object.keys(TH).forEach(k=>{const T=TH[k];
+    css+='.toolView[data-theme="'+k+'"]{background:'+T.t+'}.toolView[data-theme="'+k+'"] .toolBar{background:linear-gradient(110deg,'+T.d+','+T.a+');box-shadow:0 3px 12px '+rgba(T.d,.35)+'}';});
+  css+='#printManagerView .toolBar{background:linear-gradient(110deg,#27226f,#4338ca)}#printManagerView .pmContent{background:#f1f1fb}#printManagerView .pmHint{border-left:4px solid #4338ca}#printManagerView .pmBar{background:#e4e3f8}#printManagerView .pmBar span{color:#4338ca}#printManagerView .pmBar button{color:#4338ca}#printManagerView .pmBar .pmGo{background:#4338ca;color:#fff}#printManagerView .pmBar .pmDanger{background:#dc2626;color:#fff}';
+  const st=document.createElement('style');st.id='apToolbarThemes';st.textContent=css;document.head.appendChild(st);
+})();
+})();
 let currentTool=null;
 let ippbSource="";/* ippb -> tools/ippb.html (on-demand) */
 let panSource="";/* pan -> tools/pan.html (on-demand) */
@@ -552,7 +617,8 @@ function showTool(which, push=true){
   // Har open par naya source load karein: purane tool ka iframe/state reuse na ho.
   toolFrame.srcdoc='<body style="font-family:Arial;padding:40px;text-align:center;color:#0755c9"><h3>Loading…</h3></body>';
   const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport','ippb-atm':'atm'}[which]||'ippb';
-  window.apLoadTool(__tf).then(src=>{if(currentTool===which)toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(src):src)}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
+  toolView.setAttribute('data-theme',__tf);
+  window.apLoadTool(__tf).then(src=>{if(currentTool===which)const __s=window.apThemeInject?window.apThemeInject(__tf,src):src;toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(__s):__s)}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
   toolView.classList.add('show');toolView.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
   if(push)history.pushState({allPrintTool:which},'', '#'+which);

@@ -618,7 +618,7 @@ function showTool(which, push=true){
   toolFrame.srcdoc='<body style="font-family:Arial;padding:40px;text-align:center;color:#0755c9"><h3>Loading…</h3></body>';
   const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport','ippb-atm':'atm'}[which]||'ippb';
   toolView.setAttribute('data-theme',__tf);
-  window.apLoadTool(__tf).then(src=>{if(currentTool===which)const __s=window.apThemeInject?window.apThemeInject(__tf,src):src;toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(__s):__s)}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
+  window.apLoadTool(__tf).then(src=>{if(currentTool===which){const __s=window.apThemeInject?window.apThemeInject(__tf,src):src;toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(__s):__s)}}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
   toolView.classList.add('show');toolView.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
   if(push)history.pushState({allPrintTool:which},'', '#'+which);

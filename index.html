@@ -127,6 +127,10 @@
 .apPopBox button{width:100%;margin-top:10px;padding:12px;border:0;border-radius:10px;font-weight:800;font-size:15px;background:#0755c9;color:#fff;cursor:pointer}
 .apPopBox button.s{background:#e8f1ff;color:#0755c9}
 
+</style><style id="apCompact">
+.service{min-height:124px!important;padding:12px 14px!important}.title{margin-bottom:5px!important}.sub{line-height:1.35!important}
+@media(max-width:620px){.grid{gap:8px!important}.service{min-height:100px!important;padding:8px 9px!important;border-radius:14px!important}.glyph{font-size:36px!important}.title{font-size:15.5px!important;line-height:1.12!important;margin-bottom:3px!important}.sub{font-size:10.5px!important;line-height:1.3!important}.arrow{width:24px!important;height:24px!important;font-size:20px!important}}
+@media screen and (min-width:900px){.grid{gap:16px!important}.service{min-height:112px!important;padding:10px 14px!important}.glyph{font-size:clamp(34px,3.6vw,50px)!important}}
 </style></head><body><div id="apGate" class="show"><div class="gWrap"><div class="gCard" id="apGateBox"><div class="gHead"><div class="gT">Loading…</div></div></div></div></div>
 <div id="apFixed"><header class="top"><button class="menuBtn" id="menuBtn" aria-label="Open menu">☰</button><div class="brand"><div class="brandline"><span class="printer">▣</span><span class="all">All</span> <span class="print">Card</span></div><div class="tag">Digital Services　|　Easy　|　Fast　|　Reliable</div></div></header></div><nav class="drawer" id="drawer"><div id="apMenu"></div><div hidden><a id="menuAadhaar"></a><a id="menuVoter"></a><a id="menuIppb"></a></div></nav><div id="apBg"></div>
 <main class="wrap"><section class="grid" id="services">
@@ -1183,7 +1187,9 @@ G.boot=async()=>{document.getElementById('apGate').addEventListener('click',G.cl
  const had=!!SB.sess();let cp=null,cu=null;try{const oo=JSON.parse(localStorage.getItem('ap_offline')||'null'),ss=SB.sess();cp=oo&&Array.isArray(oo.perms)?oo.perms:null;let c=null;try{c=JSON.parse(localStorage.getItem('ap_ucache')||'null')}catch(e){}
   cu=(ss&&c&&c.uid===ss.uid&&c.expiry)?c:((ss&&oo&&oo.uid===ss.uid&&oo.u&&oo.u.expiry)?oo.u:null)}catch(e){}
  const inst=had&&!!cp;if(inst){G.perms=new Set(cp);try{G.applyPerms()}catch(e){}
-  if(cu){try{SB.fix(cu);G.cur=cu;G.bar(cu)}catch(e){}}   /* naam / mobile / expiry pehle se saved dikhe — online check ka intezar nahi */
+  if(cu){try{SB.fix(cu);G.cur=cu;G.bar(cu)}catch(e){}}
+  try{U.drawer()}catch(e){}   /* offline me bhi hamburger menu ke sare option dikhein */
+  /* naam / mobile / expiry pehle se saved dikhe — online check ka intezar nahi */
   G.show(false)}/* login + saved access ho to app turant khule, check peeche chale */
  try{const r=await Promise.race([SB.check(),new Promise((_,j)=>setTimeout(()=>j(new Error('timeout')),4000))]);
   if(r.ok){G.enter(r.u);return}if(r.expired){G.show(true);G.exp={name:r.u.name,mobile:r.u.mobile,email:r.u.email,expiry:r.u.expiry};G.reg.name=r.u.name;G.reg.mobile=r.u.mobile;G.reg.email=r.u.email||'';SB.clearSess();G.render('expired');return}
@@ -1210,7 +1216,9 @@ U.drawer=()=>{const u=G.cur,m=document.getElementById('apMenu');if(!m)return;
  const it=(k,ic,t)=>'<button type="button" class="dI" data-u="'+k+'"><span>'+ic+'</span>'+U.t(t)+'</button>';
  m.innerHTML='<div class="dHead"><div class="dBrand">▣ <span>All</span> <span class="y">Print</span></div>'+(u?'<div class="dUser">👤 '+pmEsc(u.name)+'<br><small>'+pmEsc(u.uid)+'</small></div>':'')+'</div>'+
   it('dash','🏠','dash')+it('profile','👤','profile')+it('lang','🌐','lang')+it('contact','📞','contact')+it('wa','💬','wa')+it('help','🛟','help')+it('pwd','🔑','pwd')+it('renew','🔁','renew')+it('terms','📄','terms')+(window.apInstalled&&!window.apInstalled()?'<button type="button" class="dI" data-u="install"><span>📲</span>Install App</button>':'')};
+try{U.drawer()}catch(e){}   /* page khulte hi menu bhar do (offline / login se pehle bhi) */
 U.closeDrawer=()=>{const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open')};
+(()=>{const NET=['profile','contact','wa','help','pwd','renew'];let a0=null;const wrap=()=>{if(!U.act||U.act.__w||U.act===a0)return;a0=U.act;U.act=async function(b){const k=b&&b.dataset&&b.dataset.u;if(NET.includes(k)&&navigator.onLine===false){U.closeDrawer();G.toast('📡 Internet nahi hai — online hone par ye option chalega');return}try{return await a0.call(this,b)}catch(e){G.toast('📡 Internet check karein, dobara try karein')}};U.act.__w=1};setTimeout(wrap,0);document.addEventListener('DOMContentLoaded',wrap);window.addEventListener('load',wrap)})();
 U.act=async b=>{const a=b.dataset.u;
  try{switch(a){
   case 'close':U.close();break;
@@ -6131,22 +6139,36 @@ button{
 .modal-body h4:first-of-type{margin-top:0;}
 .modal-effective{color:#9fc4b0;font-size:12.5px;margin-bottom:10px;}
 </style>
+<style id="apLight">
+body.theme-green{background:#eefaf3;color:#16281f;padding:12px 12px 0}
+body.theme-green .field-icon svg{stroke:#0a6b47!important;color:#0a6b47}
+body.theme-green .mode-badge{background:#fff;color:#0a6b47;border:1px solid #d9f0e3;border-top:3px solid #16b873;box-shadow:0 2px 10px rgba(20,80,50,.08);border-radius:14px}
+body.theme-green .calc-card,body.theme-green .feature-row,body.theme-green .about-card{background:#fff;border:1px solid #d9f0e3;border-top:3px solid #16b873;box-shadow:0 2px 10px rgba(20,80,50,.08);border-radius:14px}
+body.theme-green .field-icon{background:#eefaf3;border:1px solid #cdeedb;color:#0a6b47}
+body.theme-green label{color:#234a37}
+body.theme-green input,body.theme-green select{background:#f6fdf9;border:1.5px solid #cdeedb;color:#16281f;color-scheme:light}
+body.theme-green input::placeholder{color:#9fc4b0}
+body.theme-green input:focus,body.theme-green select:focus{outline:none;border-color:#16b873;box-shadow:0 0 0 3px rgba(22,184,115,.18)}
+body.theme-green .date-pick-icon{color:#6b8a78}
+body.theme-green .rate-pill{background:#f6fdf9;border:1.5px solid #cdeedb;color:#4b6b58}
+body.theme-green .rate-pill.active{background:linear-gradient(135deg,#16b873,#0a6b47);color:#fff;border-color:#16b873}
+body.theme-green .feature-circle{background:#eefaf3!important}
+body.theme-green .feature-title{color:#16281f}
+body.theme-green .feature-sub{color:#4b6b58}
+body.theme-green .about-card h3{color:#16281f}
+body.theme-green .about-card p{color:#234a37}
+body.theme-green .about-divider{background:#cdeedb}
+body.theme-green .about-hr{border-top:1px solid #d9f0e3}
+body.theme-green .about-feature-circle{background:#eefaf3}
+body.theme-green .about-feature-label{color:#234a37}
+body.theme-green .about-badge{background:#eefaf3;border-color:#cdeedb}
+body.theme-green .about-badge b{color:#16281f}
+body.theme-green .about-badge .about-version{color:#4b6b58}
+body.theme-green .side-drawer:not(.open){box-shadow:none;visibility:hidden}
+</style>
 </head>
 
-<body class="theme-green dark-mode">
-
-<div class="topbar">
-<div class="topbar-top">
-<div class="topbar-left">
-<span class="hamburger" onclick="openDrawer()">☰</span>
-<div>
-<div class="app-title">Interest Calculator <span class="pro-tag">Pro</span></div>
-<div class="app-subtitle"><span data-i18n="subtitle">Advanced Financial Planning &amp; Analysis</span> <span>✅</span></div>
-</div>
-</div>
-<div class="avatar-badge" id="apUsrBadge" title="">U</div>
-</div>
-</div>
+<body class="theme-green">
 
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="side-drawer" id="sideDrawer">
@@ -6208,28 +6230,7 @@ button{
 </div>
 </div>
 
-<div class="welcome-card">
-<div class="welcome-left">
-<div class="welcome-avatar">
-<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
-</div>
-<div class="welcome-text">
-<div class="welcome-greeting" data-i18n="welcome_greeting">Welcome back,</div>
-<div class="welcome-name" id="apUsrWelcome">User</div>
-<div class="welcome-tagline" data-i18n="welcome_tagline">Smart Calculations, Better Decisions</div>
-</div>
-</div>
-<div class="welcome-graph">
-<svg width="80" height="62" viewBox="0 0 100 80" fill="none">
-<rect x="10" y="50" width="12" height="25" rx="2" fill="#ffffff" opacity="0.22"/>
-<rect x="30" y="38" width="12" height="37" rx="2" fill="#ffffff" opacity="0.28"/>
-<rect x="50" y="24" width="12" height="51" rx="2" fill="#ffffff" opacity="0.32"/>
-<rect x="70" y="10" width="12" height="65" rx="2" fill="#ffffff" opacity="0.38"/>
-<polyline points="10,55 35,35 55,45 90,8" stroke="#f7c948" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<polygon points="90,8 78,10 88,18" fill="#f7c948"/>
-</svg>
-</div>
-</div>
+
 
 <!@@-- ===== CALCULATOR PAGE ===== -->
 <div id="page-calculator" class="page active">
@@ -7275,13 +7276,13 @@ updateModeUI();
 
 // ---- Dark mode only (light mode removed) ----
 function applyTheme(mode){
-document.body.classList.add("dark-mode");
+document.body.classList.remove("dark-mode");
 let metaTheme = document.querySelector('meta[name="theme-color"]');
-if(metaTheme) metaTheme.setAttribute("content", "#060a16");
-localStorage.setItem("ck2026_theme", "dark");
+if(metaTheme) metaTheme.setAttribute("content", "#eefaf3");
+
 }
 (function(){
-applyTheme("dark");
+applyTheme("light");
 })();
 
 // ---- PWA: service worker registration + install prompt ----
@@ -7321,7 +7322,6 @@ if(btn) btn.style.display="none";
 
 </scr@@ipt>
 
-<script>(function(){var n=(window.__apUser||"User")+"";var ini=n.trim().split(/\s+/).map(function(w){return w[0]}).join("").slice(0,2).toUpperCase()||"U";function set(){var a=document.getElementById("apUsrBadge"),b=document.getElementById("apUsrDrawer"),c=document.getElementById("apUsrWelcome");if(a){a.textContent=ini;a.title=n}if(b)b.textContent=n;if(c)c.textContent=n}set();document.addEventListener("DOMContentLoaded",set);window.addEventListener("load",set)})();</scr@@ipt>
 </body>
 </html>
 </script>

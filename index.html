@@ -763,7 +763,10 @@ SB.copy=async t=>{try{await navigator.clipboard.writeText(t);return true}catch(e
 /* ---------- Access control: kaun sa user kaun sa section chala sakta hai ---------- */
 SB.SECS=[{k:'aadhaar',n:'🪪 Aadhaar Services'},{k:'pan',n:'▤ PAN Card Services',sub:[{k:'pan_uti',n:'UTI PAN'},{k:'pan_nsdl',n:'NSDL PAN'},{k:'pan_manual',n:'Manual PAN'}]},{k:'voter',n:'🗳️ Voter ID Services'},{k:'apaar',n:'🎓 APAAR ID Services'},{k:'ayushman',n:'🌿 Ayushman Card'},{k:'ippb',n:'🏦 IPPB Passbook'},{k:'ippb-atm',n:'💳 IPPB ATM Card'},{k:'print-manager',n:'🖨️ Print Manager'},{k:'abha',n:'ABHA Card (jald aayega)'},{k:'eshram',n:'E-Shram & Labour Card (jald aayega)'},{k:'dl',n:'Driving Licence & RC (jald aayega)'},{k:'farmer',n:'🌾 Farmer / Kisan Card'},{k:'passport',n:'📷 Passport Photo'},{k:'photoedit',n:'📝 Photo & PDF Text Editor'},{k:'interest',n:'🧮 Interest Calculator Pro'}];
 SB.ALLK=SB.SECS.flatMap(x=>[x.k].concat((x.sub||[]).map(y=>y.k))).concat(['apaaredit']);
-SB.perms=(u,d)=>Array.isArray(u.perms)?u.perms:(Array.isArray(d.settings.defPerms)?d.settings.defPerms:SB.ALLK);
+SB.NEWK=['photoedit','interest'];/* naye sections: purani saved list me bhi default ON (jab tak admin dobara save na kare) */
+SB.fixP=(l,v)=>v>=2?l:l.concat(SB.NEWK.filter(k=>!l.includes(k)));
+SB.defP=d=>{const s=(d&&d.settings)||{};return Array.isArray(s.defPerms)?SB.fixP(s.defPerms,s.defPermsV):SB.ALLK};
+SB.perms=(u,d)=>Array.isArray(u.perms)?SB.fixP(u.perms,u.permsV):SB.defP(d);
 SB.permBoxes=sel=>SB.SECS.map(x=>'<label class="sbPm"><input type="checkbox" class="sbPerm" value="'+x.k+'" '+(sel.includes(x.k)?'checked':'')+'> '+x.n+'</label>'+(x.sub?'<div class="sbPmSub">'+x.sub.map(y=>'<label class="sbPm"><input type="checkbox" class="sbPerm" value="'+y.k+'" '+(sel.includes(y.k)?'checked':'')+'> '+y.n+'</label>').join('')+'</div>':'')).join('');
 SB.permCount=(u,d)=>SB.perms(u,d).filter(k=>SB.SECS.some(x=>x.k===k)).length+'/'+SB.SECS.length;
 
@@ -913,7 +916,7 @@ async function subsSetTab(){const d=await SB.get(),s=d.settings;
   '<label>Expiry se kitne din pehle user ko warning dikhayein</label><input type="text" id="sWarn" inputmode="numeric" value="'+s.warn+'">'+
   '<label>Terms, Refund & Support Policy (registration me dikhegi)</label><textarea id="sTerms" rows="7">'+pmEsc(s.terms)+'</textarea>'+
   '<div class="admRow"><button type="button" class="go" data-sb="setsave">💾 Save Settings</button></div></div>'+
-  '<div class="admCard"><h3>🔐 Naye user ke default sections</h3><p class="admHint">Naya user banne par ye sections khulenge. Kisi ek user ka access Users → Manage me alag se badal sakte hain.</p><div class="sbPmBox" id="sbDefPerm">'+SB.permBoxes(Array.isArray(s.defPerms)?s.defPerms:SB.ALLK)+'</div><div class="admRow"><button type="button" class="go" data-sb="dpsave">💾 Default save</button></div></div>'+
+  '<div class="admCard"><h3>🔐 Naye user ke default sections</h3><p class="admHint">Naya user banne par ye sections khulenge. Kisi ek user ka access Users → Manage me alag se badal sakte hain.</p><div class="sbPmBox" id="sbDefPerm">'+SB.permBoxes(SB.defP({settings:s}))+'</div><div class="admRow"><button type="button" class="go" data-sb="dpsave">💾 Default save</button></div></div>'+
   '<div class="admCard"><h3>📦 Backup</h3><p class="admHint">Users, plans, QR aur requests ka poora backup. (Ye data "Publish / Backup" wale admin-data.json me nahi jata.)</p><div class="admRow"><button type="button" class="go" data-sb="exp">⬇ Subscription backup download</button><label class="admBtn">⬆ Backup import<input type="file" accept="application/json,.json" hidden id="sbImp"></label></div></div>'+
   '<div class="admCard"><h3>🧪 Testing (localhost)</h3><p class="admHint">Is browser ka Device ID: <b>'+SB.devId()+'</b><br>Ek hi browser me "dusra device" test karne ke liye neeche button se Device ID badal dein — phir usi ID se login karke dekhein ki block hota hai ya nahi.</p><div class="admRow"><button type="button" data-sb="devnew">🔄 Is browser ka Device ID badlein</button></div></div>'+
   '<div class="admCard"><h3>⚠️ Subscription data reset</h3><p class="admHint">Saare users, requests aur plans hat jayenge.</p><div class="admRow"><button type="button" class="danger" data-sb="sreset">↩ Sab reset</button></div></div>'}
@@ -979,9 +982,9 @@ SB.act=async b=>{const a=b.dataset.sb,id=b.dataset.id;
    await SB.mutUser(id,u=>{u.ph=SB.hash(u.uid,v);u.devs.forEach(x=>x.tok=null);SB.log(u,'Password badla (user logout)')},'✓ Password badal gaya — user ko dobara login karna hoga');break}
   case 'pwmob':await SB.mutUser(id,u=>{u.ph=SB.hash(u.uid,u.uid);u.devs.forEach(x=>x.tok=null);SB.log(u,'Password = mobile number')},'✓ Password ab mobile number hai');break;
   case 'pmall':case 'pmnone':document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=(a==='pmall'));break;
-  case 'pmdef':{const d=await SB.get(),L=Array.isArray(d.settings.defPerms)?d.settings.defPerms:SB.ALLK;document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=L.includes(i.value));break}
-  case 'pmsave':{const L=[...document.querySelectorAll('#sbModal .sbPerm:checked')].map(i=>i.value);await SB.mutUser(id,u=>{u.perms=L;SB.log(u,'Access badla: '+L.filter(k=>SB.SECS.some(x=>x.k===k)).length+' section')},'✓ Access save ho gaya');break}
-  case 'dpsave':{const L=[...document.querySelectorAll('#sbDefPerm .sbPerm:checked')].map(i=>i.value);await SB.tx(async d=>{d.settings.defPerms=L});admToast('✓ Default access save ho gaya');break}
+  case 'pmdef':{const d=await SB.get(),L=SB.defP(d);document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=L.includes(i.value));break}
+  case 'pmsave':{const L=[...document.querySelectorAll('#sbModal .sbPerm:checked')].map(i=>i.value);await SB.mutUser(id,u=>{u.perms=L;u.permsV=2;SB.log(u,'Access badla: '+L.filter(k=>SB.SECS.some(x=>x.k===k)).length+' section')},'✓ Access save ho gaya');break}
+  case 'dpsave':{const L=[...document.querySelectorAll('#sbDefPerm .sbPerm:checked')].map(i=>i.value);await SB.tx(async d=>{d.settings.defPerms=L;d.settings.defPermsV=2});admToast('✓ Default access save ho gaya');break}
   case 'maxd':await SB.mutUser(id,u=>{u.maxDev=+b.dataset.n;if(u.devs.length>u.maxDev){u.devs.sort((a,c)=>(c.last||0)-(a.last||0));u.devs=u.devs.slice(0,u.maxDev)}SB.log(u,'Device limit = '+u.maxDev)},'✓ Device limit set ho gayi');break;
   case 'devdel':await SB.mutUser(id,u=>{u.devs=u.devs.filter(x=>x.id!==b.dataset.v);SB.log(u,'Admin ne ek device hataya')},'✓ Device hata diya');break;
   case 'devrst':if(!confirm('Device reset karein? User naye device se login kar payega (purana device logout ho jayega).'))return;

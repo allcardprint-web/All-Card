@@ -233,26 +233,29 @@
 .admToast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#15803d;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:3000;box-shadow:0 6px 20px #0004;max-width:90%;text-align:center}
 </style>
 <style id="apBarCss">
-#apBar{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:5px 10px;background:linear-gradient(#f6faff,#eaf3ff);border-bottom:2px solid #2a6bd6;color:#0a2a6b}
-#apBar .apL{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
-#apBar .apAv{width:30px;height:30px;border-radius:50%;background:linear-gradient(#1456d8,#0a3aa8);display:grid;place-items:center;flex:none;box-shadow:0 3px 8px #0a3aa84d}
-#apBar .apNm,#apBar .apVd{display:flex;flex-direction:column;line-height:1.2;font-size:11px;min-width:0}
-#apBar .apNm b,#apBar .apVd b{font-size:12px;color:#0a2a6b;font-weight:700}
-#apBar .apNm span{color:#2f4a7d}#apBar .apOk{color:#16a34a;font-style:normal}
-#apBar .apVd span{color:#15803d;font-weight:700}
-#apBar .apDiv{width:1px;align-self:stretch;background:#b9cde9;flex:none}
-#apBar .apCal{flex:none;display:grid;place-items:center}
-#apBar.warn .apVd span{color:#d97706}
-#apBar .apR{display:flex;gap:6px;flex:none}
-#apBar .apR button{border:0;border-radius:10px;padding:6px 10px;font-weight:700;font-size:12px;color:#fff;background:linear-gradient(#1a5fe0,#0a3aa8);box-shadow:0 3px 8px #0a3aa855;display:flex;align-items:center;gap:6px}
-#apBar .apR #apRenew{background:linear-gradient(#f59e0b,#d97706)}
-@media(max-width:380px){#apBar .apCal{display:none}#apBar .apAv{width:28px;height:28px}#apBar .apNm,#apBar .apVd{font-size:10.5px}}
+body.dashImg #apBar{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:5px 10px;background:linear-gradient(#f6faff,#eaf3ff);border-bottom:2px solid #2a6bd6;color:#0a2a6b}
+body.dashImg #apBar .apL{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+body.dashImg #apBar .apAv{width:30px;height:30px;border-radius:50%;background:linear-gradient(#1456d8,#0a3aa8);display:grid;place-items:center;flex:none;box-shadow:0 3px 8px #0a3aa84d}
+body.dashImg #apBar .apNm,body.dashImg #apBar .apVd{display:flex;flex-direction:column;line-height:1.2;font-size:11px;min-width:0}
+body.dashImg #apBar .apNm b,body.dashImg #apBar .apVd b{font-size:12px;color:#0a2a6b;font-weight:700}
+body.dashImg #apBar .apNm span{color:#2f4a7d}body.dashImg #apBar .apOk{color:#16a34a;font-style:normal}
+body.dashImg #apBar .apVd span{color:#15803d;font-weight:700}
+body.dashImg #apBar .apDiv{width:1px;align-self:stretch;background:#b9cde9;flex:none}
+body.dashImg #apBar .apCal{flex:none;display:grid;place-items:center}
+body.dashImg #apBar.warn .apVd span{color:#d97706}
+body.dashImg #apBar .apR{display:flex;gap:6px;flex:none}
+body.dashImg #apBar .apR button{border:0;border-radius:10px;padding:6px 10px;font-weight:700;font-size:12px;color:#fff;background:linear-gradient(#1a5fe0,#0a3aa8);box-shadow:0 3px 8px #0a3aa855;display:flex;align-items:center;gap:6px}
+body.dashImg #apBar .apR #apRenew{background:linear-gradient(#f59e0b,#d97706)}
+@media(max-width:380px){body.dashImg #apBar .apCal{display:none}body.dashImg #apBar .apAv{width:28px;height:28px}body.dashImg #apBar .apNm,body.dashImg #apBar .apVd{font-size:10.5px}}
 body.dashImg .footer{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:1100;min-height:48px;padding:8px 10px calc(7px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:600;font-size:clamp(11px,3.3vw,16px);color:#fff;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 80' preserveAspectRatio='xMaxYMax slice'%3E%3Cpath d='M20 80C60 62 100 30 150 2V24C110 46 80 66 62 80Z' fill='%23ff9933'/%3E%3Cpath d='M62 80C80 66 110 46 150 24V46C120 62 100 72 96 80Z' fill='%23fff'/%3E%3Cpath d='M96 80C100 72 120 62 150 46V80Z' fill='%23138808'/%3E%3C/svg%3E") no-repeat right bottom/auto 100%,linear-gradient(110deg,#061d63,#0a38a6);border-radius:50% 50% 0 0/18px 18px 0 0;box-shadow:0 -4px 16px #00186040}
 body.dashImg .footer:before{content:'';position:absolute;left:0;right:0;top:-3px;height:20px;border-radius:50% 50% 0 0/100% 100% 0 0;border-top:3px solid #6db3ff;opacity:.9;pointer-events:none}
 body.dashImg .footer .fIn{display:flex;align-items:center;justify-content:center;gap:7px;padding-right:44px;text-align:left;line-height:1.15}
+body:not(.dashImg) #apBar .apNewL{display:none!important}
+body.dashImg #apBar .apOldL{display:none!important}
+body:not(.dashImg) #apBar #apOut svg{display:none}
 </style>
 <style id="apDashCss">
-.glyph img{width:100%;max-height:84px;object-fit:contain;display:block;margin:auto}
+.glyph img{width:100%;max-height:60px;object-fit:contain;display:block;margin:auto}
 body.dashImg .top{background:linear-gradient(110deg,#07227a,#0c3ba8 70%,#0b57d0)}
 body.dashImg .service{background:linear-gradient(135deg,var(--c1,#eaf2ff),var(--c2,#d3e4ff));color:#0a2a74;border:1px solid #fff;border-left:6px solid var(--ac,#1d4ed8);border-radius:22px;min-height:150px;box-shadow:0 8px 18px #1a3c8c22,inset 0 1px 0 #fff}
 body.dashImg .service:before{display:none}
@@ -261,14 +264,21 @@ body.dashImg .service .sub{color:#2c4a94}
 body.dashImg .service .arrow{background:var(--ac,#1d4ed8);color:#fff;box-shadow:0 3px 8px #0003}
 body.dashImg .service .glyph{filter:none}
 body.dashImg .wrap{padding-bottom:80px}
-body.dashImg :has(>.service){grid-auto-rows:minmax(120px,auto)}
-body.dashImg .service{height:auto}
-body.dashImg .service{height:auto!important;min-height:118px;overflow:visible;padding-top:10px;padding-bottom:10px}
-body.dashImg .service .sub{font-size:11px;line-height:1.25}
-body.dashImg .service .title{font-size:16px;line-height:1.15}
-body.dashImg .service{grid-template-columns:60px minmax(0,1fr) auto!important;gap:7px}
-body.dashImg .service .glyph{width:60px;display:flex;align-items:center;justify-content:center;font-size:48px}
-body.dashImg .service .glyph img{width:60px;height:60px;max-height:none;object-fit:contain;filter:drop-shadow(0 3px 4px #0003)}
+body.dashImg :has(>.service){grid-auto-rows:minmax(0,auto);gap:9px}
+body.dashImg .service{height:auto;min-height:86px;padding:6px 6px 6px 9px;gap:5px;border-radius:18px}
+body.dashImg .service{grid-template-columns:44px minmax(0,1fr) 22px}
+body.dashImg .service .glyph{font-size:28px}
+body.dashImg .service .glyph img{max-height:46px}
+body.dashImg .service .sub{font-size:10px}
+body.dashImg .service .title{font-size:13.5px;line-height:1.12}
+body.dashImg .service .sub{font-size:10.5px;line-height:1.22;margin-top:3px}
+body.dashImg .service .arrow{transform:scale(.85)}
+body.dashImg .service{height:auto!important;min-height:84px;overflow:visible;padding-top:6px;padding-bottom:6px}
+body.dashImg .service .sub{font-size:10px;line-height:1.2}
+body.dashImg .service .title{font-size:13.5px;line-height:1.12}
+body.dashImg .service{grid-template-columns:44px minmax(0,1fr) 22px!important;gap:5px}
+body.dashImg .service .glyph{width:44px;display:flex;align-items:center;justify-content:center;font-size:30px}
+body.dashImg .service .glyph img{width:44px;height:44px;max-height:none;object-fit:contain;filter:drop-shadow(0 3px 4px #0003)}
 </style>
 <footer class="footer" id="footer">—　Sabhi Sarkari Seva, Ek Hi Jagah　—</footer>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -1194,7 +1204,7 @@ G.bar=u=>{let bar=document.getElementById('apBar');
  if(!u){G.cur=null;if(bar)bar.remove();U.close();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open');return}
  G.cur=u;
  SB.get().then(d=>{const n=SB.left(u.expiry),warn=n<=d.settings.warn;if(!bar){bar=document.createElement('div');bar.id='apBar';document.getElementById('apFixed').appendChild(bar)}
-  bar.className=warn?'warn':'';bar.innerHTML='<div class="apL"><span class="apAv"><svg width="17" height="17" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="#fff"/><path d="M3.5 21c.6-4.6 4.2-7 8.5-7s7.9 2.4 8.5 7z" fill="#fff"/></svg></span><div class="apNm"><b>'+pmEsc(u.name)+'</b><span>('+pmEsc(u.uid)+') <i class="apOk">✔</i></span></div><span class="apDiv"></span><span class="apCal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h.1M8 17.5h2M12 17.5h2" stroke-width="2"/></svg></span><div class="apVd"><b>'+U.t('valid')+' '+SB.fmtD(u.expiry)+'</b><span>'+n+' '+U.t('left')+(warn?' ⚠️':'')+'</span></div></div><div class="apR">'+(warn?'<button type="button" id="apRenew">🔁 '+U.t('renew')+'</button>':'')+'<button type="button" id="apOut"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>'+U.t('logout')+'</button></div>';
+  bar.className=warn?'warn':'';bar.innerHTML='<div class="apL apOldL"><div>👤 <b>'+pmEsc(u.name)+'</b> ('+pmEsc(u.uid)+')</div><div>📅 '+U.t('valid')+' <b>'+SB.fmtD(u.expiry)+'</b> • '+n+' '+U.t('left')+(warn?' ⚠️':'')+'</div></div><div class="apL apNewL"><span class="apAv"><svg width="17" height="17" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="#fff"/><path d="M3.5 21c.6-4.6 4.2-7 8.5-7s7.9 2.4 8.5 7z" fill="#fff"/></svg></span><div class="apNm"><b>'+pmEsc(u.name)+'</b><span>('+pmEsc(u.uid)+') <i class="apOk">✔</i></span></div><span class="apDiv"></span><span class="apCal"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h.1M8 17.5h2M12 17.5h2" stroke-width="2"/></svg></span><div class="apVd"><b>'+U.t('valid')+' '+SB.fmtD(u.expiry)+'</b><span>'+n+' '+U.t('left')+(warn?' ⚠️':'')+'</span></div></div><div class="apR">'+(warn?'<button type="button" id="apRenew">🔁 '+U.t('renew')+'</button>':'')+'<button type="button" id="apOut"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>'+U.t('logout')+'</button></div>';
   document.getElementById('apOut').onclick=()=>G.logout();const r=document.getElementById('apRenew');if(r)r.onclick=()=>U.act({dataset:{u:'renew'}})})};
 G.logout=()=>{SB.clearSess();G.bar(null);G.lock('')};
 G.lock=async(msg,view)=>{try{if(typeof closeTool==='function'&&document.getElementById('toolView').classList.contains('show'))closeTool(true);if(typeof closePrintManager==='function'&&document.getElementById('printManagerView').classList.contains('show'))closePrintManager();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open')}catch(e){}

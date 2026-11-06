@@ -232,6 +232,25 @@
 .admThumbs img{width:100%;height:100%;object-fit:cover;display:block}
 .admToast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#15803d;color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:3000;box-shadow:0 6px 20px #0004;max-width:90%;text-align:center}
 </style>
+<style id="apBarCss">
+#apBar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:linear-gradient(#f6faff,#eaf3ff);border-bottom:2px solid #2a6bd6;color:#0a2a6b}
+#apBar .apL{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+#apBar .apAv{width:40px;height:40px;border-radius:50%;background:linear-gradient(#1456d8,#0a3aa8);display:grid;place-items:center;flex:none;box-shadow:0 3px 8px #0a3aa84d}
+#apBar .apNm,#apBar .apVd{display:flex;flex-direction:column;line-height:1.28;font-size:13px;min-width:0}
+#apBar .apNm b,#apBar .apVd b{font-size:14px;color:#0a2a6b;font-weight:700}
+#apBar .apNm span{color:#2f4a7d}#apBar .apOk{color:#16a34a;font-style:normal}
+#apBar .apVd span{color:#15803d;font-weight:700}
+#apBar .apDiv{width:1px;align-self:stretch;background:#b9cde9;flex:none}
+#apBar .apCal{flex:none;display:grid;place-items:center}
+#apBar.warn .apVd span{color:#d97706}
+#apBar .apR{display:flex;gap:6px;flex:none}
+#apBar .apR button{border:0;border-radius:12px;padding:10px 12px;font-weight:700;font-size:14px;color:#fff;background:linear-gradient(#1a5fe0,#0a3aa8);box-shadow:0 3px 8px #0a3aa855;display:flex;align-items:center;gap:6px}
+#apBar .apR #apRenew{background:linear-gradient(#f59e0b,#d97706)}
+@media(max-width:380px){#apBar .apCal{display:none}#apBar .apAv{width:38px;height:38px}#apBar .apNm,#apBar .apVd{font-size:12px}}
+body.dashImg .footer{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:1100;min-height:74px;padding:16px 10px calc(14px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:600;font-size:clamp(13px,4vw,21px);color:#fff;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 80' preserveAspectRatio='xMaxYMax slice'%3E%3Cpath d='M20 80C60 62 100 30 150 2V24C110 46 80 66 62 80Z' fill='%23ff9933'/%3E%3Cpath d='M62 80C80 66 110 46 150 24V46C120 62 100 72 96 80Z' fill='%23fff'/%3E%3Cpath d='M96 80C100 72 120 62 150 46V80Z' fill='%23138808'/%3E%3C/svg%3E") no-repeat right bottom/auto 100%,linear-gradient(110deg,#061d63,#0a38a6);border-radius:50% 50% 0 0/30px 30px 0 0;box-shadow:0 -4px 16px #00186040}
+body.dashImg .footer:before{content:'';position:absolute;left:0;right:0;top:-4px;height:30px;border-radius:50% 50% 0 0/100% 100% 0 0;border-top:3px solid #6db3ff;opacity:.9;pointer-events:none}
+body.dashImg .footer .fIn{display:flex;align-items:center;justify-content:center;gap:9px;padding-right:58px;text-align:left;line-height:1.15}
+</style>
 <style id="apDashCss">
 .glyph img{width:100%;max-height:84px;object-fit:contain;display:block;margin:auto}
 body.dashImg .top{background:linear-gradient(110deg,#07227a,#0c3ba8 70%,#0b57d0)}
@@ -242,7 +261,6 @@ body.dashImg .service .sub{color:#2c4a94}
 body.dashImg .service .arrow{background:var(--ac,#1d4ed8);color:#fff;box-shadow:0 3px 8px #0003}
 body.dashImg .service .glyph{filter:none}
 body.dashImg .wrap{padding-bottom:120px}
-body.dashImg .footer{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));font-style:normal;font-weight:700;font-size:clamp(15px,4.4vw,22px);color:#fff;background:linear-gradient(110deg,#061d63,#0a38a6);border-radius:30px 30px 0 0/22px 22px 0 0;box-shadow:0 -4px 16px #00186040}
 </style>
 <footer class="footer" id="footer">—　Sabhi Sarkari Seva, Ek Hi Jagah　—</footer>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -1168,7 +1186,7 @@ G.bar=u=>{let bar=document.getElementById('apBar');
  if(!u){G.cur=null;if(bar)bar.remove();U.close();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open');return}
  G.cur=u;
  SB.get().then(d=>{const n=SB.left(u.expiry),warn=n<=d.settings.warn;if(!bar){bar=document.createElement('div');bar.id='apBar';document.getElementById('apFixed').appendChild(bar)}
-  bar.className=warn?'warn':'';bar.innerHTML='<div class="apL"><div>👤 <b>'+pmEsc(u.name)+'</b> ('+pmEsc(u.uid)+')</div><div>📅 '+U.t('valid')+' <b>'+SB.fmtD(u.expiry)+'</b> • '+n+' '+U.t('left')+(warn?' ⚠️':'')+'</div></div><div class="apR">'+(warn?'<button type="button" id="apRenew">🔁 '+U.t('renew')+'</button>':'')+'<button type="button" id="apOut">'+U.t('logout')+'</button></div>';
+  bar.className=warn?'warn':'';bar.innerHTML='<div class="apL"><span class="apAv"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="#fff"/><path d="M3.5 21c.6-4.6 4.2-7 8.5-7s7.9 2.4 8.5 7z" fill="#fff"/></svg></span><div class="apNm"><b>'+pmEsc(u.name)+'</b><span>('+pmEsc(u.uid)+') <i class="apOk">✔</i></span></div><span class="apDiv"></span><span class="apCal"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h.1M8 17.5h2M12 17.5h2" stroke-width="2"/></svg></span><div class="apVd"><b>'+U.t('valid')+' '+SB.fmtD(u.expiry)+'</b><span>'+n+' '+U.t('left')+(warn?' ⚠️':'')+'</span></div></div><div class="apR">'+(warn?'<button type="button" id="apRenew">🔁 '+U.t('renew')+'</button>':'')+'<button type="button" id="apOut"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h11"/></svg>'+U.t('logout')+'</button></div>';
   document.getElementById('apOut').onclick=()=>G.logout();const r=document.getElementById('apRenew');if(r)r.onclick=()=>U.act({dataset:{u:'renew'}})})};
 G.logout=()=>{SB.clearSess();G.bar(null);G.lock('')};
 G.lock=async(msg,view)=>{try{if(typeof closeTool==='function'&&document.getElementById('toolView').classList.contains('show'))closeTool(true);if(typeof closePrintManager==='function'&&document.getElementById('printManagerView').classList.contains('show'))closePrintManager();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open')}catch(e){}
@@ -8271,7 +8289,7 @@ window.apSaveBlob=function(blob,name){var u=URL.createObjectURL(blob),a=document
  var COL={aadhaar:['#eaf2ff','#d3e4ff','#1d4ed8'],pan:['#e6f6ff','#cdebfb','#0e8ac8'],voter:['#f3ecff','#e3d6fb','#7c3aed'],apaar:['#e9f9ec','#d3f0d9','#16a34a'],ayushman:['#fff1e6','#fddcc2','#ea580c'],ippb:['#e3f6f6','#c9ecec','#0f8b8d'],'print-manager':['#e8eeff','#d3ddfb','#2f4fd8'],'ippb-atm':['#e4efff','#cfe2fb','#2563eb'],abha:['#e8f9ef','#d0f0dc','#16a34a'],eshram:['#f4edff','#e6d8fb','#9333ea'],dl:['#eefae8','#d9f2cd','#22a447'],kisan:['#fdf5df','#f8e7b4','#a16207'],passport:['#fff0e4','#fdd9bd','#ea580c'],photoedit:['#fdf5df','#f8e7b4','#b7791f'],interest:['#e6f9ef','#cdf0dd','#0f9d58'],noncreamy:['#faeee0','#f1d9bf','#a8642b']};
  function tk(b){var a=b.dataset.action;return a==='coming'?NM[b.dataset.name]:a}
  function apply(c){c=c||{};var im=c.theme==='image';document.body.classList.toggle('dashImg',im);
-  var f=document.getElementById('footer');if(f){if(f.dataset.o===undefined)f.dataset.o=f.innerHTML;f.innerHTML=im?'🛡️ All Card Services – Digital India':f.dataset.o}
+  var f=document.getElementById('footer');if(f){if(f.dataset.o===undefined)f.dataset.o=f.innerHTML;f.innerHTML=im?'<span class="fIn"><svg width="32" height="36" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1l9 3.5v7c0 6-4 10.5-9 13-5-2.5-9-7-9-13v-7z" fill="#0b8a3a" stroke="#fff" stroke-width="1.6"/><path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>All Card Services – Digital India</span></span>':f.dataset.o}
   document.querySelectorAll('#services .service').forEach(function(b){var k=tk(b),g=b.querySelector('.glyph');if(!g)return;
    if(g.dataset.o===undefined)g.dataset.o=g.innerHTML;var u=c.imgs&&k&&c.imgs[k];
    if(u){g.innerHTML='';var i=new Image();i.alt='';i.src=u;g.appendChild(i)}else g.innerHTML=g.dataset.o;

@@ -1164,12 +1164,16 @@ G.click=async e=>{const b=e.target.closest?e.target.closest('[data-g]'):e.target
     L.map(r=>'<div class="gRow"><b>'+r.id+'</b> • ₹'+r.price+' • '+SB.fmtDT(r.at)+'<br>'+(r.status==='pending'?'⏳ Pending — admin verify kar raha hai':r.status==='approved'?'✅ Approved — ab login karein':'❌ Rejected'+(r.note?': '+pmEsc(r.note):''))+'</div>').join('');break}
  }}catch(err){G.msg('Error: '+(err.message||err))}};
 G.enter=async u=>{G.cur=u;try{G.setPerms(u,await Promise.race([SB.get(),new Promise((_,j)=>setTimeout(()=>j(new Error('t')),2500))]))}catch(e){try{G.setPerms(u,{settings:{}})}catch(x){}}G.show(false);G.box().innerHTML='';G.bar(u);U.drawer();G.watch()};
-G.bar=u=>{let bar=document.getElementById('apBar');
- if(!u){G.cur=null;if(bar)bar.remove();U.close();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open');return}
+G.bar=u=>{
+ if(!u){G.cur=null;const bar=document.getElementById('apBar');if(bar)bar.remove();U.close();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open');return}
  G.cur=u;
- SB.get().then(d=>{const n=SB.left(u.expiry),warn=n<=d.settings.warn;if(!bar){bar=document.createElement('div');bar.id='apBar';document.getElementById('apFixed').appendChild(bar)}
+ /* Naam / mobile / valid till TURANT dikhe (saved data se) — backend check peeche chalta rahe, uske intezar ya fail hone par bar na hate */
+ const paint=wd=>{const n=SB.left(u.expiry),warn=n<=wd;let bar=document.getElementById('apBar');if(!bar){bar=document.createElement('div');bar.id='apBar';document.getElementById('apFixed').appendChild(bar)}
   bar.className=warn?'warn':'';bar.innerHTML='<div class="apL"><div>👤 <b>'+pmEsc(u.name)+'</b> ('+pmEsc(u.uid)+')</div><div>📅 '+U.t('valid')+' <b>'+SB.fmtD(u.expiry)+'</b> • '+n+' '+U.t('left')+(warn?' ⚠️':'')+'</div></div><div class="apR">'+(warn?'<button type="button" id="apRenew">🔁 '+U.t('renew')+'</button>':'')+'<button type="button" id="apOut">'+U.t('logout')+'</button></div>';
-  document.getElementById('apOut').onclick=()=>G.logout();const r=document.getElementById('apRenew');if(r)r.onclick=()=>U.act({dataset:{u:'renew'}})})};
+  document.getElementById('apOut').onclick=()=>G.logout();const r=document.getElementById('apRenew');if(r)r.onclick=()=>U.act({dataset:{u:'renew'}})};
+ let w=5;try{const x=parseInt(localStorage.getItem('ap_warnd'),10);if(x>=0)w=x}catch(e){}
+ try{paint(w)}catch(e){}
+ SB.get().then(d=>{const x=d&&d.settings&&Number(d.settings.warn);if(x>=0){try{localStorage.setItem('ap_warnd',String(x))}catch(e){}if(G.cur&&G.cur.uid===u.uid)paint(x)}}).catch(()=>{})};
 G.logout=()=>{SB.clearSess();G.bar(null);G.lock('')};
 G.lock=async(msg,view)=>{try{if(typeof closeTool==='function'&&document.getElementById('toolView').classList.contains('show'))closeTool(true);if(typeof closePrintManager==='function'&&document.getElementById('printManagerView').classList.contains('show'))closePrintManager();const dr=document.getElementById('drawer');if(dr)dr.classList.remove('open')}catch(e){}
  G.show(true);G.ret=false;await G.render(view||'login',msg)};
@@ -8267,7 +8271,6 @@ if(btn) btn.style.display="none";
 window.apSaveBlob=function(blob,name){var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(u)},30000)};
 /* Dashboard design: Admin (publicConfig/dashboard) jo set kare wahi dikhe */
 (function(){
- var ORIG={"aadhaar": "Aadhaar<br>Services", "pan": "PAN Card<br>Services", "voter": "Voter ID<br>Services", "apaar": "APAAR ID<br>Services", "ayushman": "Ayushman<br>Card", "ippb": "IPPB<br>PASSBOOK", "print-manager": "Print Manager", "ippb-atm": "IPPB ATM<br>CARD", "abha": "ABHA<br>Card", "eshram": "E-Shram &<br>Labour Card", "dl": "Driving Licence &<br>RC", "kisan": "Farmer / Kisan<br>Services", "passport": "Passport<br>Photo", "photoedit": "Photo / PDF Text<br>Editor", "interest": "Interest<br>Calculator Pro", "noncreamy": "Non Creamy<br>Sapath Patra"};
  var CK='ap_c_dash',NM={'ABHA Card':'abha','E-Shram & Labour Card':'eshram','Driving Licence & RC':'dl','Farmer / Kisan Services':'kisan'};
  var COL={aadhaar:['#eaf2ff','#d3e4ff','#1d4ed8'],pan:['#e6f6ff','#cdebfb','#0e8ac8'],voter:['#f3ecff','#e3d6fb','#7c3aed'],apaar:['#e9f9ec','#d3f0d9','#16a34a'],ayushman:['#fff1e6','#fddcc2','#ea580c'],ippb:['#e3f6f6','#c9ecec','#0f8b8d'],'print-manager':['#e8eeff','#d3ddfb','#2f4fd8'],'ippb-atm':['#e4efff','#cfe2fb','#2563eb'],abha:['#e8f9ef','#d0f0dc','#16a34a'],eshram:['#f4edff','#e6d8fb','#9333ea'],dl:['#eefae8','#d9f2cd','#22a447'],kisan:['#fdf5df','#f8e7b4','#a16207'],passport:['#fff0e4','#fdd9bd','#ea580c'],photoedit:['#fdf5df','#f8e7b4','#b7791f'],interest:['#e6f9ef','#cdf0dd','#0f9d58'],noncreamy:['#faeee0','#f1d9bf','#a8642b']};
  function tk(b){var a=b.dataset.action;return a==='coming'?NM[b.dataset.name]:a}
@@ -8276,7 +8279,7 @@ window.apSaveBlob=function(blob,name){var u=URL.createObjectURL(blob),a=document
   document.querySelectorAll('#services .service').forEach(function(b){var k=tk(b),g=b.querySelector('.glyph');if(!g)return;
    if(g.dataset.o===undefined)g.dataset.o=g.innerHTML;var u=im&&c.imgs&&k&&c.imgs[k];
    if(u){g.innerHTML='';var i=new Image();i.alt='';i.src=u;g.appendChild(i)}else g.innerHTML=g.dataset.o;
-   var v=COL[k];['--c1','--c2','--ac'].forEach(function(n,j){if(im&&v)b.style.setProperty(n,v[j]);else b.style.removeProperty(n)});var tt=b.querySelector('.title');if(tt&&k&&ORIG[k]!==undefined){var cn=im&&c.names&&typeof c.names[k]==='string'?c.names[k].trim():'';if(cn){var h=cn.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');if(tt.dataset.cn!==cn){tt.dataset.cn=cn;tt.innerHTML=h}}else if(tt.dataset.cn!==undefined){delete tt.dataset.cn;tt.innerHTML=ORIG[k]}}})}
+   var v=COL[k];['--c1','--c2','--ac'].forEach(function(n,j){if(im&&v)b.style.setProperty(n,v[j]);else b.style.removeProperty(n)})})}
  try{apply(JSON.parse(localStorage.getItem(CK)))}catch(e){}
  var un=null;function sub(){try{if(un)un();un=apFirestore.doc('publicConfig/dashboard').onSnapshot(function(sn){var c=sn.exists?(sn.data().data||null):null;try{localStorage.setItem(CK,JSON.stringify(c))}catch(e){}apply(c)},function(){})}catch(e){}}
  var n=0,t=setInterval(function(){if(typeof apFirestore!=='undefined'&&apFirestore){clearInterval(t);sub();try{firebase.auth().onAuthStateChanged(function(){sub()})}catch(e){}}else if(++n>80)clearInterval(t)},250);

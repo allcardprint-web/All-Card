@@ -241,17 +241,6 @@ body.dashImg .service .title{color:#0a2a74}
 body.dashImg .service .sub{color:#2c4a94}
 body.dashImg .service .arrow{background:var(--ac,#1d4ed8);color:#fff;box-shadow:0 3px 8px #0003}
 body.dashImg .service .glyph{filter:none}
-/* Image Style only: all service cards use the same Aadhaar-card height */
-body.dashImg #services{grid-auto-rows:150px!important}
-body.dashImg #services .service{height:150px!important;min-height:150px!important;max-height:150px!important}
-body.dashImg #services .service .glyph{min-width:0;display:flex;align-items:center;justify-content:center}
-body.dashImg #services .service .glyph img{width:100%;height:82px;max-height:82px;object-fit:contain}
-@media(max-width:620px){
-  body.dashImg #services{grid-auto-rows:150px!important}
-  body.dashImg #services .service{height:150px!important;min-height:150px!important;max-height:150px!important}
-  body.dashImg #services .service .glyph{font-size:43px!important}
-}
-
 body.dashImg .wrap{padding-bottom:120px}
 body.dashImg .footer{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:30;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));font-style:normal;font-weight:700;font-size:clamp(15px,4.4vw,22px);color:#fff;background:linear-gradient(110deg,#061d63,#0a38a6);border-radius:30px 30px 0 0/22px 22px 0 0;box-shadow:0 -4px 16px #00186040}
 </style>
@@ -371,8 +360,8 @@ async function pmPdf(cards,btn){if(!cards.length)return;const old=btn&&btn.textC
  try{const b=await pmMakePdf(cards);const d=new Date(),p=n=>String(n).padStart(2,'0');pmSave(b,'AllPrint_cards_'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+'.pdf')}
  catch(e){alert('PDF nahi ban payi: '+(e.message||e))}
  if(btn){btn.disabled=false;btn.textContent=old;pmUpdateBar()}}
-function openPrintManager(){document.getElementById('drawer').classList.remove('open');document.getElementById('toolView').classList.remove('show');document.getElementById('printManagerView').classList.add('show');document.body.classList.add('service-open');document.getElementById('printManagerView').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';renderPrintManager()}
-function closePrintManager(){pmClosePreview();document.getElementById('printManagerView').classList.remove('show');document.body.classList.remove('service-open');document.getElementById('printManagerView').setAttribute('aria-hidden','true');document.body.style.overflow='';if(location.hash==='#print-manager')history.replaceState({},'',location.pathname+location.search)}
+function openPrintManager(){document.getElementById('drawer').classList.remove('open');document.getElementById('toolView').classList.remove('show');document.getElementById('printManagerView').classList.add('show');document.getElementById('printManagerView').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';renderPrintManager()}
+function closePrintManager(){pmClosePreview();document.getElementById('printManagerView').classList.remove('show');document.getElementById('printManagerView').setAttribute('aria-hidden','true');document.body.style.overflow='';if(location.hash==='#print-manager')history.replaceState({},'',location.pathname+location.search)}
 document.addEventListener('DOMContentLoaded',()=>{const g=id=>document.getElementById(id);
  g('backPrintManager').onclick=closePrintManager;
  g('pmAll').onclick=()=>{pmSel=pmCards.map(c=>c.id);pmPaint()};
@@ -712,12 +701,12 @@ function showTool(which, push=true){
   const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport',photoedit:'photoedit',interest:'interest',noncreamy:'noncreamy','ippb-atm':'atm'}[which]||'ippb';
   toolView.setAttribute('data-theme',__tf);
   window.apLoadTool(__tf).then(src=>{if(currentTool===which){let __s=window.apThemeInject?window.apThemeInject(__tf,src):src;if(__tf==='interest'){const __u=G.cur||{};const __n=String(__u.name||__u.uid||__u.mobile||'User');__s=__s.replace('<head>','<head><script>window.__apUser='+JSON.stringify(__n).replace(/</g,'\\u003c')+';<\/script>')}toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(__s):__s)}}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
-  toolView.classList.add('show');toolView.setAttribute('aria-hidden','false');document.body.classList.add('service-open');
+  toolView.classList.add('show');toolView.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
   if(push)history.pushState({allPrintTool:which},'', '#'+which);
 }
 function closeTool(fromPop=false){
-  toolView.classList.remove('show');toolView.setAttribute('aria-hidden','true');document.body.classList.remove('service-open');
+  toolView.classList.remove('show');toolView.setAttribute('aria-hidden','true');
   document.body.style.overflow='';currentTool=null;
   // Back par tool ko unload karein taaki next service purana preview/state na dikhaye.
   toolFrame.srcdoc='';
@@ -738,7 +727,7 @@ document.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('cl
   else if(btn.dataset.action==='ippb')showTool('ippb');
   else if(btn.dataset.name==='PAN Card Services')showTool('pan');
   else if(btn.dataset.action==='ippb-atm')showTool('ippb-atm');
-  else {const c=document.getElementById('coming');c.textContent=btn.dataset.name+' — is section ka function abhi add nahi kiya gaya hai.';c.classList.add('show');document.body.classList.add('service-open');}
+  else {const c=document.getElementById('coming');c.textContent=btn.dataset.name+' — is section ka function abhi add nahi kiya gaya hai.';c.classList.add('show');}
 }));
 document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('drawer').classList.toggle('open'));
 document.getElementById('menuAadhaar').addEventListener('click',e=>{e.preventDefault();showTool('aadhaar')});
@@ -8285,7 +8274,7 @@ window.apSaveBlob=function(blob,name){var u=URL.createObjectURL(blob),a=document
   var f=document.getElementById('footer');if(f){if(f.dataset.o===undefined)f.dataset.o=f.innerHTML;f.innerHTML=im?'🛡️ All Card Services – Digital India':f.dataset.o}
   document.querySelectorAll('#services .service').forEach(function(b){var k=tk(b),g=b.querySelector('.glyph');if(!g)return;
    if(g.dataset.o===undefined)g.dataset.o=g.innerHTML;var u=c.imgs&&k&&c.imgs[k];
-   if(im&&u){g.innerHTML='';var i=new Image();i.alt='';i.src=u;g.appendChild(i)}else g.innerHTML=g.dataset.o;
+   if(u){g.innerHTML='';var i=new Image();i.alt='';i.src=u;g.appendChild(i)}else g.innerHTML=g.dataset.o;
    var v=COL[k];['--c1','--c2','--ac'].forEach(function(n,j){if(im&&v)b.style.setProperty(n,v[j]);else b.style.removeProperty(n)})})}
  try{apply(JSON.parse(localStorage.getItem(CK)))}catch(e){}
  var un=null;function sub(){try{if(un)un();un=apFirestore.doc('publicConfig/dashboard').onSnapshot(function(sn){var c=sn.exists?(sn.data().data||null):null;try{localStorage.setItem(CK,JSON.stringify(c))}catch(e){}apply(c)},function(){})}catch(e){}}

@@ -149,7 +149,7 @@
 <button class="service passport" data-action="passport" data-name="Passport Photo"><span class="glyph">📷</span><span><div class="title" data-i18n>Passport<br>Photo</div><div class="sub" data-i18n>BG Remove | Colour<br>A4 PDF | Print</div></span><span class="arrow">›</span></button>
 <button class="service photoedit" data-action="photoedit" data-name="Photo & PDF Text Editor"><span class="glyph">📝</span><span><div class="title" data-i18n>Photo / PDF Text<br>Editor</div><div class="sub" data-i18n>Photo | PDF | Scan<br>Click | Edit | Save</div></span><span class="arrow">›</span></button>
 <button class="service interest" data-action="interest" data-name="Interest Calculator Pro"><span class="glyph">🧮</span><span><div class="title" data-i18n>Interest<br>Calculator Pro</div><div class="sub" data-i18n>Simple | Compound<br>History | PDF | Share</div></span><span class="arrow">›</span></button>
-<button class="service noncreamy" data-action="noncreamy" data-name="Non Creamy Sapath Patra"><span class="glyph">📜</span><span><div class="title" data-i18n>Non Creamy<br>Sapath Patra</div><div class="sub" data-i18n>BC | OBC Form<br>A4 PDF | Photo</div></span><span class="arrow">›</span></button>
+<button class="service noncreamy" data-action="noncreamy" data-name="RTPS DOCUMENT READY"><span class="glyph">📜</span><span><div class="title" data-i18n>RTPS DOCUMENT<br>READY</div><div class="sub" data-i18n>BC | OBC | RTPS<br>Crop | Signature</div></span><span class="arrow">›</span></button>
 </section>
 <section class="toolView" id="toolView" aria-hidden="true"><div class="toolBar"><button id="backDashboard" type="button">← Back</button><strong id="toolTitle">All Card</strong></div><iframe class="toolPageFrame" id="toolFrame" title="All Print service tool" sandbox="allow-scripts allow-downloads allow-modals allow-forms allow-same-origin"></iframe></section>
 <section class="coming" id="coming"></section>
@@ -695,7 +695,7 @@ let panSource="";/* pan -> tools/pan.html (on-demand) */
 function showTool(which, push=true){
   currentTool=which;
   document.getElementById('drawer').classList.remove('open');
-  document.getElementById('toolTitle').textContent=which==='aadhaar'?'🪪 Aadhaar Services':which==='voter'?'🗳️ Voter ID Services':which==='pan'?'▤ PAN Card Auto Cutter':which==='manualpan'?'✍️ Manual PAN':which==='ippb-atm'?'💳 IPPB ATM CARD':which==='apaar'?'🎓 APAAR ID Services':which==='ayushman'?'🌿 Ayushman Card':which==='kisan'?'🌾 Kisan Card':which==='passport'?'📷 Passport Photo':which==='photoedit'?'📝 Photo & PDF Text Editor':which==='interest'?'🧮 Interest Calculator Pro':which==='noncreamy'?'📜 Non Creamy Sapath Patra':'🏦 IPPB PASSBOOK';
+  document.getElementById('toolTitle').textContent=which==='aadhaar'?'🪪 Aadhaar Services':which==='voter'?'🗳️ Voter ID Services':which==='pan'?'▤ PAN Card Auto Cutter':which==='manualpan'?'✍️ Manual PAN':which==='ippb-atm'?'💳 IPPB ATM CARD':which==='apaar'?'🎓 APAAR ID Services':which==='ayushman'?'🌿 Ayushman Card':which==='kisan'?'🌾 Kisan Card':which==='passport'?'📷 Passport Photo':which==='photoedit'?'📝 Photo & PDF Text Editor':which==='interest'?'🧮 Interest Calculator Pro':which==='noncreamy'?'📜 RTPS DOCUMENT READY':'🏦 IPPB PASSBOOK';
   // Har open par naya source load karein: purane tool ka iframe/state reuse na ho.
   toolFrame.srcdoc='<body style="font-family:Arial;padding:40px;text-align:center;color:#0755c9"><h3>Loading…</h3></body>';
   const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport',photoedit:'photoedit',interest:'interest',noncreamy:'noncreamy','ippb-atm':'atm'}[which]||'ippb';
@@ -781,7 +781,7 @@ SB.waLink=(mobile,msg)=>{let m=String(mobile||'').replace(/\D/g,'');if(m.length=
 SB.copy=async t=>{try{await navigator.clipboard.writeText(t);return true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove();return ok}};
 
 /* ---------- Access control: kaun sa user kaun sa section chala sakta hai ---------- */
-SB.SECS=[{k:'aadhaar',n:'🪪 Aadhaar Services'},{k:'pan',n:'▤ PAN Card Services',sub:[{k:'pan_uti',n:'UTI PAN'},{k:'pan_nsdl',n:'NSDL PAN'},{k:'pan_manual',n:'Manual PAN'}]},{k:'voter',n:'🗳️ Voter ID Services'},{k:'apaar',n:'🎓 APAAR ID Services'},{k:'ayushman',n:'🌿 Ayushman Card'},{k:'ippb',n:'🏦 IPPB Passbook'},{k:'ippb-atm',n:'💳 IPPB ATM Card'},{k:'print-manager',n:'🖨️ Print Manager'},{k:'abha',n:'ABHA Card (jald aayega)'},{k:'eshram',n:'E-Shram & Labour Card (jald aayega)'},{k:'dl',n:'Driving Licence & RC (jald aayega)'},{k:'farmer',n:'🌾 Farmer / Kisan Card'},{k:'passport',n:'📷 Passport Photo'},{k:'photoedit',n:'📝 Photo & PDF Text Editor'},{k:'interest',n:'🧮 Interest Calculator Pro'},{k:'noncreamy',n:'📜 Non Creamy Sapath Patra'}];
+SB.SECS=[{k:'aadhaar',n:'🪪 Aadhaar Services'},{k:'pan',n:'▤ PAN Card Services',sub:[{k:'pan_uti',n:'UTI PAN'},{k:'pan_nsdl',n:'NSDL PAN'},{k:'pan_manual',n:'Manual PAN'}]},{k:'voter',n:'🗳️ Voter ID Services'},{k:'apaar',n:'🎓 APAAR ID Services'},{k:'ayushman',n:'🌿 Ayushman Card'},{k:'ippb',n:'🏦 IPPB Passbook'},{k:'ippb-atm',n:'💳 IPPB ATM Card'},{k:'print-manager',n:'🖨️ Print Manager'},{k:'abha',n:'ABHA Card (jald aayega)'},{k:'eshram',n:'E-Shram & Labour Card (jald aayega)'},{k:'dl',n:'Driving Licence & RC (jald aayega)'},{k:'farmer',n:'🌾 Farmer / Kisan Card'},{k:'passport',n:'📷 Passport Photo'},{k:'photoedit',n:'📝 Photo & PDF Text Editor'},{k:'interest',n:'🧮 Interest Calculator Pro'},{k:'noncreamy',n:'📜 RTPS DOCUMENT READY'}];
 SB.ALLK=SB.SECS.flatMap(x=>[x.k].concat((x.sub||[]).map(y=>y.k))).concat(['apaaredit']);
 SB.NEWK=['photoedit','interest'];SB.NEWK3=['noncreamy'];/* naye sections: purani saved list me bhi default ON (jab tak admin dobara save na kare) */
 SB.fixP=(l,v)=>{let r=l;if(!(v>=2))r=r.concat(SB.NEWK.filter(k=>!r.includes(k)));if(!(v>=3))r=r.concat(SB.NEWK3.filter(k=>!r.includes(k)));return r};
@@ -1565,10 +1565,10 @@ window.addEventListener('offline',()=>{try{if(document.getElementById('apGate').
  window.apPassbookCfg=()=>swr('ap_c_passbook',async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/passbook').get();if(!sn.exists)return null;const d=sn.data()||{};delete d.updatedAt;return d}catch(e){return null}});
  window.apPassport={
   cfg:()=>swr('ap_c_passport',async()=>{try{if(!apFirestore)return null;const sn=await apFirestore.doc('publicConfig/passport').get();if(!sn.exists)return null;const d=sn.data()||{};delete d.updatedAt;return d}catch(e){return null}}),
-  report:async idx=>{try{const a=window.firebase&&firebase.auth&&firebase.auth().currentUser;if(!a||!apFirestore)return;
+  report:async(idx,feat)=>{try{const a=window.firebase&&firebase.auth&&firebase.auth().currentUser;if(!a||!apFirestore)return;
    const ref=apFirestore.doc('pstats/'+a.uid),u=(typeof G!=='undefined'&&G.cur)||{};
    await apFirestore.runTransaction(async tx=>{const sn=await tx.get(ref),d=sn.exists?sn.data():{};
-    const o={n:(d.n||0)+1,k1:d.k1||0,k2:d.k2||0,last:Date.now(),mobile:String(u.uid||d.mobile||'').slice(0,15),name:String(u.name||d.name||'').slice(0,60)};
+    const fk=String(feat||'passport').replace(/[^a-z_]/g,'').slice(0,20)||'passport',fe=Object.assign({},d.fe||{});fe[fk]=(fe[fk]||0)+1;const o={n:(d.n||0)+1,k1:d.k1||0,k2:d.k2||0,fe:fe,last:Date.now(),mobile:String(u.uid||d.mobile||'').slice(0,15),name:String(u.name||d.name||'').slice(0,60)};
     if(idx===1||idx===2)o['k'+idx]+=1;tx.set(ref,o)})}catch(e){console.warn('passport count',e)}}};
  if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='updated'){try{const idle=!document.getElementById('toolView').classList.contains('show')&&!document.getElementById('apGate').classList.contains('show');if(idle)setTimeout(()=>location.reload(),600);else G.toast('🔄 Naya version aa gaya — app band karke dobara kholein')}catch(x){}}});
 })();
@@ -1655,7 +1655,7 @@ window.apI18nData={D:[["Aadhaar<br>Services", null, "आधार<br>सेव�
 <html lang="hi"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Non Creamy Sapath Patra</title>
+<title>RTPS Document</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&family=Noto+Serif+Devanagari:wght@700&family=Kalam:wght@400;700&display=swap">
 <style>
@@ -1798,15 +1798,131 @@ body{margin:0}
 .pk span{font-size:12.5px;line-height:1.4;color:var(--muted)}
 .pk.on{border-style:solid;box-shadow:0 0 0 2px var(--accent) inset}
 .pk.on span{color:var(--ink)}
+
+
+#cropsec .panel{padding:14px}
+#cropsec .slots{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:820px){#cropsec .slots{grid-template-columns:repeat(2,1fr)}}
+#cropsec .slot{background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+#cropsec .slot b{font-size:13px}#cropsec .pv{height:90px;border:1px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;overflow:hidden;background:var(--surface)}
+#cropsec .pv img{max-width:100%;max-height:100%}
+#cropsec .crow{display:flex;gap:6px;flex-wrap:wrap}
+#cropsec .slot button,#cr_md button,#cr_sz button:not(.btn){font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 10px;border-radius:6px;cursor:pointer;text-align:center}
+#cropsec .slot button.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ctools{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;margin:14px 0 8px}
+.ctools label{display:flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}.ctools input{accent-color:var(--accent);width:18px;height:18px}
+.cstage{background:var(--stage);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:hidden}
+#cr_wrap{overflow:hidden;margin:0 auto}#cr_page{width:794px;height:1123px;background:#fff;position:relative;transform-origin:0 0;box-shadow:var(--shadow);touch-action:none}
+#cr_page .it{position:absolute}#cr_page .it img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none}
+#cr_page.man .it{outline:2px dashed var(--accent);cursor:move}#cr_page .rz{display:none;position:absolute;right:-9px;bottom:-9px;width:20px;height:20px;border-radius:50%;background:var(--accent);border:2px solid #fff;cursor:nwse-resize}#cr_page.man .rz{display:block}
+.cbar{position:sticky;bottom:0;z-index:5;margin-top:22px;background:var(--bg);border-top:1px solid var(--line);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.cbar .st{flex:1 1 220px;min-width:0;font-size:13px;color:var(--muted)}
+#cr_md,#cr_sz{position:fixed;inset:0;display:none;z-index:60}
+#cr_md{background:rgba(5,8,16,.88);flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px}
+#cr_md.on,#cr_sz.on{display:flex}#cr_st{position:relative;touch-action:none}#cr_cv{display:block;border-radius:6px;touch-action:none;cursor:crosshair}
+#cr_lens{position:absolute;top:8px;left:8px;width:130px;height:130px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px #000a;display:none;pointer-events:none;background:#000}
+#cr_md .crow button{background:#222b40;color:#fff;border-color:#3a4666}#cr_md .crow button.p{background:var(--accent);color:var(--accent-ink)}
+#cr_md .hint{color:#c8d0e4;text-align:center;margin:0}
+#cr_sz{background:rgba(8,12,22,.62);align-items:center;justify-content:center;padding:12px}
+#cr_sz .cmcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:100%;max-width:380px;padding:16px;display:flex;flex-direction:column;gap:12px}
+#cr_sz h3{margin:0;font-size:17px;color:var(--accent)}
+#cr_sz .sr{display:flex;gap:8px}#cr_sz .sr input,#cr_sz .sr select{height:44px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:16px;min-width:0}
+#cr_sz .sr input{flex:1}#cr_sz .sr select{width:90px}#cr_sz .mb{display:flex;gap:10px;justify-content:flex-end}
+
+
+@media (prefers-color-scheme:dark){}
+#pssec .hint{margin:0 0 10px;font-size:13px;color:var(--muted)}
+#pssec .panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px}
+#pssec .gt{margin:0 0 10px;font-weight:700;font-size:15px;color:var(--accent)}
+#pssec .slots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#pssec .slot{background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+#pssec .slot b{font-size:13px}
+#pssec .pv{height:120px;border:1px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;overflow:hidden;background:var(--surface)}
+#pssec .pv img{max-width:100%;max-height:100%}
+#pssec .slot label.ck{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+#pssec .ck input,#pssec .pssw input[type=checkbox]{accent-color:var(--accent);width:17px;height:17px}
+#pssec button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 10px;border-radius:6px;cursor:pointer;text-align:center}
+#pssec button.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#pssec button:disabled{opacity:.55;cursor:progress}
+#pssec button:focus-visible,#pssec input:focus-visible,#pssec select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#pssec .btn{height:46px;padding:0 20px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:15px}
+#pssec .btn.alt{background:transparent;color:var(--accent)}
+#pssec .btn.ghost{border-color:var(--line);background:transparent;color:var(--muted);font-weight:500;height:38px;font-size:14px;padding:0 14px}
+#pssec .psrow{display:flex;gap:6px;flex-wrap:wrap}
+#pssec .bgopt{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap;margin-top:6px}
+#pssec .pssw{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#pssec .pssw button{width:32px;height:32px;padding:0;border-radius:50%;border:2px solid var(--line)}
+#pssec .pssw button.on{outline:3px solid var(--accent);outline-offset:1px}
+#pssec .pssw input[type=color]{width:36px;height:32px;padding:0;border:1px solid var(--line);border-radius:6px;background:none}
+#pssec .psrg{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+#pssec .psrg input{accent-color:var(--accent);width:120px}
+#pssec .phead{margin:14px 0 8px}
+#pssec .phead h2{margin:0;font-size:18px;font-weight:700}
+#pssec .psstage{background:var(--stage);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;min-height:120px}
+#pssec .stg{position:relative;display:inline-block;max-width:100%;line-height:0;touch-action:none;box-shadow:var(--shadow);background:#fff;vertical-align:top}
+#pssec #ps_pcv{display:block;max-width:min(100%,260px);max-height:38vh;width:auto;height:auto}
+#pssec #ps_sg{position:absolute;cursor:move;touch-action:none}
+#pssec #ps_sg.sel{outline:2px dashed var(--accent)}
+#pssec #ps_sg img{width:100%;height:auto;display:block;pointer-events:none;-webkit-user-drag:none}
+#pssec .rz{display:none;position:absolute;right:-10px;bottom:-10px;width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid #fff;cursor:nwse-resize}
+#pssec #ps_sg.sel .rz{display:block}
+#pssec .empty{color:var(--muted);font-size:13px;padding:30px 8px}
+#pssec .psbar{position:sticky;bottom:0;z-index:5;margin-top:22px;background:var(--bg);border-top:1px solid var(--line);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#pssec .psbar .st{flex:1 1 220px;min-width:0;font-size:13px;color:var(--muted)}
+#pssec #ps_md,#pssec #ps_sz{position:fixed;inset:0;display:none;z-index:50}
+#pssec #ps_md{background:rgba(5,8,16,.88);flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px;z-index:60}
+#pssec #ps_md.on,#pssec #ps_sz.on{display:flex}
+#pssec #ps_cst{position:relative;touch-action:none}
+#pssec #ps_cv{display:block;border-radius:6px;touch-action:none;cursor:crosshair}
+#pssec #ps_lens{position:absolute;top:8px;left:8px;width:130px;height:130px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px #000a;display:none;pointer-events:none;background:#000}
+#pssec #ps_md .psrow button{background:#222b40;color:#fff;border-color:#3a4666}
+#pssec #ps_md .psrow button.p{background:var(--accent);color:var(--accent-ink)}
+#pssec #ps_md .hint{color:#c8d0e4;text-align:center;margin:0}
+#pssec #ps_sz{background:rgba(8,12,22,.62);align-items:center;justify-content:center;padding:12px}
+#pssec .psmcard{background:var(--surface);border:1px solid var(--line);border-radius:8px;width:100%;max-width:380px;padding:16px;display:flex;flex-direction:column;gap:12px}
+#pssec .psmcard h3{margin:0;font-size:17px;color:var(--accent)}
+#pssec .sr{display:flex;gap:8px}
+#pssec .sr input,#pssec .sr select{height:44px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--field);color:var(--ink);font:inherit;font-size:16px;min-width:0}
+#pssec .sr input{flex:1}
+#pssec .sr select{width:90px}
+#pssec .mb{display:flex;gap:10px;justify-content:flex-end}
+#pssec #ps_pr{display:none}
+#pssec .up{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+#pssec .uc{min-width:0;display:flex;flex-direction:column;gap:6px}
+#pssec .ub{display:flex;align-items:center;justify-content:center;height:44px;border:2px dashed var(--accent);border-radius:10px;color:var(--accent);font-weight:700;font-size:14px;cursor:pointer;background:var(--surface);text-align:center;padding:0 6px}
+#pssec .ub.done{border-style:solid}
+#pssec .ub.done span::before{content:"\2713  "}
+#pssec .opt{align-items:center}
+#pssec .opt select{font:inherit;font-size:12.5px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+#pssec .opt button{padding:5px 8px;font-size:12.5px}
+#pssec .opt .psrg input{width:80px}
+#pssec #ps_pm{position:fixed;inset:0;display:none;z-index:60;background:rgba(5,8,16,.88);align-items:center;justify-content:center;padding:12px}
+#pssec #ps_pm.on{display:flex}
+#pssec #ps_pm .psmcard{max-width:360px;text-align:center;align-items:stretch}
+#pssec #ps_pmc{touch-action:none;cursor:grab;border:1px solid var(--line);border-radius:6px;margin:0 auto;max-width:100%;background:#fff}
+#pssec #ps_pzm{width:100%;accent-color:var(--accent)}
+@media(min-width:641px){.pickrow{grid-template-columns:repeat(4,1fr)}}
+.prn{display:none}
+@media print{@page{size:A4;margin:0}body[data-pp]>*:not(.prn){display:none!important}body[data-pp="cr"] #cr_pr,body[data-pp="ps"] #ps_pr{display:block}.prn img{display:block;width:210mm;height:297mm;object-fit:contain}}
+.rbrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:6px 0 2px}
+.rbrow[hidden]{display:none!important}
+.rbbtn{height:42px;padding:0 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.rbbtn:disabled{opacity:.6;cursor:progress}
+.rbbtn.on{background:transparent;color:var(--accent)}
+.rbst{font-size:13px;color:var(--muted);flex:1 1 160px;min-width:0}
+.rbst.err{color:var(--danger)}
+#pssec .rbbtn{height:38px;font-size:13px;padding:0 12px;width:100%}
 </style>
 </head><body>
-<header class="top"><div class="tt">📝 Non Creamy Sapath Patra</div></header>
+<header class="top"><div class="tt">📝 RTPS DOCUMENT READY</div></header>
 <div class="wrap" id="pickwrap">
   <div class="pickrow" role="group" aria-label="वर्ग चुनें">
     <button type="button" class="pk" id="pk-xi" aria-pressed="false"><b>BC</b><span>Form XI · क्रीमीलेयर रहित शपथ-पत्र</span></button>
     <button type="button" class="pk" id="pk-viii" aria-pressed="false"><b>OBC</b><span>Form VIII · ओ०बी०सी० (क्रीमीलेयर रहित) शपथ-पत्र</span></button>
+    <button type="button" class="pk" id="pk-crop" aria-pressed="false"><b>CROP</b><span>फोटो / PDF काटिए और A4 शीट बनाइए</span></button>
+    <button type="button" class="pk" id="pk-rtps" aria-pressed="false"><b>RTPS</b><span>फोटो पर सिग्नेचर लगाइए</span></button>
   </div>
-  <p class="hint" id="pickhint">ऊपर से BC या OBC चुनिए, फिर नीचे फॉर्म भरिए।</p>
+  <p class="hint" id="pickhint">ऊपर से BC, OBC, CROP या RTPS चुनिए।</p>
 </div>
 <div class="wrap" id="app" hidden>
   <form class="panel" id="form" autocomplete="off" onsubmit="return false">
@@ -1930,6 +2046,68 @@ body{margin:0}
   </div>
 </div>
 
+<div class="wrap" id="cropsec" hidden>
+  <div class="panel"><h2 class="gt">दस्तावेज़ अपलोड करें</h2><div class="slots" id="cr_slots"></div></div>
+  <div class="phead"><h2>A4 पूर्वावलोकन</h2></div>
+  <div class="ctools"><label><input type="checkbox" id="cr_mn"> हाथ से सेट करें (A4 पर खींचें / आकार बदलें)</label><button class="btn ghost" id="cr_rs">लेआउट रीसेट</button></div>
+  <div class="cstage"><div id="cr_wrap"><div id="cr_page"></div></div></div>
+  <div class="cbar">
+   <button type="button" class="btn" id="cr_dp">A4 PDF डाउनलोड</button>
+   <button type="button" class="btn alt" id="cr_dg">फोटो (JPG) डाउनलोड</button>
+   <button type="button" class="btn alt" id="cr_pt">प्रिंट</button>
+   <div class="st" id="cr_status" role="status" aria-live="polite"></div>
+  </div>
+ </div>
+<div id="cr_md">
+<div class="hint">कोनों के गोल बिंदु कार्ड के सही कोनों पर खींचिए। किनारे के बीच वाले चौकोर बिंदु से पूरा किनारा खिसकता है।</div>
+<div id="cr_st"><canvas id="cr_cv"></canvas><canvas id="cr_lens" width="130" height="130"></canvas></div>
+<div class="crow"><button id="cr_rl">&#x21BA; बाएँ घुमाएँ</button><button id="cr_rr">दाएँ घुमाएँ &#x21BB;</button><button id="cr_cx">रद्द करें</button><button class="p" id="cr_ok">Crop &amp; Save</button></div>
+</div>
+<div id="cr_sz" role="dialog" aria-modal="true"><div class="cmcard">
+ <h3 id="cr_szt">फाइल का साइज़</h3>
+ <div class="hint" style="margin:0">कितने KB / MB में चाहिए? (डिफ़ॉल्ट 200 KB)</div>
+ <div class="sr"><input id="cr_szv" type="number" min="1" step="any" inputmode="decimal" value="200"><select id="cr_szu"><option>KB</option><option>MB</option></select></div>
+ <div class="mb"><button class="btn ghost" id="cr_szc">रद्द</button><button class="btn" id="cr_szo">डाउनलोड</button></div>
+</div></div>
+
+<div id="cr_pr" class="prn"><img id="cr_pri" alt=""></div>
+<div class="wrap" id="pssec" hidden>
+  <div class="up">
+   <div class="uc"><label class="ub" id="ps_lbP"><span>&#x1F4F7; फोटो चुनें</span><input type="file" id="ps_fP" accept="image/*" hidden></label>
+    <div class="psrow opt" id="ps_opP" hidden><select id="ps_psz" aria-label="Photo size"><option value="35x45">Passport 35×45 mm</option><option value="51x51">2×2 inch</option><option value="25x35">25×35 mm</option><option value="0">Original</option></select><button id="ps_rcC">कोने क्रॉप</button><button id="ps_rcP">ज़ूम क्रॉप</button><button id="ps_rmP">Remove</button><button id="ps_bgb">बैकग्राउंड हटाएँ</button></div>
+    <div class="rbrow" id="ps_rbrowP" hidden><button class="rbbtn" id="ps_rbP" type="button">Background Remove</button></div>
+    <div id="ps_bgo" hidden><div class="pssw" id="ps_sw"></div></div></div>
+   <div class="uc"><label class="ub" id="ps_lbS"><span>&#x270D;&#xFE0F; सिग्नेचर चुनें</span><input type="file" id="ps_fS" accept="image/*" hidden></label>
+    <div class="psrow opt" id="ps_opS" hidden><button id="ps_rcS">Crop</button><button id="ps_rmS">Remove</button><label class="psrg">बोल्ड <input type="range" id="ps_sgb" min="0" max="8" value="0"></label><span class="pssw" id="ps_ssw"></span></div><div class="rbrow" id="ps_rbrowS" hidden><button class="rbbtn" id="ps_rbS" type="button">Background Remove</button></div></div>
+  </div>
+  <div class="phead"><h2>पूर्वावलोकन</h2></div>
+  <div class="hint">सिग्नेचर को खींचकर सही जगह रखिए, कोने के गोल बिंदु से आकार बदलिए।</div>
+  <div class="psstage"><div class="empty" id="ps_emp">पहले फोटो अपलोड कीजिए</div>
+   <div class="stg" id="ps_stg" hidden><canvas id="ps_pcv"></canvas><div id="ps_sg" hidden><img id="ps_sgi" alt=""><div class="rz"></div></div></div></div>
+  <div class="psbar">
+   <button type="button" class="btn" id="ps_dg">फोटो (JPG) डाउनलोड</button>
+   <button type="button" class="btn alt" id="ps_dp">PDF डाउनलोड</button>
+   <button type="button" class="btn alt" id="ps_pt">प्रिंट</button>
+   <div class="st" id="ps_status" role="status" aria-live="polite"></div>
+  </div>
+ 
+<div id="ps_md">
+<div class="hint">कोनों के गोल बिंदु सही कोनों पर खींचिए। किनारे के बीच वाले चौकोर बिंदु से पूरा किनारा खिसकता है।</div>
+<div id="ps_cst"><canvas id="ps_cv"></canvas><canvas id="ps_lens" width="130" height="130"></canvas></div>
+<div class="psrow"><button id="ps_rl">&#x21BA; बाएँ घुमाएँ</button><button id="ps_rr">दाएँ घुमाएँ &#x21BB;</button><button id="ps_zmb" hidden>&#x1F50D; Zoom</button><button id="ps_cx">रद्द करें</button><button class="p" id="ps_ok">Apply Crop</button></div>
+</div>
+<div id="ps_pm" role="dialog" aria-modal="true"><div class="psmcard"><h3>फोटो क्रॉप / ज़ूम</h3>
+ <canvas id="ps_pmc"></canvas><div class="hint" style="margin:0">उँगली से खींचकर फोटो सेट करें, स्लाइडर या दो उँगली से ज़ूम करें</div>
+ <input type="range" id="ps_pzm" min="0.4" max="4" step="0.01" value="1" aria-label="ज़ूम">
+ <div class="mb"><button class="btn ghost" id="ps_pzc">रद्द</button><button class="btn" id="ps_pzo">Apply Crop</button></div></div></div>
+<div id="ps_sz" role="dialog" aria-modal="true"><div class="psmcard">
+ <h3 id="ps_szt">फाइल का साइज़</h3>
+ <div class="hint" style="margin:0">कितने KB / MB में चाहिए? (डिफ़ॉल्ट 200 KB)</div>
+ <div class="sr"><input id="ps_szv" type="number" min="1" step="any" inputmode="decimal" value="200"><select id="ps_szu"><option>KB</option><option>MB</option></select></div>
+ <div class="mb"><button class="btn ghost" id="ps_szc">रद्द</button><button class="btn" id="ps_szo">डाउनलोड</button></div>
+</div></div>
+</div>
+<div id="ps_pr" class="prn"><img id="ps_pri" alt=""></div>
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-label="हस्ताक्षर काटें">
   <div class="mcard">
     <div class="cropper"><div class="cin" id="cropper">
@@ -1949,6 +2127,7 @@ body{margin:0}
       </div>
     </div>
     <p class="hint err" id="sigerr" hidden></p>
+    <div class="rbrow"><button type="button" class="rbbtn" id="rbbtn" disabled>Background Remove</button><span class="rbst" id="rbst" role="status" aria-live="polite"></span></div>
     <div class="tools">
       <button type="button" class="btn ghost" id="rot">घुमाएँ</button>
       <button type="button" class="btn ghost" id="cropall">पूरी फोटो</button>
@@ -1957,6 +2136,92 @@ body{margin:0}
     </div>
   </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></scr@@ipt>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></scr@@ipt>
+<script>
+/* remove.bg helper. Admin ki API key 1 / key 2 (publicConfig/passport) use hoti hain; ek ka limit khatam to dusri apne aap chalti hai.
+   Har successful call ka hisaab Admin > Passport Photo me feature-wise (BC / OBC / RTPS sign, RTPS photo) dikhta hai. */
+window.RB=(function(){
+  var FALLBACK="mFhCPmhSa1FBsGBnjkQTesB7",KEYS=null,DEAD_MS=30*60*1000;
+  function par(){try{var P=window.parent;return P&&P!==window?P:null}catch(e){return null}}
+  function sig(k){return k.slice(0,4)+k.slice(-4)+k.length}
+  function deadMap(){try{return JSON.parse(localStorage.getItem("pp_dead")||"{}")}catch(e){return{}}}
+  function markDead(k){var m=deadMap();m[sig(k)]=Date.now();try{localStorage.setItem("pp_dead",JSON.stringify(m))}catch(e){}}
+  function isDead(k){var t=deadMap()[sig(k)];return !!t&&Date.now()-t<DEAD_MS}
+  async function loadKeys(){
+    if(KEYS)return KEYS;
+    var cfg=null;
+    try{var P=par();if(P&&P.apPassport)cfg=await P.apPassport.cfg()}catch(e){}
+    var ks=[];
+    if(cfg&&cfg.k1&&String(cfg.k1).trim())ks.push({k:String(cfg.k1).trim(),idx:1});
+    if(cfg&&cfg.k2&&String(cfg.k2).trim())ks.push({k:String(cfg.k2).trim(),idx:2});
+    if(!ks.length)ks.push({k:FALLBACK,idx:1});
+    KEYS=ks;return ks;
+  }
+  function post(key,blob,size,type){
+    var fd=new FormData();
+    fd.append("image_file",blob,"image.jpg");fd.append("size",size);fd.append("type",type);fd.append("format","png");
+    return fetch("https://api.remove.bg/v1.0/removebg",{method:"POST",headers:{"X-Api-Key":key.k},body:fd});
+  }
+  async function run(blob,type){
+    var ks=await loadKeys();
+    var order=ks.filter(function(x){return !isDead(x.k)}).concat(ks.filter(function(x){return isDead(x.k)}));
+    var res=null,used=0,last=0;
+    for(var i=0;i<order.length;i++){
+      var r=await post(order[i],blob,"auto",type);
+      if(r.ok){res=r;used=order[i].idx;break}
+      last=r.status;
+      if(r.status===402||r.status===403||r.status===429){markDead(order[i].k);continue}
+      throw new Error("HTTP "+r.status);
+    }
+    if(!res&&last===402){
+      var r2=await post(order[0],blob,"preview",type);
+      if(r2.ok){res=r2;used=order[0].idx}else last=r2.status;
+    }
+    if(!res)throw new Error("HTTP "+last);
+    return {blob:await res.blob(),used:used};
+  }
+  function toImg(b){
+    return new Promise(function(ok,no){
+      var u=URL.createObjectURL(b),i=new Image();
+      i.onload=function(){ok(i);setTimeout(function(){URL.revokeObjectURL(u)},4000)};
+      i.onerror=function(){URL.revokeObjectURL(u);no(new Error("img"))};
+      i.src=u;
+    });
+  }
+  /* src canvas bhejta hai, remove.bg ka mask original resolution par lagakar transparent canvas lautata hai.
+     type = remove.bg "type"; alt = 400 aane par dusra type try hoga. feat = Admin me gine jaane wala naam. */
+  async function cut(src,feat,type,alt,q){
+    var blob=await new Promise(function(r){src.toBlob(r,"image/jpeg",q||.92)});
+    var out;
+    try{out=await run(blob,type)}
+    catch(e){if(alt&&/HTTP 400/.test(String(e.message)))out=await run(blob,alt);else throw e}
+    var im=await toImg(out.blob);
+    var c=document.createElement("canvas");c.width=src.width;c.height=src.height;
+    var x=c.getContext("2d");
+    x.drawImage(src,0,0);x.globalCompositeOperation="destination-in";x.imageSmoothingQuality="high";
+    x.drawImage(im,0,0,c.width,c.height);
+    try{var P=par();if(P&&P.apPassport&&P.apPassport.report)P.apPassport.report(out.used,feat)}catch(e){}
+    return c;
+  }
+  function stats(c){
+    var d=c.getContext("2d").getImageData(0,0,c.width,c.height).data,n=0,t=d.length>>2;
+    for(var i=3;i<d.length;i+=4)if(d[i]>64)n++;
+    return {ink:n,total:t,cover:t?n/t:0};
+  }
+  function msg(e){
+    var m=String(e&&e.message||e);
+    if(/HTTP 403/.test(m))return "API key सही नहीं है या बंद है (403)।";
+    if(/HTTP 402/.test(m))return "remove.bg के credits खत्म हो गए (402)।";
+    if(/HTTP 429/.test(m))return "बहुत ज़्यादा रिक्वेस्ट (429), थोड़ी देर बाद कोशिश कीजिए।";
+    if(/HTTP 400/.test(m))return "remove.bg को फोटो समझ नहीं आई (400), दूसरी फोटो आज़माइए।";
+    if(m==="NOINK")return "remove.bg हस्ताक्षर अलग नहीं कर सका, इसलिए सामान्य रिज़ल्ट ही रखा है।";
+    return "remove.bg से कनेक्ट नहीं हो सका। इंटरनेट जाँचिए।";
+  }
+  return {cut:cut,stats:stats,msg:msg};
+})();
+</scr@@ipt>
 
 <script>
 (function(){
@@ -2202,11 +2467,41 @@ function cropSource(){
   x.drawImage(photo,sx,sy,cw,ch,0,0,c.width,c.height);
   return c;
 }
-var sigTimer=0;
+var sigTimer=0,apiCut=null,rbBusy=false,rbJob=0,keepMsg=false;
+function rbReset(keep){
+  apiCut=null;var b=$('rbbtn');b.textContent='Background Remove';b.classList.remove('on');
+  if(!keep){$('rbst').textContent='';$('rbst').className='rbst'}
+}
+function rbSay(t,err){var s=$('rbst');s.textContent=t;s.className='rbst'+(err?' err':'')}
+/* remove.bg ka transparent canvas -> rang / kinare trim karke signature banao */
+function fromCut(src,color,trim){
+  var w=src.width,h=src.height,d=src.getContext('2d').getImageData(0,0,w,h).data,out=new Uint8ClampedArray(d.length);
+  var cr=color==='black'?15:color==='blue'?22:-1,cg=color==='black'?15:color==='blue'?36:-1,cb=color==='black'?15:color==='blue'?140:-1;
+  var minx=w,miny=h,maxx=-1,maxy=-1,ink=0;
+  for(var yy=0;yy<h;yy++)for(var xx=0;xx<w;xx++){
+    var q=(yy*w+xx)*4,a=d[q+3];
+    if(a<16) continue;
+    if(cr>=0){out[q]=cr;out[q+1]=cg;out[q+2]=cb}else{out[q]=d[q]*0.85;out[q+1]=d[q+1]*0.85;out[q+2]=d[q+2]*0.85}
+    out[q+3]=a;
+    if(a>64){ink++;if(xx<minx)minx=xx;if(xx>maxx)maxx=xx;if(yy<miny)miny=yy;if(yy>maxy)maxy=yy}
+  }
+  if(ink<40) return null;
+  var full=document.createElement('canvas');full.width=w;full.height=h;
+  full.getContext('2d').putImageData(new ImageData(out,w,h),0,0);
+  var sx=0,sy=0,ex=w,ey=h;
+  if(trim){
+    var pad=Math.max(4,Math.round(Math.max(maxx-minx,maxy-miny)*0.03));
+    sx=Math.max(0,minx-pad);sy=Math.max(0,miny-pad);ex=Math.min(w,maxx+pad+1);ey=Math.min(h,maxy+pad+1);
+  }
+  var cw=ex-sx,chh=ey-sy,cc=document.createElement('canvas');cc.width=cw;cc.height=chh;
+  cc.getContext('2d').drawImage(full,sx,sy,cw,chh,0,0,cw,chh);
+  return {url:cc.toDataURL('image/png'),w:cw,h:chh};
+}
 function runSig(){
   clearTimeout(sigTimer);
   sigTimer=setTimeout(function(){
     if(!photo) return;
+    rbJob++;var km=keepMsg;keepMsg=false;rbReset(km);
     var r=removeBackground(cropSource(),parseInt($('sens').value,10),$('sigcolor').value,$('trim').checked);
     var err=$('sigerr'),th=$('sigthumb');
     if(!r){
@@ -2215,23 +2510,28 @@ function runSig(){
       th.innerHTML='<span class="none">हस्ताक्षर नहीं मिला</span>';
       placeSig();return;
     }
-    err.hidden=true;
-    var im=new Image();
-    im.onload=function(){
-      sigRes=r;sigImg=im;
-      th.innerHTML='';var t=new Image();t.alt='हस्ताक्षर';t.src=r.url;th.appendChild(t);
-      $('sigimg').src=r.url;
-      if(!sig.placed){
-        var ar=r.w/r.h;
-        sig.w=Math.min(320,110*ar);
-        sig.cx=C.sig.cx;sig.cy=C.sig.bottom-(sig.w/ar)/2;
-        sig.placed=true;
-      }
-      placeSig();
-    };
-    im.src=r.url;
+    acceptSig(r);
   },50);
 }
+function acceptSig(r){
+  var th=$('sigthumb');
+  $('sigerr').hidden=true;
+  var im=new Image();
+  im.onload=function(){
+    sigRes=r;sigImg=im;
+    th.innerHTML='';var t=new Image();t.alt='हस्ताक्षर';t.src=r.url;th.appendChild(t);
+    $('sigimg').src=r.url;
+    if(!sig.placed){
+      var ar=r.w/r.h;
+      sig.w=Math.min(320,110*ar);
+      sig.cx=C.sig.cx;sig.cy=C.sig.bottom-(sig.w/ar)/2;
+      sig.placed=true;
+    }
+    placeSig();
+  };
+  im.src=r.url;
+}
+function applyApi(){var r=fromCut(apiCut,$('sigcolor').value,$('trim').checked);if(r) acceptSig(r)}
 function placeSig(){
   var box=$('sigbox'),tools=$('sigtools');
   if(!sigRes){box.hidden=true;tools.hidden=true;return}
@@ -2253,7 +2553,7 @@ function setPhoto(c){
   photo=c;crop={x:0,y:0,w:1,h:1};
   var cv=$('cropcv');cv.width=c.width;cv.height=c.height;
   cv.getContext('2d').drawImage(c,0,0);
-  $('modal').hidden=false;sig.placed=false;
+  $('modal').hidden=false;sig.placed=false;$('rbbtn').disabled=false;
   updateBox();runSig();
 }
 function updateBox(){
@@ -2287,7 +2587,7 @@ function rotatePhoto(){
   setPhoto(c);
 }
 function clearSig(){
-  photo=null;sigRes=null;sigImg=null;sig.placed=false;
+  photo=null;sigRes=null;sigImg=null;sig.placed=false;rbJob++;rbBusy=false;rbReset();$('rbbtn').disabled=true;
   $('sigfile').value='';$('sigerr').hidden=true;$('modal').hidden=true;
   $('sigthumb').innerHTML='<span class="none">हस्ताक्षर यहाँ दिखेगा</span>';
   placeSig();
@@ -2455,12 +2755,31 @@ Array.prototype.forEach.call(document.querySelectorAll('input[name=gender],input
   $(id).addEventListener('input',function(){$(id).value=digits($(id).value);schedule()});
 });
 $('sigfile').addEventListener('change',function(e){loadSig(e.target.files&&e.target.files[0])});
-$('sens').addEventListener('input',runSig);
-$('sigcolor').addEventListener('change',runSig);
-$('trim').addEventListener('change',function(){sig.placed=sig.placed;runSig()});
+$('sens').addEventListener('input',function(){if(!apiCut) runSig()});
+$('sigcolor').addEventListener('change',function(){if(apiCut) applyApi();else runSig()});
+$('trim').addEventListener('change',function(){if(apiCut) applyApi();else runSig()});
 $('rot').addEventListener('click',rotatePhoto);
 $('cropall').addEventListener('click',function(){crop={x:0,y:0,w:1,h:1};updateBox();runSig()});
 $('sigclear').addEventListener('click',clearSig);
+$('rbbtn').addEventListener('click',function(){
+  if(rbBusy||!photo) return;
+  if(apiCut){runSig();return}                      /* "Normal wapas" */
+  var my=++rbJob,b=$('rbbtn'),src=cropSource();
+  rbBusy=true;b.disabled=true;b.textContent='प्रोसेसिंग…';rbSay('remove.bg से बैकग्राउंड हट रहा है…');
+  RB.cut(src,cur==='viii'?'obc_sign':'bc_sign','graphic','auto',.95).then(function(c){
+    if(my!==rbJob) return;
+    var st=RB.stats(c);
+    if(st.ink<40||st.cover>0.6) throw new Error('NOINK');
+    apiCut=c;
+    var r=fromCut(c,$('sigcolor').value,$('trim').checked);
+    if(!r){apiCut=null;throw new Error('NOINK')}
+    acceptSig(r);
+    b.textContent='✓ Normal वापस लाएँ';b.classList.add('on');rbSay('remove.bg से बैकग्राउंड हट गया।');
+  }).catch(function(e){
+    if(my!==rbJob) return;
+    apiCut=null;b.textContent='Background Remove';b.classList.remove('on');rbSay(RB.msg(e),1);
+  }).then(function(){rbBusy=false;if(photo) b.disabled=false});
+});
 function closeModal(){
   $('modal').hidden=true;
   setTimeout(function(){var el=sigRes?$('sigbox'):$('paper');el.scrollIntoView({behavior:'smooth',block:'center'})},60);
@@ -2559,6 +2878,484 @@ setToday();
 render();
 fontsReady().then(render);
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(render);
+})();
+</scr@@ipt>
+<script>
+(function(){
+const LAB=["Doc 1 (front)","Doc 2 (back)","Doc 3 (front)","Doc 4 (back)","Doc 5 (extra)"];
+const AW=794,AH=1123;
+const slots=[null,null,null,null,null];let rects=[];
+const $=id=>document.getElementById(id);
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+/* ---------- slots ---------- */
+function buildSlots(){
+ $("cr_slots").innerHTML="";
+ LAB.forEach((l,i)=>{
+  const s=slots[i],d=document.createElement("div");d.className="slot";
+  d.innerHTML='<b>'+(i+1)+'. '+l+'</b><div class="pv">'+(s?'<img src="'+s.url+'">':'No file')+'</div>';
+  const f=document.createElement("input");f.type="file";f.accept="image/*,application/pdf";f.hidden=true;
+  f.onchange=()=>{if(f.files[0])loadFile(i,f.files[0]);f.value=""};
+  const r=document.createElement("div");r.className="crow";
+  const u=document.createElement("button");u.className=s?"":"p";u.textContent=s?"Replace":"Upload";u.onclick=()=>f.click();r.appendChild(u);
+  if(s){const c=document.createElement("button");c.textContent="Re-crop";c.onclick=()=>openCrop(i,s.src,s.pts);r.appendChild(c);
+   const x=document.createElement("button");x.textContent="Remove";x.onclick=()=>{slots[i]=null;refresh()};r.appendChild(x)}
+  d.append(r,f);$("cr_slots").appendChild(d)});
+}
+async function loadFile(i,file){
+ let c;
+ try{
+  if(file.type==="application/pdf"||/\.pdf$/i.test(file.name)){
+   const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,pg=await pdf.getPage(1),vp=pg.getViewport({scale:2.5});
+   c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+  }else{
+   const url=URL.createObjectURL(file),im=new Image();await new Promise((a,b)=>{im.onload=a;im.onerror=b;im.src=url});
+   const k=Math.min(1,3000/Math.max(im.naturalWidth,im.naturalHeight));c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);
+   c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);
+  }
+ }catch(e){alert("यह फाइल नहीं खुल सकी।");return}
+ openCrop(i,c,null);
+}
+
+/* ---------- crop ---------- */
+let cs=null;const cv=$("cr_cv"),cx=cv.getContext("2d"),lens=$("cr_lens"),lx=lens.getContext("2d");
+function openCrop(i,src,pts){
+ cs={i,src,pts:pts?pts.map(p=>({...p})):null,sc:1,drag:null};
+ if(!cs.pts){const W=src.width,H=src.height,m=.06;cs.pts=[{x:W*m,y:H*m},{x:W*(1-m),y:H*m},{x:W*(1-m),y:H*(1-m)},{x:W*m,y:H*(1-m)}]}
+ $("cr_md").classList.add("on");fit();draw();
+}
+function fit(){const W=cs.src.width,H=cs.src.height;cs.sc=Math.min((innerWidth-24)/W,(innerHeight-150)/H);cv.width=Math.round(W*cs.sc);cv.height=Math.round(H*cs.sc)}
+addEventListener("resize",()=>{if(cs&&$("cr_md").classList.contains("on")){fit();draw()}});
+function mids(p){return[[0,1],[1,2],[2,3],[3,0]].map(([a,b])=>({x:(p[a].x+p[b].x)/2,y:(p[a].y+p[b].y)/2}))}
+function draw(){
+ const s=cs.sc,p=cs.pts.map(q=>({x:q.x*s,y:q.y*s}));
+ cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(cs.src,0,0,cv.width,cv.height);
+ cx.beginPath();cx.rect(0,0,cv.width,cv.height);cx.moveTo(p[0].x,p[0].y);p.slice(1).forEach(q=>cx.lineTo(q.x,q.y));cx.closePath();cx.fillStyle="rgba(0,0,0,.5)";cx.fill("evenodd");
+ cx.beginPath();cx.moveTo(p[0].x,p[0].y);p.slice(1).forEach(q=>cx.lineTo(q.x,q.y));cx.closePath();cx.strokeStyle="#4ade80";cx.lineWidth=2;cx.stroke();
+ p.forEach((q,k)=>{cx.beginPath();cx.arc(q.x,q.y,11,0,7);cx.fillStyle=cs.drag&&cs.drag.h===k?"#facc15":"#4ade80";cx.fill();cx.lineWidth=2;cx.strokeStyle="#fff";cx.stroke()});
+ mids(p).forEach((q,k)=>{cx.fillStyle=cs.drag&&cs.drag.h===k+4?"#facc15":"#60a5fa";cx.fillRect(q.x-8,q.y-8,16,16);cx.strokeStyle="#fff";cx.strokeRect(q.x-8,q.y-8,16,16)});
+}
+function ev(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/cs.sc,y:(e.clientY-r.top)/cs.sc}}
+function hit(pt){const R=22/cs.sc;let best=-1,bd=1e9;const all=[...cs.pts,...mids(cs.pts)];
+ all.forEach((q,k)=>{const d=Math.hypot(q.x-pt.x,q.y-pt.y)*(k<4?.9:1);if(d<R&&d<bd){bd=d;best=k}});return best}
+cv.onpointerdown=e=>{if(!cs)return;const pt=ev(e),h=hit(pt);if(h<0)return;cv.setPointerCapture(e.pointerId);cs.drag={h,s:pt,o:cs.pts.map(q=>({...q}))};move(pt);draw()};
+cv.onpointermove=e=>{if(cs&&cs.drag)move(ev(e))};
+cv.onpointerup=cv.onpointercancel=()=>{if(cs){cs.drag=null;lens.style.display="none";draw()}};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function move(pt){
+ const d=cs.drag,W=cs.src.width,H=cs.src.height;let dx=pt.x-d.s.x,dy=pt.y-d.s.y,fx=pt.x,fy=pt.y;
+ if(d.h<4){cs.pts[d.h]={x:clamp(d.o[d.h].x+dx,0,W),y:clamp(d.o[d.h].y+dy,0,H)};fx=cs.pts[d.h].x;fy=cs.pts[d.h].y}
+ else{const [a,b]=[[0,1],[1,2],[2,3],[3,0]][d.h-4];
+  const lx0=Math.min(d.o[a].x,d.o[b].x),hx=Math.max(d.o[a].x,d.o[b].x),ly=Math.min(d.o[a].y,d.o[b].y),hy=Math.max(d.o[a].y,d.o[b].y);
+  dx=clamp(dx,-lx0,W-hx);dy=clamp(dy,-ly,H-hy);
+  [a,b].forEach(k=>cs.pts[k]={x:d.o[k].x+dx,y:d.o[k].y+dy});const m=mids(cs.pts)[d.h-4];fx=m.x;fy=m.y}
+ draw();lensAt(fx,fy);
+}
+function lensAt(x,y){
+ const z=cs.sc*3,r=130/z;lens.style.display="block";
+ const px=x*cs.sc;lens.style.left=px<170&&y*cs.sc<170?"auto":"8px";lens.style.right=px<170&&y*cs.sc<170?"8px":"auto";
+ lx.fillStyle="#000";lx.fillRect(0,0,130,130);lx.drawImage(cs.src,x-r/2,y-r/2,r,r,0,0,130,130);
+ lx.strokeStyle="#ff3b3b";lx.lineWidth=1.2;lx.beginPath();lx.moveTo(65,0);lx.lineTo(65,130);lx.moveTo(0,65);lx.lineTo(130,65);lx.stroke();
+}
+function rot(dir){
+ const W=cs.src.width,H=cs.src.height,c=document.createElement("canvas");c.width=H;c.height=W;const x=c.getContext("2d");
+ if(dir>0){x.translate(H,0);x.rotate(Math.PI/2)}else{x.translate(0,W);x.rotate(-Math.PI/2)}
+ x.drawImage(cs.src,0,0);cs.pts=cs.pts.map(p=>dir>0?{x:H-p.y,y:p.x}:{x:p.y,y:W-p.x});
+ cs.pts=dir>0?[cs.pts[3],cs.pts[0],cs.pts[1],cs.pts[2]]:[cs.pts[1],cs.pts[2],cs.pts[3],cs.pts[0]];
+ cs.src=c;fit();draw();
+}
+$("cr_rl").onclick=()=>rot(-1);$("cr_rr").onclick=()=>rot(1);
+$("cr_cx").onclick=()=>{$("cr_md").classList.remove("on");cs=null};
+$("cr_ok").onclick=()=>{
+ const out=warp(cs.src,cs.pts);
+ slots[cs.i]={src:cs.src,pts:cs.pts.map(p=>({...p})),out,url:out.toDataURL("image/jpeg",.93)};
+ $("cr_md").classList.remove("on");cs=null;refresh();
+};
+function warp(src,p){
+ const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ let w=Math.max(d(p[0],p[1]),d(p[3],p[2])),h=Math.max(d(p[0],p[3]),d(p[1],p[2]));
+ const k=Math.min(1,2600/Math.max(w,h));w=Math.max(2,Math.round(w*k));h=Math.max(2,Math.round(h*k));
+ const SW=src.width,SH=src.height,S=src.getContext("2d").getImageData(0,0,SW,SH).data;
+ const out=document.createElement("canvas");out.width=w;out.height=h;const oc=out.getContext("2d"),od=oc.createImageData(w,h),O=od.data;
+ for(let y=0;y<h;y++){const v=h>1?y/(h-1):0,Lx=p[0].x+(p[3].x-p[0].x)*v,Ly=p[0].y+(p[3].y-p[0].y)*v,Rx=p[1].x+(p[2].x-p[1].x)*v,Ry=p[1].y+(p[2].y-p[1].y)*v;
+  for(let x=0;x<w;x++){const u=x/(w-1),sx=clamp(Lx+(Rx-Lx)*u,0,SW-1.001),sy=clamp(Ly+(Ry-Ly)*u,0,SH-1.001),
+   x0=sx|0,y0=sy|0,fx=sx-x0,fy=sy-y0,i0=(y0*SW+x0)*4,i1=i0+4,i2=i0+SW*4,i3=i2+4,o=(y*w+x)*4;
+   for(let c=0;c<3;c++)O[o+c]=(S[i0+c]*(1-fx)+S[i1+c]*fx)*(1-fy)+(S[i2+c]*(1-fx)+S[i3+c]*fx)*fy;O[o+3]=255}}
+ oc.putImageData(od,0,0);return out;
+}
+
+/* ---------- A4 layout ---------- */
+function autoLayout(){
+ const f=i=>slots[i],M=40,G=20,cw=(AW-2*M-G)/2;let y=M;rects=[];
+ const rows=[[0,1],[2,3]].map(r=>r.filter(f)).filter(r=>r.length);
+ rows.forEach(r=>{let rh=0;r.forEach((i,k)=>{const o=slots[i].out,h=cw*o.height/o.width;rects[i]={x:M+k*(cw+G),y,w:cw,h};rh=Math.max(rh,h)});y+=rh+G});
+ if(f(4)){const o=slots[4].out;let w=rows.length>1?cw:AW-2*M,h=w*o.height/o.width;const av=AH-M-y;if(h>av){h=av;w=h*o.width/o.height}rects[4]={x:M,y,w,h}}
+}
+let z=1;
+function render(){
+ const pg=$("cr_page");pg.innerHTML="";pg.className=$("cr_mn").checked?"man":"";
+ slots.forEach((s,i)=>{if(!s||!rects[i])return;const r=rects[i],d=document.createElement("div");d.className="it";d.dataset.i=i;
+  d.style.cssText="left:"+r.x+"px;top:"+r.y+"px;width:"+r.w+"px;height:"+r.h+"px";
+  d.innerHTML='<img src="'+s.url+'"><div class="rz"></div>';pg.appendChild(d)});
+ fitPage();
+}
+function fitPage(){z=Math.min(1,(Math.min(innerWidth,940)-56)/AW);$("cr_page").style.transform="scale("+z+")";$("cr_wrap").style.width=AW*z+"px";$("cr_wrap").style.height=AH*z+"px"}
+addEventListener("resize",fitPage);
+let mv=null;
+$("cr_page").addEventListener("pointerdown",e=>{
+ if(!$("cr_mn").checked)return;const it=e.target.closest(".it");if(!it)return;const i=+it.dataset.i,rz=e.target.classList.contains("rz");
+ $("cr_page").setPointerCapture(e.pointerId);mv={i,rz,x:e.clientX,y:e.clientY,r:{...rects[i]},el:it};it.style.zIndex=10;
+});
+$("cr_page").addEventListener("pointermove",e=>{
+ if(!mv)return;const dx=(e.clientX-mv.x)/z,dy=(e.clientY-mv.y)/z,r=rects[mv.i],o=mv.r;
+ if(mv.rz){const w=Math.max(40,o.w+Math.max(dx,dy*o.w/o.h));r.w=w;r.h=w*o.h/o.w}else{r.x=o.x+dx;r.y=o.y+dy}
+ const s=mv.el.style;s.left=r.x+"px";s.top=r.y+"px";s.width=r.w+"px";s.height=r.h+"px";
+});
+$("cr_page").addEventListener("pointerup",()=>{mv=null});$("cr_page").addEventListener("pointercancel",()=>{mv=null});
+$("cr_mn").onchange=render;$("cr_rs").onclick=()=>{autoLayout();render()};
+function refresh(){buildSlots();autoLayout();render()}
+
+/* ---------- export ---------- */
+let dlP=Promise.resolve(null);
+try{if(window.claude&&claude.use)dlP=Promise.resolve(claude.use("downloads")).then(d=>d||null,()=>null)}catch(e){}
+function setStatus(t){$("cr_status").textContent=t}
+function busy(b){["dp","dg","pt"].forEach(k=>$(k).disabled=b)}
+function none(){if(!slots.some(Boolean)){alert("पहले कम से कम एक दस्तावेज़ अपलोड कीजिए।");return true}}
+function sheet(){
+ const k=2480/AW,c=document.createElement("canvas");c.width=2480;c.height=Math.round(AH*k);const x=c.getContext("2d");
+ x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.imageSmoothingQuality="high";
+ slots.forEach((s,i)=>{if(s&&rects[i]){const r=rects[i];x.drawImage(s.out,r.x*k,r.y*k,r.w*k,r.h*k)}});return c;
+}
+const jb=(c,q)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));
+/* shrink to <= target bytes: lower quality first (down to .45), then reduce pixel size */
+async function fitJpeg(src,target){
+ let s=1,last=null;
+ for(let n=0;n<16;n++){
+  let c=src;
+  if(s<1){c=document.createElement("canvas");c.width=Math.max(60,Math.round(src.width*s));c.height=Math.max(85,Math.round(src.height*s));const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(src,0,0,c.width,c.height)}
+  const top=await jb(c,.95);last={blob:top,c};if(top.size<=target)return last;
+  const low=await jb(c,.45);last={blob:low,c};
+  if(low.size<=target){let lo=.45,hi=.95,best=low;for(let i=0;i<7;i++){const m=(lo+hi)/2,b=await jb(c,m);if(b.size<=target){best=b;lo=m}else hi=m}return{blob:best,c}}
+  s*=.85;
+ }
+ return last;
+}
+function askSize(title){
+ return new Promise(res=>{
+  $("cr_szt").textContent=title;$("cr_szv").value=200;$("cr_szu").value="KB";$("cr_sz").classList.add("on");$("cr_szv").focus();
+  const done=v=>{$("cr_sz").classList.remove("on");$("cr_szo").onclick=$("cr_szc").onclick=null;res(v)};
+  $("cr_szc").onclick=()=>done(null);
+  $("cr_szo").onclick=()=>{const v=parseFloat($("cr_szv").value);if(!(v>0)){$("cr_szv").focus();return}done(Math.round(v*($("cr_szu").value==="MB"?1048576:1024)))};
+ });
+}
+const kb=n=>n>=1048576?(n/1048576).toFixed(2)+" MB":Math.round(n/1024)+" KB";
+function toData(b){return new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})}
+async function save(name,blob){
+ const dl=await dlP;
+ if(!dl){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return true}
+ try{await dl.save({filename:name,data:blob});return true}
+ catch(e){if(e&&e.code==="declined")setStatus("डाउनलोड रद्द किया गया।");else alert("सेव नहीं हो सका: "+(e&&e.message||e));return false}
+}
+async function exportAs(kind){
+ if(none())return;
+ const target=await askSize(kind==="pdf"?"A4 PDF का साइज़":"फोटो का साइज़");if(!target)return;
+ busy(true);setStatus("तैयार हो रहा है…");
+ try{
+  const sh=sheet();
+  if(kind==="pdf"){
+   const r=await fitJpeg(sh,Math.max(2048,target-4096)),{jsPDF}=window.jspdf,pdf=new jsPDF({unit:"mm",format:"a4"});
+   pdf.addImage(await toData(r.blob),"JPEG",0,0,210,297,undefined,"FAST");
+   const out=pdf.output("blob");if(await save("documents-a4.pdf",out))setStatus("PDF सेव: "+kb(out.size)+(out.size>target?" (इससे छोटा नहीं हो सका)":""));
+  }else{
+   const r=await fitJpeg(sh,target);
+   if(await save("documents-a4.jpg",r.blob))setStatus("फोटो सेव: "+kb(r.blob.size)+(r.blob.size>target?" (इससे छोटा नहीं हो सका)":""));
+  }
+ }catch(e){setStatus("बन नहीं सका। दोबारा कोशिश कीजिए।")}
+ busy(false);
+}
+$("cr_dp").onclick=()=>exportAs("pdf");$("cr_dg").onclick=()=>exportAs("jpg");
+$("cr_pt").onclick=async()=>{
+ if(none())return;busy(true);
+ try{const b=await jb(sheet(),.92);$("cr_pri").src=await toData(b);await $("cr_pri").decode().catch(()=>{});document.body.dataset.pp="cr";window.print()}
+ catch(e){alert("यहाँ प्रिंट नहीं खुल सका। PDF डाउनलोड करके उसे प्रिंट कीजिए।")}
+ busy(false);
+};
+refresh();
+
+/* ---- CROP box wiring ---- */
+(function(){
+ var g=function(i){return document.getElementById(i)},b=g('pk-crop'),sec=g('cropsec');
+ var pw=g('pickwrap'),top=document.querySelector('header.top'),bk=document.createElement('button');
+ bk.type='button';bk.className='backbtn';bk.textContent='← वापस';bk.hidden=true;top.insertBefore(bk,top.firstChild);
+ var all=['pk-xi','pk-viii','pk-crop'];
+ var tt=top.querySelector('.tt'),T0=tt.textContent;
+ function opened(t){tt.textContent=t;pw.hidden=true;bk.hidden=false;window.scrollTo(0,0)}
+ bk.addEventListener('click',function(){
+  g('app').hidden=true;sec.hidden=true;pw.hidden=false;g('pickhint').hidden=false;bk.hidden=true;tt.textContent=T0;
+  all.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
+  window.scrollTo(0,0);
+ });
+ b.addEventListener('click',function(){
+  g('app').hidden=true;g('pickhint').hidden=true;
+  all.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
+  sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');fitPage();opened('📄 RTPS DOCUMENT CROP');
+ });
+ ['pk-xi','pk-viii'].forEach(function(i){g(i).addEventListener('click',function(){sec.hidden=true;b.classList.remove('on');b.setAttribute('aria-pressed','false');opened(i==='pk-xi'?'📝 BC Sapath Patra':'📝 OBC Sapath Patra')})});
+})();
+
+})();
+</scr@@ipt>
+<script>
+(function(){
+const $=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const cvn=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
+const COLS=["#ffffff","#6aa9e9","#1f5fbf","#d12b2b","#c8c8c8"];
+let asp=35/45,sigCol="#000000",photoOrig=null,photoCorner=null,photoRaw=null,photoC=null,cutC=null,bg="#ffffff",sig=null,S={x:.58,y:.78,w:.3};let cutSrc="",rbBusyP=false,rbBusyS=false;
+
+/* ---------- colours ---------- */
+COLS.forEach((c,i)=>{const b=document.createElement("button");b.style.background=c;b.title=c;b.setAttribute("aria-label","रंग "+c);if(!i)b.className="on";b.onclick=()=>setBg(c,b);$("ps_sw").appendChild(b)});
+const ci=document.createElement("input");ci.type="color";ci.value="#ffffff";ci.oninput=()=>setBg(ci.value,null);$("ps_sw").appendChild(ci);
+function setBg(c,btn){bg=c;[...$("ps_sw").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x===btn));drawPhoto()}
+
+/* ---------- photo ---------- */
+function loadImg(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,3000/Math.max(im.naturalWidth,im.naturalHeight)),c=cvn(im.naturalWidth*k,im.naturalHeight*k),x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c)};im.onerror=()=>{URL.revokeObjectURL(u);no()};im.src=u})}
+$("ps_fP").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+ let c;try{c=await loadImg(f)}catch(_){alert("यह फोटो नहीं खुल सकी (JPG/PNG इस्तेमाल करें)।");return}
+ photoOrig=c;photoCorner=null;openCrop(c,null,"p")};
+$("ps_rcP").onclick=()=>photoRaw&&openPz(photoRaw.src,photoRaw.st);
+$("ps_rcC").onclick=()=>photoOrig&&openCrop(photoOrig,photoCorner?photoCorner.pts:null,"p");
+$("ps_rmP").onclick=()=>{photoOrig=photoCorner=photoRaw=photoC=cutC=null;cutSrc="";$("ps_bgo").hidden=true;cutLabels();photoUI()};
+function photoUI(){
+ const has=!!photoC;$("ps_opP").hidden=!has;$("ps_rbrowP").hidden=!has;$("ps_lbP").classList.toggle("done",has);
+ $("ps_stg").hidden=!has;$("ps_emp").hidden=has;setStatus("");drawPhoto();placeSig();
+}
+function sm(c){const k=Math.min(1,300/Math.max(c.width,c.height)),t=cvn(c.width*k,c.height*k);t.getContext("2d").drawImage(c,0,0,t.width,t.height);return t.toDataURL("image/jpeg",.8)}
+function paintPhoto(ctx,w,h){ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);ctx.imageSmoothingQuality="high";ctx.drawImage(cutC||photoC,0,0,w,h)}
+function drawPhoto(){if(!photoC)return;const c=$("ps_pcv"),k=Math.min(1,1400/Math.max(photoC.width,photoC.height));c.width=Math.round(photoC.width*k);c.height=Math.round(photoC.height*k);paintPhoto(c.getContext("2d"),c.width,c.height)}
+
+/* ---------- background remove (offline) ---------- */
+function blur(a,W,H,r){const t=new Uint8Array(W*H),o=new Uint8Array(W*H),n=2*r+1;
+ for(let y=0;y<H;y++){let s=0;const row=y*W;for(let x=-r;x<=r;x++)s+=a[row+Math.min(W-1,Math.max(0,x))];for(let x=0;x<W;x++){t[row+x]=s/n;s+=a[row+Math.min(W-1,x+r+1)]-a[row+Math.max(0,x-r)]}}
+ for(let x=0;x<W;x++){let s=0;for(let y=-r;y<=r;y++)s+=t[Math.min(H-1,Math.max(0,y))*W+x];for(let y=0;y<H;y++){o[y*W+x]=s/n;s+=t[Math.min(H-1,y+r+1)*W+x]-t[Math.max(0,y-r)*W+x]}}
+ return o}
+const c8=v=>v<0?0:v>255?255:v;
+function makeCut(){
+ const W=photoC.width,H=photoC.height,d=photoC.getContext("2d").getImageData(0,0,W,H).data;
+ const rs=[],gs=[],bs=[],t=Math.max(2,Math.round(Math.min(W,H)*.02));
+ for(let y=0;y<H;y+=3)for(let x=0;x<W;x+=3)if(x<t||y<t||x>=W-t||y>=H-t){const i=(y*W+x)*4;rs.push(d[i]);gs.push(d[i+1]);bs.push(d[i+2])}
+ const med=a=>a.sort((p,q)=>p-q)[a.length>>1],br=med(rs),bgc=med(gs),bb=med(bs);
+ const tol=45,t2=tol*tol,bm=new Uint8Array(W*H),st=new Int32Array(W*H);let sp=0;
+ const push=p=>{if(bm[p])return;const i=p*4,a=d[i]-br,b=d[i+1]-bgc,c=d[i+2]-bb;if(a*a+b*b+c*c<t2){bm[p]=1;st[sp++]=p}};
+ for(let x=0;x<W;x++){push(x);push((H-1)*W+x)}for(let y=0;y<H;y++){push(y*W);push(y*W+W-1)}
+ while(sp){const p=st[--sp],x=p%W;if(x>0)push(p-1);if(x<W-1)push(p+1);if(p>=W)push(p-W);if(p<W*(H-1))push(p+W)}
+ let a=new Uint8Array(W*H);for(let p=0;p<W*H;p++)a[p]=bm[p]?0:255;
+ const r=Math.max(1,Math.round(Math.max(W,H)/900));a=blur(blur(a,W,H,r),W,H,r);
+ const od=new Uint8ClampedArray(d.length);
+ for(let p=0;p<W*H;p++){const i=p*4,al=c8((a[p]-110)*255/80);let r0=d[i],g0=d[i+1],b0=d[i+2];
+  if(al>0&&al<255){const f=al/255,ff=Math.max(f,.4);r0=c8((r0-(1-f)*br)/ff);g0=c8((g0-(1-f)*bgc)/ff);b0=c8((b0-(1-f)*bb)/ff)}
+  od[i]=r0;od[i+1]=g0;od[i+2]=b0;od[i+3]=al}
+ const c=cvn(W,H);c.getContext("2d").putImageData(new ImageData(od,W,H),0,0);return c;
+}
+let tm=null;
+function cutLabels(){$("ps_bgb").textContent=cutC?"बैकग्राउंड वापस लाएँ":"बैकग्राउंड हटाएँ";$("ps_rbP").textContent=cutSrc==="api"?"✓ Normal वापस लाएँ":"Background Remove";$("ps_rbP").classList.toggle("on",cutSrc==="api")}
+function runCut(){if(!photoC)return;$("ps_bgb").disabled=true;setStatus("बैकग्राउंड हट रहा है…");
+ setTimeout(()=>{try{cutC=makeCut();cutSrc="off";$("ps_bgo").hidden=false;cutLabels();setStatus("बैकग्राउंड हट गया।");drawPhoto()}catch(e){setStatus("बैकग्राउंड नहीं हट सका।")}$("ps_bgb").disabled=false},40)}
+$("ps_bgb").onclick=()=>{if(cutC){cutC=null;cutSrc="";$("ps_bgo").hidden=true;cutLabels();setStatus("");drawPhoto()}else runCut()};
+/* remove.bg (Admin ki API key se) */
+$("ps_rbP").onclick=async()=>{
+ if(!photoC||rbBusyP)return;
+ if(cutSrc==="api"){cutC=null;cutSrc="";$("ps_bgo").hidden=true;cutLabels();setStatus("");drawPhoto();return}
+ rbBusyP=true;const b=$("ps_rbP"),src=photoC;b.disabled=true;b.textContent="प्रोसेसिंग…";setStatus("remove.bg से बैकग्राउंड हट रहा है…");
+ try{
+  const c=await RB.cut(src,"rtps_photo","person","auto",.92);
+  if(src!==photoC)return;
+  cutC=c;cutSrc="api";$("ps_bgo").hidden=false;setStatus("remove.bg से बैकग्राउंड हट गया।");drawPhoto();
+ }catch(e){setStatus(RB.msg(e))}
+ finally{rbBusyP=false;b.disabled=false;cutLabels()}
+};
+
+
+/* ---------- signature crop ---------- */
+let cs=null;const cv=$("ps_cv"),cx=cv.getContext("2d"),lens=$("ps_lens"),lx=lens.getContext("2d");
+$("ps_fS").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;let c;try{c=await loadImg(f)}catch(_){alert("यह फाइल नहीं खुल सकी।");return}openCrop(c,null,"s")};
+$("ps_rcS").onclick=()=>sig&&openCrop(sig.src,sig.pts,"s");
+$("ps_rmS").onclick=()=>{sig=null;sigUI()};
+function openCrop(src,pts,t){cs={src,t,pts:pts?pts.map(p=>({...p})):null,sc:1,drag:null};
+ if(!cs.pts){const W=src.width,H=src.height,m=t==="p"?.02:.06;cs.pts=t==="p"&&asp?aspPts(W,H):[{x:W*m,y:H*m},{x:W*(1-m),y:H*m},{x:W*(1-m),y:H*(1-m)},{x:W*m,y:H*(1-m)}]}
+ $("ps_zmb").hidden=t!=="p";$("ps_md").classList.add("on");fit();draw()}
+function fit(){const W=cs.src.width,H=cs.src.height;cs.sc=Math.min((innerWidth-24)/W,(innerHeight-150)/H);cv.width=Math.round(W*cs.sc);cv.height=Math.round(H*cs.sc)}
+addEventListener("resize",()=>{if(cs&&$("ps_md").classList.contains("on")){fit();draw()}});
+function mids(p){return[[0,1],[1,2],[2,3],[3,0]].map(([a,b])=>({x:(p[a].x+p[b].x)/2,y:(p[a].y+p[b].y)/2}))}
+function draw(){const s=cs.sc,p=cs.pts.map(q=>({x:q.x*s,y:q.y*s}));
+ cx.clearRect(0,0,cv.width,cv.height);cx.drawImage(cs.src,0,0,cv.width,cv.height);
+ cx.beginPath();cx.rect(0,0,cv.width,cv.height);cx.moveTo(p[0].x,p[0].y);p.slice(1).forEach(q=>cx.lineTo(q.x,q.y));cx.closePath();cx.fillStyle="rgba(0,0,0,.5)";cx.fill("evenodd");
+ cx.beginPath();cx.moveTo(p[0].x,p[0].y);p.slice(1).forEach(q=>cx.lineTo(q.x,q.y));cx.closePath();cx.strokeStyle="#4ade80";cx.lineWidth=2;cx.stroke();
+ p.forEach((q,k)=>{cx.beginPath();cx.arc(q.x,q.y,11,0,7);cx.fillStyle=cs.drag&&cs.drag.h===k?"#facc15":"#4ade80";cx.fill();cx.lineWidth=2;cx.strokeStyle="#fff";cx.stroke()});
+ mids(p).forEach((q,k)=>{cx.fillStyle=cs.drag&&cs.drag.h===k+4?"#facc15":"#60a5fa";cx.fillRect(q.x-8,q.y-8,16,16);cx.strokeStyle="#fff";cx.strokeRect(q.x-8,q.y-8,16,16)})}
+function ev(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)/cs.sc,y:(e.clientY-r.top)/cs.sc}}
+function hit(pt){const R=22/cs.sc;let best=-1,bd=1e9;[...cs.pts,...mids(cs.pts)].forEach((q,k)=>{const d=Math.hypot(q.x-pt.x,q.y-pt.y)*(k<4?.9:1);if(d<R&&d<bd){bd=d;best=k}});return best}
+cv.onpointerdown=e=>{if(!cs)return;const pt=ev(e),h=hit(pt);if(h<0)return;cv.setPointerCapture(e.pointerId);cs.drag={h,s:pt,o:cs.pts.map(q=>({...q}))};move(pt);draw()};
+cv.onpointermove=e=>{if(cs&&cs.drag)move(ev(e))};
+cv.onpointerup=cv.onpointercancel=()=>{if(cs){cs.drag=null;lens.style.display="none";draw()}};
+function move(pt){const d=cs.drag,W=cs.src.width,H=cs.src.height;let dx=pt.x-d.s.x,dy=pt.y-d.s.y,fx=pt.x,fy=pt.y;
+ if(d.h<4){cs.pts[d.h]={x:clamp(d.o[d.h].x+dx,0,W),y:clamp(d.o[d.h].y+dy,0,H)};fx=cs.pts[d.h].x;fy=cs.pts[d.h].y}
+ else{const [a,b]=[[0,1],[1,2],[2,3],[3,0]][d.h-4];
+  const l0=Math.min(d.o[a].x,d.o[b].x),h0=Math.max(d.o[a].x,d.o[b].x),t0=Math.min(d.o[a].y,d.o[b].y),b0=Math.max(d.o[a].y,d.o[b].y);
+  dx=clamp(dx,-l0,W-h0);dy=clamp(dy,-t0,H-b0);[a,b].forEach(k=>cs.pts[k]={x:d.o[k].x+dx,y:d.o[k].y+dy});const m=mids(cs.pts)[d.h-4];fx=m.x;fy=m.y}
+ draw();lensAt(fx,fy)}
+function lensAt(x,y){const z=cs.sc*3,r=130/z;lens.style.display="block";const px=x*cs.sc,fl=px<170&&y*cs.sc<170;
+ lens.style.left=fl?"auto":"8px";lens.style.right=fl?"8px":"auto";lx.fillStyle="#000";lx.fillRect(0,0,130,130);lx.drawImage(cs.src,x-r/2,y-r/2,r,r,0,0,130,130);
+ lx.strokeStyle="#ff3b3b";lx.lineWidth=1.2;lx.beginPath();lx.moveTo(65,0);lx.lineTo(65,130);lx.moveTo(0,65);lx.lineTo(130,65);lx.stroke()}
+function rot(dir){const W=cs.src.width,H=cs.src.height,c=cvn(H,W),x=c.getContext("2d");
+ if(dir>0){x.translate(H,0);x.rotate(Math.PI/2)}else{x.translate(0,W);x.rotate(-Math.PI/2)}
+ x.drawImage(cs.src,0,0);cs.pts=cs.pts.map(p=>dir>0?{x:H-p.y,y:p.x}:{x:p.y,y:W-p.x});
+ cs.pts=dir>0?[cs.pts[3],cs.pts[0],cs.pts[1],cs.pts[2]]:[cs.pts[1],cs.pts[2],cs.pts[3],cs.pts[0]];cs.src=c;fit();draw()}
+$("ps_zmb").onclick=()=>{if(!cs||cs.t!=="p")return;const pts=cs.pts.map(p=>({...p})),c=warp(cs.src,pts,3000);photoCorner={pts};$("ps_md").classList.remove("on");cs=null;pzSetup(c,null);pzApply();openPz(c,null)};
+$("ps_rl").onclick=()=>rot(-1);$("ps_rr").onclick=()=>rot(1);
+$("ps_cx").onclick=()=>{const t=cs&&cs.t;$("ps_md").classList.remove("on");cs=null;if(t==="p"&&!photoC&&photoOrig){pzSetup(photoOrig,null);pzApply()}};
+$("ps_ok").onclick=()=>{const t=cs.t,pts=cs.pts.map(p=>({...p})),src=cs.src;
+ if(t==="p"){photoCorner={pts};const c=warp(src,pts,3000);$("ps_md").classList.remove("on");cs=null;pzSetup(c,null);pzApply();return}
+ const out=warp(src,pts,2000);sig={src,pts,out,fin:null};$("ps_sg").classList.add("sel");$("ps_md").classList.remove("on");cs=null;sigUI()};
+function warp(src,p,mx,ar){const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ let w=Math.max(d(p[0],p[1]),d(p[3],p[2])),h=Math.max(d(p[0],p[3]),d(p[1],p[2]));if(ar)h=w/ar;const k=Math.min(1,(mx||2000)/Math.max(w,h));w=Math.max(2,Math.round(w*k));h=Math.max(2,Math.round(h*k));
+ const SW=src.width,SH=src.height,Sd=src.getContext("2d").getImageData(0,0,SW,SH).data,out=cvn(w,h),oc=out.getContext("2d"),od=oc.createImageData(w,h),O=od.data;
+ for(let y=0;y<h;y++){const v=h>1?y/(h-1):0,Lx=p[0].x+(p[3].x-p[0].x)*v,Ly=p[0].y+(p[3].y-p[0].y)*v,Rx=p[1].x+(p[2].x-p[1].x)*v,Ry=p[1].y+(p[2].y-p[1].y)*v;
+  for(let x=0;x<w;x++){const u=x/(w-1),sx=clamp(Lx+(Rx-Lx)*u,0,SW-1.001),sy=clamp(Ly+(Ry-Ly)*u,0,SH-1.001),x0=sx|0,y0=sy|0,fx=sx-x0,fy=sy-y0,i0=(y0*SW+x0)*4,i1=i0+4,i2=i0+SW*4,i3=i2+4,o=(y*w+x)*4;
+   for(let c=0;c<3;c++)O[o+c]=(Sd[i0+c]*(1-fx)+Sd[i1+c]*fx)*(1-fy)+(Sd[i2+c]*(1-fx)+Sd[i3+c]*fx)*fy;O[o+3]=255}}
+ oc.putImageData(od,0,0);return out}
+/* white -> transparent */
+function finalSig(){const o=sig.out;
+ const c=cvn(o.width,o.height),x=c.getContext("2d");x.drawImage(o,0,0);const im=x.getImageData(0,0,c.width,c.height),d=im.data;
+ const hs=new Uint32Array(256);let tot=0;for(let i=0;i<d.length;i+=16){hs[Math.round(.299*d[i]+.587*d[i+1]+.114*d[i+2])]++;tot++}
+ let paper=255,acc=0;for(let v=0;v<256;v++){acc+=hs[v];if(acc>=tot*.7){paper=v;break}}
+ paper=Math.max(paper,150);const cr=parseInt(sigCol.slice(1,3),16),cg=parseInt(sigCol.slice(3,5),16),cb=parseInt(sigCol.slice(5,7),16);const hi=paper*.8,lo=paper*.45;
+ const ad=sig.api?sig.api.getContext("2d").getImageData(0,0,c.width,c.height).data:null;
+ for(let i=0;i<d.length;i+=4){let a;if(ad)a=ad[i+3];else{const l=.299*d[i]+.587*d[i+1]+.114*d[i+2];a=c8((hi-l)*255/(hi-lo))}if(a<40)a=0;d[i+3]=a;if(a){d[i]=cr;d[i+1]=cg;d[i+2]=cb}}
+ x.putImageData(im,0,0);
+ const L=+$("ps_sgb").value;if(!L)return c;
+ const r=L*Math.max(1,c.width/700),p=Math.ceil(r),b=cvn(c.width+2*p,c.height+2*p),y=b.getContext("2d");
+ for(let a=0;a<16;a++){const t=a*Math.PI/8;y.drawImage(c,p+Math.cos(t)*r,p+Math.sin(t)*r);y.drawImage(c,p+Math.cos(t)*r/2,p+Math.sin(t)*r/2)}
+ y.drawImage(c,p,p);return b}
+let bt=null;$("ps_sgb").oninput=()=>{clearTimeout(bt);bt=setTimeout(sigUI,60)};
+["#000000","#0b3d91","#c62828"].forEach((c,i)=>{const b=document.createElement("button");b.style.background=c;b.setAttribute("aria-label","सिग्नेचर रंग "+c);if(!i)b.className="on";b.onclick=()=>setSc(c,b);$("ps_ssw").appendChild(b)});
+const sci=document.createElement("input");sci.type="color";sci.value="#000000";sci.oninput=()=>setSc(sci.value,null);$("ps_ssw").appendChild(sci);
+function setSc(c,btn){sigCol=c;[...$("ps_ssw").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x===btn));clearTimeout(bt);bt=setTimeout(sigUI,60)}
+function sigBtn(){const b=$("ps_rbS"),on=!!(sig&&sig.api);b.textContent=on?"✓ Normal वापस लाएँ":"Background Remove";b.classList.toggle("on",on)}
+function sigUI(){const has=!!sig;$("ps_opS").hidden=!has;$("ps_rbrowS").hidden=!has;$("ps_lbS").classList.toggle("done",has);
+ if(has){sig.fin=finalSig();$("ps_sgi").src=sig.fin.toDataURL("image/png")}
+ if(!rbBusyS)sigBtn();placeSig()}
+$("ps_rbS").onclick=async()=>{
+ if(!sig||rbBusyS)return;
+ if(sig.api){sig.api=null;sigUI();setStatus("");return}
+ rbBusyS=true;const b=$("ps_rbS"),me=sig;b.disabled=true;b.textContent="प्रोसेसिंग…";setStatus("remove.bg से बैकग्राउंड हट रहा है…");
+ try{
+  const c=await RB.cut(me.out,"rtps_sign","graphic","auto",.95),st=RB.stats(c);
+  if(st.ink<40||st.cover>.6)throw new Error("NOINK");
+  if(sig!==me)return;
+  sig.api=c;rbBusyS=false;sigUI();setStatus("remove.bg से बैकग्राउंड हट गया।");
+ }catch(e){setStatus(RB.msg(e))}
+ finally{rbBusyS=false;b.disabled=false;sigBtn()}
+};
+function placeSig(){const g=$("ps_sg");g.hidden=!(sig&&photoC);if(g.hidden)return;
+ g.style.left=S.x*100+"%";g.style.top=S.y*100+"%";g.style.width=S.w*100+"%"}
+
+/* ---------- drag / resize signature on photo ---------- */
+let mv=null;
+$("ps_sg").addEventListener("pointerdown",e=>{$("ps_sg").classList.add("sel");const W=$("ps_stg").getBoundingClientRect().width;$("ps_sg").setPointerCapture(e.pointerId);mv={rz:e.target.classList.contains("rz"),x:e.clientX,y:e.clientY,W,H:$("ps_stg").getBoundingClientRect().height,o:{...S}};e.preventDefault()});
+$("ps_sg").addEventListener("pointermove",e=>{if(!mv)return;const dx=(e.clientX-mv.x)/mv.W,dy=(e.clientY-mv.y)/mv.H;
+ if(mv.rz)S.w=clamp(mv.o.w+dx,.05,1.2);else{S.x=clamp(mv.o.x+dx,-.5,1.2);S.y=clamp(mv.o.y+dy,-.5,1.2)}placeSig()});
+$("ps_sg").addEventListener("pointerup",()=>{mv=null});$("ps_sg").addEventListener("pointercancel",()=>{mv=null});
+document.addEventListener("pointerdown",e=>{if(!e.target.closest("#ps_sg"))$("ps_sg").classList.remove("sel")});
+
+$("ps_psz").onchange=()=>{const v=$("ps_psz").value;if(v==="0")asp=0;else{const q=v.split("x");asp=q[0]/q[1]}
+ if(photoRaw){pzSetup(photoRaw.src,null);pzApply()}};
+/* photo crop: drag + zoom inside a fixed-size frame */
+function aspPts(W,H){let h=H*.96,w=h*asp;if(w>W*.96){w=W*.96;h=w/asp}const x=(W-w)/2,y=(H-h)/2;return[{x,y},{x:x+w,y},{x:x+w,y:y+h},{x,y:y+h}]}
+let pz=null;const pmc=$("ps_pmc"),pmx=pmc.getContext("2d"),ptr=new Map();let pd=null;
+function pzPaint(ctx,k,st,src,fw,fh){ctx.fillStyle="#fff";ctx.fillRect(0,0,fw*k,fh*k);
+ const s=Math.max(fw/src.width,fh/src.height)*st.zoom,dw=src.width*s,dh=src.height*s,mx=Math.abs(dw-fw)/2/fw,my=Math.abs(dh-fh)/2/fh;
+ st.ox=clamp(st.ox,-mx,mx);st.oy=clamp(st.oy,-my,my);ctx.imageSmoothingQuality="high";
+ ctx.drawImage(src,(fw/2+st.ox*fw-dw/2)*k,(fh/2+st.oy*fh-dh/2)*k,dw*k,dh*k)}
+function pzSetup(src,st){const a=asp||src.width/src.height;let w=Math.min(300,innerWidth-80),h=w/a;const mh=Math.max(160,innerHeight-280);if(h>mh){h=mh;w=h*a}
+ pz={src,st:st?{...st}:{zoom:1,ox:0,oy:0},fw:w,fh:h}}
+function pzDraw(){pzPaint(pmx,2,pz.st,pz.src,pz.fw,pz.fh)}
+function openPz(src,st){pzSetup(src,st);pmc.width=Math.round(pz.fw*2);pmc.height=Math.round(pz.fh*2);pmc.style.width=pz.fw+"px";pmc.style.height=pz.fh+"px";
+ $("ps_pzm").value=pz.st.zoom;$("ps_pm").classList.add("on");pzDraw()}
+function pinchD(){const a=[...ptr.values()];return a.length===2?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0}
+pmc.addEventListener("pointerdown",e=>{if(!pz)return;pmc.setPointerCapture(e.pointerId);ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});pd={d:pinchD(),z:pz.st.zoom}});
+pmc.addEventListener("pointermove",e=>{if(!pz||!ptr.has(e.pointerId))return;const p=ptr.get(e.pointerId);
+ if(ptr.size===1){pz.st.ox+=(e.clientX-p.x)/pz.fw;pz.st.oy+=(e.clientY-p.y)/pz.fh}
+ ptr.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(ptr.size===2&&pd&&pd.d){pz.st.zoom=clamp(pd.z*pinchD()/pd.d,.4,4);$("ps_pzm").value=pz.st.zoom}
+ pzDraw()});
+["pointerup","pointercancel"].forEach(t=>pmc.addEventListener(t,e=>{ptr.delete(e.pointerId);pd=ptr.size===2?{d:pinchD(),z:pz?pz.st.zoom:1}:null}));
+pmc.addEventListener("wheel",e=>{if(!pz)return;e.preventDefault();pz.st.zoom=clamp(pz.st.zoom*(e.deltaY<0?1.06:.94),.4,4);$("ps_pzm").value=pz.st.zoom;pzDraw()},{passive:false});
+$("ps_pzm").oninput=e=>{if(pz){pz.st.zoom=+e.target.value;pzDraw()}};
+$("ps_pzc").onclick=()=>{$("ps_pm").classList.remove("on");pz=null};
+$("ps_pzo").onclick=()=>pzApply();
+function pzApply(){const{src,st,fw,fh}=pz,K=2400/Math.max(fw,fh),c=cvn(fw*K,fh*K);pzPaint(c.getContext("2d"),K,st,src,fw,fh);
+ const first=!photoC,was=!!cutC,wasApi=cutSrc==="api";photoRaw={src,st:{...st}};photoC=c;cutC=null;cutSrc="";$("ps_bgo").hidden=true;cutLabels();if(first)S={x:.58,y:.78,w:.3};
+ $("ps_pm").classList.remove("on");pz=null;photoUI();if(was&&!wasApi)runCut();else if(wasApi)setStatus("फोटो बदली, Background Remove दोबारा दबाइए।")}
+/* ---------- export ---------- */
+let dlP=Promise.resolve(null);
+try{if(window.claude&&claude.use)dlP=Promise.resolve(claude.use("downloads")).then(d=>d||null,()=>null)}catch(e){}
+function setStatus(t){$("ps_status").textContent=t}
+function busy(b){["dg","dp","pt"].forEach(k=>$(k).disabled=b)}
+function none(){if(!photoC){alert("पहले फोटो अपलोड कीजिए।");return true}}
+function compose(){const c=cvn(photoC.width,photoC.height),x=c.getContext("2d");paintPhoto(x,c.width,c.height);
+ if(sig&&sig.fin){const w=S.w*c.width,h=w*sig.fin.height/sig.fin.width;x.imageSmoothingQuality="high";x.drawImage(sig.fin,S.x*c.width,S.y*c.height,w,h)}return c}
+const jb=(c,q)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));
+async function fitJpeg(src,target){let s=1,last=null;
+ for(let n=0;n<16;n++){let c=src;
+  if(s<1){c=cvn(Math.max(60,src.width*s),Math.max(60,src.height*s));const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(src,0,0,c.width,c.height)}
+  const top=await jb(c,.95);last={blob:top,c};if(top.size<=target)return last;
+  const low=await jb(c,.45);last={blob:low,c};
+  if(low.size<=target){let lo=.45,hi=.95,best=low;for(let i=0;i<7;i++){const m=(lo+hi)/2,b=await jb(c,m);if(b.size<=target){best=b;lo=m}else hi=m}return{blob:best,c}}
+  s*=.85}
+ return last}
+function askSize(title){return new Promise(res=>{
+ $("ps_szt").textContent=title;$("ps_szv").value=200;$("ps_szu").value="KB";$("ps_sz").classList.add("on");$("ps_szv").focus();
+ const done=v=>{$("ps_sz").classList.remove("on");$("ps_szo").onclick=$("ps_szc").onclick=null;res(v)};
+ $("ps_szc").onclick=()=>done(null);
+ $("ps_szo").onclick=()=>{const v=parseFloat($("ps_szv").value);if(!(v>0)){$("ps_szv").focus();return}done(Math.round(v*($("ps_szu").value==="MB"?1048576:1024)))}})}
+const kb=n=>n>=1048576?(n/1048576).toFixed(2)+" MB":Math.round(n/1024)+" KB";
+const toData=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+async function save(name,blob){const dl=await dlP;
+ if(!dl){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return true}
+ try{await dl.save({filename:name,data:blob});return true}catch(e){if(e&&e.code==="declined")setStatus("डाउनलोड रद्द किया गया।");else alert("सेव नहीं हो सका: "+(e&&e.message||e));return false}}
+async function exportAs(kind){if(none())return;
+ const target=await askSize(kind==="pdf"?"PDF का साइज़":"फोटो का साइज़");if(!target)return;
+ busy(true);setStatus("तैयार हो रहा है…");
+ try{const src=compose();
+  if(kind==="pdf"){const r=await fitJpeg(src,Math.max(2048,target-4096)),{jsPDF}=window.jspdf,pdf=new jsPDF({unit:"mm",format:"a4"});
+   const k=Math.min(190/r.c.width,277/r.c.height),w=r.c.width*k,h=r.c.height*k;
+   pdf.addImage(await toData(r.blob),"JPEG",(210-w)/2,(297-h)/2,w,h,undefined,"FAST");
+   const out=pdf.output("blob");if(await save("photo-signature.pdf",out))setStatus("PDF सेव: "+kb(out.size)+(out.size>target?" (इससे छोटा नहीं हो सका)":""))}
+  else{const r=await fitJpeg(src,target);if(await save("photo-signature.jpg",r.blob))setStatus("फोटो सेव: "+kb(r.blob.size)+(r.blob.size>target?" (इससे छोटा नहीं हो सका)":""))}
+ }catch(e){setStatus("बन नहीं सका। दोबारा कोशिश कीजिए।")}
+ busy(false)}
+$("ps_dg").onclick=()=>exportAs("jpg");$("ps_dp").onclick=()=>exportAs("pdf");
+$("ps_pt").onclick=async()=>{if(none())return;busy(true);
+ try{$("ps_pri").src=await toData(await jb(compose(),.92));await $("ps_pri").decode().catch(()=>{});document.body.dataset.pp="ps";window.print()}
+ catch(e){alert("यहाँ प्रिंट नहीं खुल सका। PDF डाउनलोड करके उसे प्रिंट कीजिए।")}
+ busy(false)};
+
+
+addEventListener("afterprint",function(){delete document.body.dataset.pp});
+})();
+
+(function(){
+ var g=function(i){return document.getElementById(i)},b=g('pk-rtps'),sec=g('pssec'),L=['pk-xi','pk-viii','pk-crop'];
+ var tt=document.querySelector('header.top .tt'),bk=document.querySelector('header.top .backbtn');
+ function off(){sec.hidden=true;b.classList.remove('on');b.setAttribute('aria-pressed','false')}
+ b.addEventListener('click',function(){
+  g('app').hidden=true;g('cropsec').hidden=true;g('pickhint').hidden=true;
+  L.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
+  sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');
+  g('pickwrap').hidden=true;bk.hidden=false;tt.textContent='\u{1F5BC}\uFE0F Photo Signature Add';window.scrollTo(0,0);
+ });
+ L.forEach(function(i){g(i).addEventListener('click',off)});
+ bk.addEventListener('click',off);
 })();
 </scr@@ipt>
 </body></html>
@@ -5845,7 +6642,7 @@ async function removeBg(){
     x.drawImage(srcC,0,0);x.globalCompositeOperation="destination-in";x.imageSmoothingQuality="high";
     x.drawImage(im,0,0,c.width,c.height);
     $("ov").style.display="none";cutC=c;st.textContent="Background remove.bg se hat gaya ✓";redraw();
-    try{const P=window.parent;if(P&&P!==window&&P.apPassport)P.apPassport.report(used)}catch(e){}
+    try{const P=window.parent;if(P&&P!==window&&P.apPassport)P.apPassport.report(used,'passport')}catch(e){}
   }catch(err){
     if(my!==job)return;
     $("ov").style.display="none";const m=String(err.message||err);

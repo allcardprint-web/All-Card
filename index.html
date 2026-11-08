@@ -670,7 +670,7 @@ window.apThemeCss=key=>{
    kisan:'.up{background:'+ra(.05)+'}button.p{background:'+G+';border-radius:'+T.pb+'}',
    passport:'.box{border-radius:16px}.drop{background:'+ra(.06)+';border-radius:16px}button.p{background:'+G+';border-radius:'+T.pb+'}',
    photoedit:'.drop{background:'+ra(.06)+';border-radius:16px}button.p{background:'+G+';border-radius:'+T.pb+'}.wb{border-color:'+ra(.65)+'}',
-   noncreamy:':root{--accent:'+a+';--bg:'+t+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--accent:'+T.l+'}}:root[data-theme="dark"]{--accent:'+T.l+'}body{background:'+t+'}.top .tt{display:none}.top{background:none!important;box-shadow:none!important;padding:8px 12px 0!important;position:static!important}.top:not(:has(.backbtn:not([hidden]))){display:none!important}.panel{border-radius:14px}.gt{color:'+d+'}.btn:not(.alt):not(.ghost){background:'+G+';border-color:transparent;color:#fff;border-radius:'+T.pb+'}.btn.alt{border-color:'+a+';color:'+a+';border-radius:'+T.pb+'}.pk{border-radius:18px}'
+   noncreamy:':root{--accent:'+a+';--bg:'+t+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--accent:'+T.l+'}}:root[data-theme="dark"]{--accent:'+T.l+'}body{background:'+t+'}.top{background:linear-gradient(110deg,'+d+','+a+')!important;color:#fff}.panel{border-radius:14px}.gt{color:'+d+'}.btn:not(.alt):not(.ghost){background:'+G+';border-color:transparent;color:#fff;border-radius:'+T.pb+'}.btn.alt{border-color:'+a+';color:'+a+';border-radius:'+T.pb+'}.pk{border-radius:18px}'
   }[key]||'';
   const DK={aadhaar:'main{max-width:820px}',manualpan:'.app{max-width:780px}',voter:'.wrap{max-width:1000px}',atm:'.wrap{max-width:1400px}'}[key]||'';
   return c+X+(DK?'@media (min-width:900px){'+DK+'}':'')+'}';
@@ -2527,15 +2527,15 @@ body{margin:0}
 #bk_sz .mb{display:flex;gap:10px;justify-content:flex-end}
 </style>
 </head><body>
-<header class="top"><div class="tt">📝 RTPS DOCUMENT READY</div></header>
+<header class="top"><div class="tt">📜 RTPS SAPATH PATRA AND SIGNATURE</div></header>
 <div class="wrap" id="pickwrap">
   <div class="pickrow" role="group" aria-label="वर्ग चुनें">
-    <button type="button" class="pk" id="pk-xi" aria-pressed="false"><b>BC</b><span>Form XI · क्रीमीलेयर रहित शपथ-पत्र</span></button>
-    <button type="button" class="pk" id="pk-viii" aria-pressed="false"><b>OBC</b><span>Form VIII · ओ०बी०सी० (क्रीमीलेयर रहित) शपथ-पत्र</span></button>
-    <button type="button" class="pk" id="pk-crop" aria-pressed="false"><b>CROP</b><span>फोटो / PDF काटिए और A4 शीट बनाइए</span></button>
-    <button type="button" class="pk" id="pk-rtps" aria-pressed="false"><b>RTPS</b><span>फोटो पर सिग्नेचर लगाइए</span></button>
+    <button type="button" class="pk" id="pk-xi" aria-pressed="false"><b>📝 BC SAPATH PATRA</b><span>Form XI · Non-Creamy Layer Affidavit</span></button>
+    <button type="button" class="pk" id="pk-viii" aria-pressed="false"><b>📝 OBC SAPATH PATRA</b><span>Form VIII · OBC Non-Creamy Layer Affidavit</span></button>
+    <button type="button" class="pk" id="pk-crop" aria-pressed="false"><b>📄 RTPS ALL DOCUMENT CROP</b><span>Crop photos / PDFs and make an A4 sheet</span></button>
+    <button type="button" class="pk" id="pk-rtps" aria-pressed="false"><b>🖼️ PHOTO AND SIGNATURE</b><span>Add a signature on a photo and download</span></button>
   </div>
-  <p class="hint" id="pickhint">ऊपर से BC, OBC, CROP या RTPS चुनिए।</p>
+  <p class="hint" id="pickhint">Choose BC, OBC, CROP or RTPS above.</p>
 </div>
 <div class="wrap" id="app" hidden>
   <form class="panel" id="form" autocomplete="off" onsubmit="return false">
@@ -3762,9 +3762,9 @@ refresh();
  b.addEventListener('click',function(){
   g('app').hidden=true;g('pickhint').hidden=true;
   all.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
-  sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');fitPage();opened('📄 RTPS DOCUMENT CROP');
+  sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');fitPage();opened('📄 RTPS ALL DOCUMENT CROP');
  });
- ['pk-xi','pk-viii'].forEach(function(i){g(i).addEventListener('click',function(){sec.hidden=true;b.classList.remove('on');b.setAttribute('aria-pressed','false');opened(i==='pk-xi'?'📝 BC Sapath Patra':'📝 OBC Sapath Patra')})});
+ ['pk-xi','pk-viii'].forEach(function(i){g(i).addEventListener('click',function(){sec.hidden=true;b.classList.remove('on');b.setAttribute('aria-pressed','false');opened(i==='pk-xi'?'📝 BC SAPATH PATRA':'📝 OBC SAPATH PATRA')})});
 })();
 
 })();
@@ -4019,7 +4019,7 @@ addEventListener("afterprint",function(){delete document.body.dataset.pp});
   g('app').hidden=true;g('cropsec').hidden=true;g('pickhint').hidden=true;
   L.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
   sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');
-  g('pickwrap').hidden=true;bk.hidden=false;tt.textContent='\u{1F5BC}\uFE0F Photo Signature Add';window.scrollTo(0,0);
+  g('pickwrap').hidden=true;bk.hidden=false;tt.textContent='\u{1F5BC}\uFE0F PHOTO AND SIGNATURE';window.scrollTo(0,0);
  });
  L.forEach(function(i){g(i).addEventListener('click',off)});
  bk.addEventListener('click',off);
@@ -7385,16 +7385,30 @@ function photo(w,h){
   paint(c.getContext("2d"),k,false,cs);
   return c.toDataURL("image/png");
 }
-$("b1").onclick=()=>{
-  const L=lay(),url=photo(L.w,L.h),pdf=new jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
-  for(let pg=0;pg<L.pages;pg++){
-    if(pg)pdf.addPage();
-    L.pos.filter(p=>p.pg===pg).forEach(p=>{
-      pdf.addImage(url,"PNG",p.x,p.y,L.w,L.h,"ph");
-      if($("cl").checked){pdf.setDrawColor(190);pdf.setLineWidth(.1);pdf.rect(p.x-.3,p.y-.3,L.w+.6,L.h+.6)}
-    });
-  }
-  apSaveFile(pdf.output("blob"),"passport_photos_A4.pdf");
+function ppLoadPdf(){
+  if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve();
+  const urls=["https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js","https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"];
+  const one=u=>new Promise((ok,no)=>{const s=document.createElement("script");s.src=u;s.onload=ok;s.onerror=()=>no(new Error("load"));document.head.appendChild(s)});
+  return one(urls[0]).catch(()=>one(urls[1])).then(()=>{if(!(window.jspdf&&window.jspdf.jsPDF))throw new Error("pdf lib")});
+}
+let busy1=false;
+$("b1").onclick=async()=>{
+  if(busy1||!srcC)return;
+  busy1=true;
+  try{
+    await ppLoadPdf();
+    const L=lay(),url=photo(L.w,L.h),pdf=new jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+    for(let pg=0;pg<L.pages;pg++){
+      if(pg)pdf.addPage();
+      L.pos.filter(p=>p.pg===pg).forEach(p=>{
+        pdf.addImage(url,"PNG",p.x,p.y,L.w,L.h,undefined,"FAST");
+        if($("cl").checked){pdf.setDrawColor(190);pdf.setLineWidth(.1);pdf.rect(p.x-.3,p.y-.3,L.w+.6,L.h+.6)}
+      });
+    }
+    const blob=pdf.output("blob");apSaveFile(blob,"passport_photos_A4.pdf");
+    $("sinfo").textContent="✓ A4 PDF · "+Math.round(blob.size/1024)+" KB";
+  }catch(err){$("sinfo").textContent="A4 PDF nahi bani (internet check karein): "+(err.message||err)}
+  busy1=false;
 };
 /* ---- Single photo JPG: chuni hui KB me, up to 4K, turant download ---- */
 const toJpg=(c,q)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));
@@ -9733,7 +9747,41 @@ if(btn) btn.style.display="none";
 </script>
 <script>
 /* Tools se download: hamesha main page se, taaki baar-baar chale */
-window.apSaveBlob=function(blob,name){var go=function(){var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(u)},30000)};var ua=navigator.userActivation;if(!ua||ua.isActive){go();return}var old=document.getElementById('apDlTap');if(old)old.remove();var o=document.createElement('div');o.id='apDlTap';o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,12,22,.6);display:flex;align-items:center;justify-content:center;padding:16px';o.innerHTML='<div style="background:#fff;color:#141a26;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font:15px/1.5 Arial,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.4)"><div style="font-weight:700;font-size:17px;margin-bottom:6px">✓ फाइल तैयार है</div><div id="apDlN" style="font-size:13px;color:#586377;word-break:break-all;margin-bottom:14px"></div><div style="display:flex;gap:10px"><button type="button" id="apDlX" style="flex:1;height:46px;border-radius:8px;border:1px solid #cfd6e2;background:#fff;color:#141a26;font:inherit;cursor:pointer">रद्द</button><button type="button" id="apDlG" style="flex:2;height:46px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;cursor:pointer">⬇ डाउनलोड करें</button></div></div>';document.body.appendChild(o);o.querySelector('#apDlN').textContent=name;o.querySelector('#apDlX').onclick=function(){o.remove()};o.querySelector('#apDlG').onclick=function(){o.remove();go()};};
+window.apSaveBlob=(function(){
+var keep=[],MAXK=6;
+function st(){var s=document.getElementById('apDlSt');if(!s){s=document.createElement('style');s.id='apDlSt';s.textContent='#apDlBar{position:fixed;left:10px;right:10px;top:calc(62px + env(safe-area-inset-top,0px));z-index:99998;display:flex;flex-direction:column;gap:6px;max-width:460px;margin:0 auto;pointer-events:none;font:14px/1.35 Arial,sans-serif}#apDlBar .r{pointer-events:auto;display:flex;align-items:center;gap:8px;background:#0f2a17;color:#fff;border-radius:12px;padding:9px 10px;box-shadow:0 8px 26px rgba(0,0,0,.45)}#apDlBar .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#apDlBar small{display:block;opacity:.75;font-size:11px}#apDlBar button{border:0;border-radius:8px;height:38px;padding:0 12px;font:inherit;font-weight:700;cursor:pointer;flex:none}#apDlBar .g{background:#22c55e;color:#06210f}#apDlBar .x{background:transparent;color:#fff;font-size:18px;padding:0 6px}';document.head.appendChild(s)}}
+function kb(n){return n>=1048576?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+function trig(e){var a=document.createElement('a');a.href=e.u;a.download=e.name;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},1500)}
+function bar(){
+  st();var b=document.getElementById('apDlBar');
+  if(!b){b=document.createElement('div');b.id='apDlBar';document.body.appendChild(b)}
+  b.innerHTML='';
+  keep.slice(-1).forEach(function(e){
+    var r=document.createElement('div');r.className='r';
+    var n=document.createElement('div');n.className='n';n.textContent='✓ '+e.name;var sm=document.createElement('small');sm.textContent=kb(e.size)+' · अगर फाइल न आई हो तो दबाइए';n.appendChild(sm);
+    var g=document.createElement('button');g.type='button';g.className='g';g.textContent='⬇ दोबारा डाउनलोड';g.onclick=function(){trig(e)};
+    var x=document.createElement('button');x.type='button';x.className='x';x.setAttribute('aria-label','बंद');x.textContent='✕';x.onclick=function(){var i=keep.indexOf(e);if(i>-1)keep.splice(i,1);try{URL.revokeObjectURL(e.u)}catch(_){}bar()};
+    r.appendChild(n);r.appendChild(g);r.appendChild(x);b.appendChild(r);
+  });
+  if(!keep.length)b.remove();
+  clearTimeout(bar.t);bar.t=setTimeout(function(){var q=document.getElementById('apDlBar');if(q)q.remove()},25000);
+}
+return function(blob,name){
+  var e={u:URL.createObjectURL(blob),name:name,size:blob.size||0};
+  keep.push(e);
+  while(keep.length>MAXK){var o=keep.shift();try{URL.revokeObjectURL(o.u)}catch(_){}}
+  bar();
+  var ua=navigator.userActivation;
+  if(!ua||ua.isActive){trig(e);return}
+  /* user ka tap purana ho chuka: browser seedha download rok deta hai, isliye ek tap maangte hain */
+  var old=document.getElementById('apDlTap');if(old)old.remove();
+  var o=document.createElement('div');o.id='apDlTap';o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,12,22,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+  o.innerHTML='<div style="background:#fff;color:#141a26;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font:15px/1.5 Arial,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.4)"><div style="font-weight:700;font-size:17px;margin-bottom:6px">✓ फाइल तैयार है</div><div id="apDlN" style="font-size:13px;color:#586377;word-break:break-all;margin-bottom:14px"></div><div style="display:flex;gap:10px"><button type="button" id="apDlX" style="flex:1;height:46px;border-radius:8px;border:1px solid #cfd6e2;background:#fff;color:#141a26;font:inherit;cursor:pointer">रद्द</button><button type="button" id="apDlG" style="flex:2;height:46px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;cursor:pointer">⬇ डाउनलोड करें</button></div></div>';
+  document.body.appendChild(o);o.querySelector('#apDlN').textContent=name;
+  o.querySelector('#apDlX').onclick=function(){o.remove()};
+  o.querySelector('#apDlG').onclick=function(){o.remove();trig(e)};
+};
+})();
 /* Dashboard design: Admin (publicConfig/dashboard) jo set kare wahi dikhe */
 (function(){
  var CK='ap_c_dash',NM={'ABHA Card':'abha','E-Shram & Labour Card':'eshram','Driving Licence & RC':'dl','Farmer / Kisan Services':'kisan'};

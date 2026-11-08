@@ -11,7 +11,8 @@
 window.apDlShimFn=function(){
 if(window.__apDlShim)return;window.__apDlShim=1;
 var D=document,A=HTMLAnchorElement.prototype,realClick=A.click,realDispatch=EventTarget.prototype.dispatchEvent;
-var pass=0,queue=[],showing=false,seq=0;
+var pass=0,queue=[],showing=false,seq=0,inFrame=false;try{inFrame=window.parent!==window&&typeof window.parent.apDlTopSave==='function'}catch(e){}
+function pwa(){try{return matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: minimal-ui)').matches||navigator.standalone===true}catch(e){return false}}
 function isDl(a){try{return !!a&&a.tagName==='A'&&a.hasAttribute('download')&&/^(blob:|data:)/i.test(a.href)}catch(e){return false}}
 function fresh(){var u=navigator.userActivation;return !u||u.isActive}
 function fire(a){pass++;try{realClick.call(a)}catch(e){try{realDispatch.call(a,new MouseEvent('click',{bubbles:true,cancelable:true}))}catch(_){}}pass--}
@@ -38,17 +39,15 @@ function next(){
   o.querySelector('[data-x]').onclick=done;
   o.querySelector('[data-g]').onclick=function(){save(it.blob,it.name);done()};
 }
+function topSave(b,n){if(pwa()||!fresh()){queue.push({blob:b,name:n});next()}else save(b,n)}
+window.apDlTopSave=topSave;
 function intercept(a){
   var href=a.href,name=a.getAttribute('download')||('file-'+(++seq));
-  if(fresh()){
-    /* user ka tap abhi taaza hai: seedha download (naya anchor, har baar) */
-    fetch(href).then(function(r){return r.blob()}).then(function(b){
-      if(fresh()){save(b,name)}else{queue.push({blob:b,name:name});next()}
-    },function(){fire(a)});
-  }else{
-    /* kaam me der lagne se tap expire ho gaya: ek tap wala "डाउनलोड करें" box */
-    fetch(href).then(function(r){return r.blob()}).then(function(b){queue.push({blob:b,name:name});next()},function(){fire(a)});
-  }
+  fetch(href).then(function(r){return r.blob()}).then(function(b){
+    /* download hamesha main (top) page se, taaki iframe ki limit se baar-baar chale */
+    if(inFrame){try{window.parent.apDlTopSave(b,name);return}catch(e){}}
+    topSave(b,name);
+  },function(){fire(a)});
 }
 A.click=function(){
   if(pass||!isDl(this))return realClick.call(this);

@@ -29,3 +29,7 @@ Fix: index.html me ek common download layer (apDlShim) lagayi gayi hai jo HAR to
 Extra: SADI/RTPS PDF fail hone par cached error ab aage ke downloads nahi rokta.
 Service worker cache v10 kiya gaya hai, taaki naya index.html turant load ho (app ek baar band karke kholein).
 Upload: sirf index.html aur service-worker.js replace karna kaafi hai.
+
+UPDATE 2: Android/PWA me iframe ke andar se dobara download silently fail hota tha.
+Ab har tool ki download request main page (top) ko bheji jaati hai aur wahin se save hoti hai.
+Installed app (PWA) me har download par ek "डाउनलोड करें" tap-box aata hai (guaranteed save); browser me seedha download hota hai.

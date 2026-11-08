@@ -33,12 +33,17 @@ function next(){
    +'<div style="font-size:13px;color:#586377;word-break:break-all;margin-bottom:6px">'+esc(it.name)+'</div>'
    +(queue.length>1?'<div style="font-size:12px;color:#586377;margin-bottom:8px">और '+(queue.length-1)+' फाइल बाकी</div>':'')
    +'<div style="display:flex;gap:10px;margin-top:8px"><button type="button" data-x style="flex:1;height:46px;border-radius:8px;border:1px solid #cfd6e2;background:#fff;color:#141a26;font:inherit;cursor:pointer">रद्द</button>'
-   +'<button type="button" data-g style="flex:2;height:46px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;cursor:pointer">⬇ डाउनलोड करें</button></div>'
-   +'<div style="display:flex;gap:10px;margin-top:10px"><button type="button" data-s style="flex:1;height:40px;border-radius:8px;border:1px solid #cfd6e2;background:#f4f7fc;color:#0755c9;font:inherit;font-size:13px;cursor:pointer">📤 Share / Save</button><button type="button" data-o style="flex:1;height:40px;border-radius:8px;border:1px solid #cfd6e2;background:#f4f7fc;color:#0755c9;font:inherit;font-size:13px;cursor:pointer">↗ खोलें</button></div></div></div>';
+   +'<a data-g href="#" download style="flex:2;height:46px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none">⬇ डाउनलोड करें</a></div>'
+   +'<div style="display:flex;gap:10px;margin-top:10px"><button type="button" data-s style="flex:1;height:40px;border-radius:8px;border:1px solid #cfd6e2;background:#f4f7fc;color:#0755c9;font:inherit;font-size:13px;cursor:pointer">📤 Share / Save</button><button type="button" data-o style="flex:1;height:40px;border-radius:8px;border:1px solid #cfd6e2;background:#f4f7fc;color:#0755c9;font:inherit;font-size:13px;cursor:pointer">↗ खोलें</button></div><div style="font-size:11px;color:#6b7690;margin-top:8px">डाउनलोड न दिखे तो Share / Save दबाएँ</div></div></div>';
   (D.body||D.documentElement).appendChild(o);
   function done(){queue.shift();showing=false;try{o.remove()}catch(e){}setTimeout(next,0)}
   o.querySelector('[data-x]').onclick=done;
-  o.querySelector('[data-g]').onclick=function(){save(it.blob,it.name);done()};
+  var ga=o.querySelector('[data-g]'),gu=URL.createObjectURL(it.blob);
+  var nm=it.name,dot=nm.lastIndexOf('.'),cnt=(window.__apDlCnt=(window.__apDlCnt||0)+1);
+  if(cnt>1)nm=(dot>0?nm.slice(0,dot):nm)+'-'+cnt+(dot>0?nm.slice(dot):'');
+  ga.href=gu;ga.setAttribute('download',nm);
+  /* asli link tap: browser ise hamesha user-download maanta hai (script click nahi) */
+  ga.onclick=function(){setTimeout(done,700);setTimeout(function(){try{URL.revokeObjectURL(gu)}catch(e){}},180000)};
   var sb=o.querySelector('[data-s]'),ob=o.querySelector('[data-o]');
   var canShare=false;try{var tf=new File([it.blob],it.name,{type:it.blob.type||'application/octet-stream'});canShare=!!(navigator.canShare&&navigator.canShare({files:[tf]}));
    sb.onclick=function(){navigator.share({files:[tf]}).then(done,function(){})}}catch(e){}
@@ -69,11 +74,11 @@ window.apDlInject=function(src){var sc='<script>('+window.apDlShimFn.toString()+
 </script>
 <script>
 /* DL-fix v3: ek baar purana service-worker/cache saaf karo taaki naya code chale */
-(function(){var K='ap_dlfix_v3';try{if(localStorage.getItem(K)!=='1'){localStorage.setItem(K,'1');var P=[];
+(function(){var K='ap_dlfix_v4';try{if(localStorage.getItem(K)!=='1'){localStorage.setItem(K,'1');var P=[];
  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)P.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}));
  if(window.caches)P.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}));
  Promise.all(P).catch(function(){}).then(function(){location.reload()});return}}catch(e){}
- document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent='✓ Download fix v3';d.style.cssText='position:fixed;right:8px;bottom:8px;z-index:2147483646;background:#0755c9;color:#fff;font:11px Arial;padding:4px 8px;border-radius:10px;opacity:.9;pointer-events:none';document.body.appendChild(d);setTimeout(function(){d.remove()},7000)});
+ document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent='✓ Download fix v4';d.style.cssText='position:fixed;right:8px;bottom:8px;z-index:2147483646;background:#0755c9;color:#fff;font:11px Arial;padding:4px 8px;border-radius:10px;opacity:.9;pointer-events:none';document.body.appendChild(d);setTimeout(function(){d.remove()},7000)});
 })();
 </script>
 <style>

@@ -15,3 +15,17 @@ User app me naya:
  - Profile me "Details edit karein" button sirf tab dikhta hai jab admin ne permission di ho.
  - Drawer menu aur Login page par "Install App" option. Android Chrome me install-prompt aata hai; baaki me steps dikhte hain.
  - Pehli baar ke baad app cache se turant khulta hai, peeche se apne-aap update hota hai (update ke baad ek baar app band karke kholna padta hai).
+
+
+DOWNLOAD FIX (A4 PDF / sabhi download buttons)
+==============================================
+Problem: ek baar download hone ke baad baaki sections me download nahi chalta tha.
+Wajah: jin tools me PDF banne me der lagti hai (Kisan, Passport, RTPS, Interest, SADI, ATM...) wahan PDF tayyar hone tak
+browser ka "click permission" khatam ho jata tha, aur Chrome agli downloads block kar deta tha.
+Fix: index.html me ek common download layer (apDlShim) lagayi gayi hai jo HAR tool/section me apne-aap inject hoti hai:
+ - Har click par naya download link banta hai, isliye jitni baar button dabao utni baar download hota hai.
+ - Agar tap-permission expire ho gayi ho to "फाइल तैयार है -> ⬇ डाउनलोड करें" ka chhota box aata hai; ek tap par file save.
+ - Print Manager ke downloads par bhi yehi lagta hai.
+Extra: SADI/RTPS PDF fail hone par cached error ab aage ke downloads nahi rokta.
+Service worker cache v10 kiya gaya hai, taaki naya index.html turant load ho (app ek baar band karke kholein).
+Upload: sirf index.html aur service-worker.js replace karna kaafi hai.

@@ -670,7 +670,7 @@ window.apThemeCss=key=>{
    kisan:'.up{background:'+ra(.05)+'}button.p{background:'+G+';border-radius:'+T.pb+'}',
    passport:'.box{border-radius:16px}.drop{background:'+ra(.06)+';border-radius:16px}button.p{background:'+G+';border-radius:'+T.pb+'}',
    photoedit:'.drop{background:'+ra(.06)+';border-radius:16px}button.p{background:'+G+';border-radius:'+T.pb+'}.wb{border-color:'+ra(.65)+'}',
-   noncreamy:':root{--accent:'+a+';--bg:'+t+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--accent:'+T.l+'}}:root[data-theme="dark"]{--accent:'+T.l+'}body{background:'+t+'}.top .tt{display:none}.top{background:none!important;box-shadow:none!important;padding:8px 12px 0!important;position:static!important}.top:not(:has(.backbtn:not([hidden]))){display:none!important}.panel{border-radius:14px}.gt{color:'+d+'}.btn:not(.alt):not(.ghost){background:'+G+';border-color:transparent;color:#fff;border-radius:'+T.pb+'}.btn.alt{border-color:'+a+';color:'+a+';border-radius:'+T.pb+'}.pk{border-radius:18px}'
+   noncreamy:':root{--accent:'+a+';--bg:'+t+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--accent:'+T.l+'}}:root[data-theme="dark"]{--accent:'+T.l+'}body{background:'+t+'}.top{background:linear-gradient(110deg,'+d+','+a+')!important;color:#fff}.panel{border-radius:14px}.gt{color:'+d+'}.btn:not(.alt):not(.ghost){background:'+G+';border-color:transparent;color:#fff;border-radius:'+T.pb+'}.btn.alt{border-color:'+a+';color:'+a+';border-radius:'+T.pb+'}.pk{border-radius:18px}'
   }[key]||'';
   const DK={aadhaar:'main{max-width:820px}',manualpan:'.app{max-width:780px}',voter:'.wrap{max-width:1000px}',atm:'.wrap{max-width:1400px}'}[key]||'';
   return c+X+(DK?'@media (min-width:900px){'+DK+'}':'')+'}';
@@ -702,11 +702,33 @@ function showTool(which, push=true){
   toolFrame.srcdoc='<body style="font-family:Arial;padding:40px;text-align:center;color:#0755c9"><h3>Loading…</h3></body>';
   const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport',photoedit:'photoedit',interest:'interest',noncreamy:'noncreamy',sadi:'sadi','ippb-atm':'atm'}[which]||'ippb';
   toolView.setAttribute('data-theme',__tf);
-  window.apLoadTool(__tf).then(src=>{if(currentTool===which){let __s=window.apThemeInject?window.apThemeInject(__tf,src):src;if(__tf==='interest'){const __u=G.cur||{};const __n=String(__u.name||__u.uid||__u.mobile||'User');__s=__s.replace('<head>','<head><script>window.__apUser='+JSON.stringify(__n).replace(/</g,'\\u003c')+';<\/script>')}toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(__s):__s)}}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
+  window.apLoadTool(__tf).then(src=>{if(currentTool===which){let __s=window.apThemeInject?window.apThemeInject(__tf,src):src;if(__tf==='interest'){const __u=G.cur||{};const __n=String(__u.name||__u.uid||__u.mobile||'User');__s=__s.replace('<head>','<head><script>window.__apUser='+JSON.stringify(__n).replace(/</g,'\\u003c')+';<\/script>')}toolFrame.srcdoc=window.apAutoI((window.apI18nInject?window.apI18nInject(__s):__s),__tf,'')}}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
   toolView.classList.add('show');toolView.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
   if(push)history.pushState({allPrintTool:which},'', '#'+which);
 }
+
+/* ---- andar ke section kholte / badalte hi tool ko chup-chaap fresh reload (refresh jaisa, bina dikhe) ---- */
+window.apAutoI=function(src,key,act){
+  if(key!=='noncreamy'&&key!=='sadi')return src;
+  var js='(function(){var K='+JSON.stringify(key)+',A='+JSON.stringify(act||'')+';'
+   +'document.addEventListener("click",function(e){if(window.__apRun)return;var t=e.target&&e.target.closest&&e.target.closest(".pk,.backbtn");if(!t)return;'
+   +'var a=t.classList.contains("backbtn")?"":(t.id&&t.id!=="back"?"#"+t.id:(t.getAttribute("data-t")?".pk[data-t=\\""+t.getAttribute("data-t")+"\\"]":""));'
+   +'e.stopImmediatePropagation();e.preventDefault();'
+   +'try{window.parent.apReloadTool(K,a)}catch(x){window.__apRun=1;t.click();window.__apRun=0}},true);'
+   +'if(A){window.__apRun=1;setTimeout(function(){var el=document.querySelector(A);if(el)el.click();window.__apRun=0},0)}})();';
+  var i=src.lastIndexOf('</body>');
+  var tag='<script>'+js+'<\/script>';
+  return i<0?src+tag:src.slice(0,i)+tag+src.slice(i);
+};
+window.apReloadTool=function(key,act){
+  if(currentTool!==key)return;
+  window.apLoadTool(key).then(function(src){
+    if(currentTool!==key)return;
+    var s=window.apThemeInject?window.apThemeInject(key,src):src;
+    toolFrame.srcdoc=window.apAutoI(window.apI18nInject?window.apI18nInject(s):s,key,act);
+  });
+};
 function closeTool(fromPop=false){
   toolView.classList.remove('show');toolView.setAttribute('aria-hidden','true');
   document.body.style.overflow='';currentTool=null;
@@ -2527,15 +2549,15 @@ body{margin:0}
 #bk_sz .mb{display:flex;gap:10px;justify-content:flex-end}
 </style>
 </head><body>
-<header class="top"><div class="tt">📝 RTPS DOCUMENT READY</div></header>
+<header class="top"><div class="tt">📜 RTPS SAPATH PATRA AND SIGNATURE</div></header>
 <div class="wrap" id="pickwrap">
   <div class="pickrow" role="group" aria-label="वर्ग चुनें">
-    <button type="button" class="pk" id="pk-xi" aria-pressed="false"><b>BC</b><span>Form XI · क्रीमीलेयर रहित शपथ-पत्र</span></button>
-    <button type="button" class="pk" id="pk-viii" aria-pressed="false"><b>OBC</b><span>Form VIII · ओ०बी०सी० (क्रीमीलेयर रहित) शपथ-पत्र</span></button>
-    <button type="button" class="pk" id="pk-crop" aria-pressed="false"><b>CROP</b><span>फोटो / PDF काटिए और A4 शीट बनाइए</span></button>
-    <button type="button" class="pk" id="pk-rtps" aria-pressed="false"><b>RTPS</b><span>फोटो पर सिग्नेचर लगाइए</span></button>
+    <button type="button" class="pk" id="pk-xi" aria-pressed="false"><b>📝 BC SAPATH PATRA</b><span>Form XI · Non-Creamy Layer Affidavit</span></button>
+    <button type="button" class="pk" id="pk-viii" aria-pressed="false"><b>📝 OBC SAPATH PATRA</b><span>Form VIII · OBC Non-Creamy Layer Affidavit</span></button>
+    <button type="button" class="pk" id="pk-crop" aria-pressed="false"><b>📄 RTPS ALL DOCUMENT CROP</b><span>Crop photos / PDFs and make an A4 sheet</span></button>
+    <button type="button" class="pk" id="pk-rtps" aria-pressed="false"><b>🖼️ PHOTO AND SIGNATURE</b><span>Add a signature on a photo and download</span></button>
   </div>
-  <p class="hint" id="pickhint">ऊपर से BC, OBC, CROP या RTPS चुनिए।</p>
+  <p class="hint" id="pickhint">Choose BC, OBC, CROP or RTPS above.</p>
 </div>
 <div class="wrap" id="app" hidden>
   <form class="panel" id="form" autocomplete="off" onsubmit="return false">
@@ -3762,9 +3784,9 @@ refresh();
  b.addEventListener('click',function(){
   g('app').hidden=true;g('pickhint').hidden=true;
   all.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
-  sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');fitPage();opened('📄 RTPS DOCUMENT CROP');
+  sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');fitPage();opened('📄 RTPS ALL DOCUMENT CROP');
  });
- ['pk-xi','pk-viii'].forEach(function(i){g(i).addEventListener('click',function(){sec.hidden=true;b.classList.remove('on');b.setAttribute('aria-pressed','false');opened(i==='pk-xi'?'📝 BC Sapath Patra':'📝 OBC Sapath Patra')})});
+ ['pk-xi','pk-viii'].forEach(function(i){g(i).addEventListener('click',function(){sec.hidden=true;b.classList.remove('on');b.setAttribute('aria-pressed','false');opened(i==='pk-xi'?'📝 BC SAPATH PATRA':'📝 OBC SAPATH PATRA')})});
 })();
 
 })();
@@ -4019,7 +4041,7 @@ addEventListener("afterprint",function(){delete document.body.dataset.pp});
   g('app').hidden=true;g('cropsec').hidden=true;g('pickhint').hidden=true;
   L.forEach(function(i){g(i).classList.remove('on');g(i).setAttribute('aria-pressed','false')});
   sec.hidden=false;b.classList.add('on');b.setAttribute('aria-pressed','true');
-  g('pickwrap').hidden=true;bk.hidden=false;tt.textContent='\u{1F5BC}\uFE0F Photo Signature Add';window.scrollTo(0,0);
+  g('pickwrap').hidden=true;bk.hidden=false;tt.textContent='\u{1F5BC}\uFE0F PHOTO AND SIGNATURE';window.scrollTo(0,0);
  });
  L.forEach(function(i){g(i).addEventListener('click',off)});
  bk.addEventListener('click',off);
@@ -7385,16 +7407,30 @@ function photo(w,h){
   paint(c.getContext("2d"),k,false,cs);
   return c.toDataURL("image/png");
 }
-$("b1").onclick=()=>{
-  const L=lay(),url=photo(L.w,L.h),pdf=new jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
-  for(let pg=0;pg<L.pages;pg++){
-    if(pg)pdf.addPage();
-    L.pos.filter(p=>p.pg===pg).forEach(p=>{
-      pdf.addImage(url,"PNG",p.x,p.y,L.w,L.h,"ph");
-      if($("cl").checked){pdf.setDrawColor(190);pdf.setLineWidth(.1);pdf.rect(p.x-.3,p.y-.3,L.w+.6,L.h+.6)}
-    });
-  }
-  apSaveFile(pdf.output("blob"),"passport_photos_A4.pdf");
+function ppLoadPdf(){
+  if(window.jspdf&&window.jspdf.jsPDF)return Promise.resolve();
+  const urls=["https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js","https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"];
+  const one=u=>new Promise((ok,no)=>{const s=document.createElement("script");s.src=u;s.onload=ok;s.onerror=()=>no(new Error("load"));document.head.appendChild(s)});
+  return one(urls[0]).catch(()=>one(urls[1])).then(()=>{if(!(window.jspdf&&window.jspdf.jsPDF))throw new Error("pdf lib")});
+}
+let busy1=false;
+$("b1").onclick=async()=>{
+  if(busy1||!srcC)return;
+  busy1=true;
+  try{
+    await ppLoadPdf();
+    const L=lay(),url=photo(L.w,L.h),pdf=new jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
+    for(let pg=0;pg<L.pages;pg++){
+      if(pg)pdf.addPage();
+      L.pos.filter(p=>p.pg===pg).forEach(p=>{
+        pdf.addImage(url,"PNG",p.x,p.y,L.w,L.h,undefined,"FAST");
+        if($("cl").checked){pdf.setDrawColor(190);pdf.setLineWidth(.1);pdf.rect(p.x-.3,p.y-.3,L.w+.6,L.h+.6)}
+      });
+    }
+    const blob=pdf.output("blob");apSaveFile(blob,"passport_photos_A4.pdf");
+    $("sinfo").textContent="✓ A4 PDF · "+Math.round(blob.size/1024)+" KB";
+  }catch(err){$("sinfo").textContent="A4 PDF nahi bani (internet check karein): "+(err.message||err)}
+  busy1=false;
 };
 /* ---- Single photo JPG: chuni hui KB me, up to 4K, turant download ---- */
 const toJpg=(c,q)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));

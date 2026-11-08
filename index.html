@@ -9749,37 +9749,48 @@ if(btn) btn.style.display="none";
 /* Tools se download: hamesha main page se, taaki baar-baar chale */
 window.apSaveBlob=(function(){
 var keep=[],MAXK=6;
-function st(){var s=document.getElementById('apDlSt');if(!s){s=document.createElement('style');s.id='apDlSt';s.textContent='#apDlBar{position:fixed;left:10px;right:10px;top:calc(62px + env(safe-area-inset-top,0px));z-index:99998;display:flex;flex-direction:column;gap:6px;max-width:460px;margin:0 auto;pointer-events:none;font:14px/1.35 Arial,sans-serif}#apDlBar .r{pointer-events:auto;display:flex;align-items:center;gap:8px;background:#0f2a17;color:#fff;border-radius:12px;padding:9px 10px;box-shadow:0 8px 26px rgba(0,0,0,.45)}#apDlBar .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#apDlBar small{display:block;opacity:.75;font-size:11px}#apDlBar button{border:0;border-radius:8px;height:38px;padding:0 12px;font:inherit;font-weight:700;cursor:pointer;flex:none}#apDlBar .g{background:#22c55e;color:#06210f}#apDlBar .x{background:transparent;color:#fff;font-size:18px;padding:0 6px}';document.head.appendChild(s)}}
+function st(){var s=document.getElementById('apDlSt');if(!s){s=document.createElement('style');s.id='apDlSt';s.textContent='#apDlBar{position:fixed;left:10px;right:10px;top:calc(62px + env(safe-area-inset-top,0px));z-index:99998;display:flex;flex-direction:column;gap:6px;max-width:460px;margin:0 auto;pointer-events:none;font:14px/1.35 Arial,sans-serif}#apDlBar .r{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#0f2a17;color:#fff;border-radius:12px;padding:9px 10px;box-shadow:0 8px 26px rgba(0,0,0,.45)}#apDlBar .n{flex:1 1 100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#apDlBar small{display:block;opacity:.75;font-size:11px}#apDlBar button{border:0;border-radius:8px;height:38px;padding:0 12px;font:inherit;font-weight:700;cursor:pointer;flex:none}#apDlBar .g{background:#22c55e;color:#06210f;flex:1 1 40%}#apDlBar .s{background:#fff;color:#0f2a17;flex:1 1 40%}#apDlBar .x{background:transparent;color:#fff;font-size:18px;padding:0 6px;position:absolute;right:4px;top:2px;height:30px}#apDlBar .r{position:relative}';document.head.appendChild(s)}}
 function kb(n){return n>=1048576?(n/1048576).toFixed(2)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
-function trig(e){var a=document.createElement('a');a.href=e.u;a.download=e.name;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},1500)}
+function share(e){
+  try{var f=new File([e.blob],e.name,{type:e.blob.type||'application/octet-stream'});
+    if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[f]}))){navigator.share({files:[f],title:e.name}).catch(function(){});return true}}catch(_){}
+  return false}
+function canShare(e){try{var f=new File([e.blob],e.name,{type:e.blob.type||'application/octet-stream'});return !!(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))}catch(_){return false}}
+function trig(e){e.tries=(e.tries||0)+1;
+  if(e.tries>1&&e.tries%2===0){var fr=new FileReader();fr.onload=function(){var a=document.createElement('a');a.href=fr.result;a.download=e.name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},1500)};fr.readAsDataURL(e.blob);return}
+  var a=document.createElement('a');a.href=e.u;a.download=e.name;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},1500)}
 function bar(){
   st();var b=document.getElementById('apDlBar');
   if(!b){b=document.createElement('div');b.id='apDlBar';document.body.appendChild(b)}
   b.innerHTML='';
   keep.slice(-1).forEach(function(e){
     var r=document.createElement('div');r.className='r';
-    var n=document.createElement('div');n.className='n';n.textContent='✓ '+e.name;var sm=document.createElement('small');sm.textContent=kb(e.size)+' · अगर फाइल न आई हो तो दबाइए';n.appendChild(sm);
+    var n=document.createElement('div');n.className='n';n.textContent='✓ '+e.name;var sm=document.createElement('small');sm.textContent=kb(e.size)+' · अगर फाइल न आई हो तो नीचे दबाइए';n.appendChild(sm);
     var g=document.createElement('button');g.type='button';g.className='g';g.textContent='⬇ दोबारा डाउनलोड';g.onclick=function(){trig(e)};
     var x=document.createElement('button');x.type='button';x.className='x';x.setAttribute('aria-label','बंद');x.textContent='✕';x.onclick=function(){var i=keep.indexOf(e);if(i>-1)keep.splice(i,1);try{URL.revokeObjectURL(e.u)}catch(_){}bar()};
-    r.appendChild(n);r.appendChild(g);r.appendChild(x);b.appendChild(r);
+    r.appendChild(n);r.appendChild(g);
+    if(canShare(e)){var sh=document.createElement('button');sh.type='button';sh.className='s';sh.textContent='📤 फोन में सेव / शेयर';sh.onclick=function(){share(e)};r.appendChild(sh)}
+    r.appendChild(x);b.appendChild(r);
   });
   if(!keep.length)b.remove();
   clearTimeout(bar.t);bar.t=setTimeout(function(){var q=document.getElementById('apDlBar');if(q)q.remove()},25000);
 }
 return function(blob,name){
-  var e={u:URL.createObjectURL(blob),name:name,size:blob.size||0};
+  var e={u:URL.createObjectURL(blob),blob:blob,name:name,size:blob.size||0};
   keep.push(e);
   while(keep.length>MAXK){var o=keep.shift();try{URL.revokeObjectURL(o.u)}catch(_){}}
   bar();
-  var ua=navigator.userActivation;
-  if(!ua||ua.isActive){trig(e);return}
-  /* user ka tap purana ho chuka: browser seedha download rok deta hai, isliye ek tap maangte hain */
+  var ua=navigator.userActivation,pwa=false;
+  try{pwa=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: minimal-ui)').matches||navigator.standalone===true}catch(_){}
+  /* installed app (PWA) me chup-chaap auto download aksar nahi aata, aur purana tap bhi bekaar hota hai: seedha ek tap wala box dikhate hain */
+  if(!pwa&&(!ua||ua.isActive)){trig(e);return}
   var old=document.getElementById('apDlTap');if(old)old.remove();
   var o=document.createElement('div');o.id='apDlTap';o.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(8,12,22,.6);display:flex;align-items:center;justify-content:center;padding:16px';
-  o.innerHTML='<div style="background:#fff;color:#141a26;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font:15px/1.5 Arial,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.4)"><div style="font-weight:700;font-size:17px;margin-bottom:6px">✓ फाइल तैयार है</div><div id="apDlN" style="font-size:13px;color:#586377;word-break:break-all;margin-bottom:14px"></div><div style="display:flex;gap:10px"><button type="button" id="apDlX" style="flex:1;height:46px;border-radius:8px;border:1px solid #cfd6e2;background:#fff;color:#141a26;font:inherit;cursor:pointer">रद्द</button><button type="button" id="apDlG" style="flex:2;height:46px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;cursor:pointer">⬇ डाउनलोड करें</button></div></div>';
-  document.body.appendChild(o);o.querySelector('#apDlN').textContent=name;
+  o.innerHTML='<div style="background:#fff;color:#141a26;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font:15px/1.5 Arial,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,.4)"><div style="font-weight:700;font-size:17px;margin-bottom:6px">✓ फाइल तैयार है</div><div id="apDlN" style="font-size:13px;color:#586377;word-break:break-all;margin-bottom:14px"></div><button type="button" id="apDlG" style="width:100%;height:50px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;font-size:16px;cursor:pointer">⬇ डाउनलोड करें</button><button type="button" id="apDlS" style="display:none;width:100%;height:46px;margin-top:8px;border-radius:8px;border:1px solid #0755c9;background:#fff;color:#0755c9;font:inherit;font-weight:700;cursor:pointer">📤 फोन में सेव / शेयर</button><button type="button" id="apDlX" style="width:100%;height:40px;margin-top:8px;border-radius:8px;border:0;background:transparent;color:#586377;font:inherit;cursor:pointer">बाद में</button></div>';
+  document.body.appendChild(o);o.querySelector('#apDlN').textContent=name+' · '+kb(e.size);
   o.querySelector('#apDlX').onclick=function(){o.remove()};
   o.querySelector('#apDlG').onclick=function(){o.remove();trig(e)};
+  if(canShare(e)){var sb=o.querySelector('#apDlS');sb.style.display='block';sb.onclick=function(){o.remove();share(e)}}
 };
 })();
 /* Dashboard design: Admin (publicConfig/dashboard) jo set kare wahi dikhe */

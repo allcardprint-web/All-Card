@@ -28,16 +28,28 @@ function next(){
   var it=queue[0],o=D.createElement('div');
   o.setAttribute('data-ap-dl','1');
   o.style.cssText='position:fixed;inset:0;z-index:2147483647;background:rgba(8,12,22,.62);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Arial,sans-serif';
-  o.innerHTML='<div style="background:#fff;color:#141a26;border-radius:14px;padding:18px;max-width:340px;width:100%;text-align:center;font-size:15px;line-height:1.5;box-shadow:0 12px 40px rgba(0,0,0,.4)">'
-   +'<div style="font-weight:700;font-size:17px;margin-bottom:6px">✓ फाइल तैयार है</div>'
-   +'<div style="font-size:13px;color:#586377;word-break:break-all;margin-bottom:6px">'+esc(it.name)+'</div>'
-   +(queue.length>1?'<div style="font-size:12px;color:#586377;margin-bottom:8px">और '+(queue.length-1)+' फाइल बाकी</div>':'')
-   +'<div style="display:flex;gap:10px;margin-top:8px"><button type="button" data-x style="flex:1;height:46px;border-radius:8px;border:1px solid #cfd6e2;background:#fff;color:#141a26;font:inherit;cursor:pointer">रद्द</button>'
-   +'<a data-g href="#" download style="flex:2;height:46px;border-radius:8px;border:0;background:#0755c9;color:#fff;font:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none">⬇ डाउनलोड करें</a></div>'
-   +'<div style="display:flex;gap:10px;margin-top:10px"><button type="button" data-s style="flex:1;height:40px;border-radius:8px;border:1px solid #cfd6e2;background:#f4f7fc;color:#0755c9;font:inherit;font-size:13px;cursor:pointer">📤 Share / Save</button><button type="button" data-o style="flex:1;height:40px;border-radius:8px;border:1px solid #cfd6e2;background:#f4f7fc;color:#0755c9;font:inherit;font-size:13px;cursor:pointer">↗ खोलें</button></div><div style="font-size:11px;color:#6b7690;margin-top:8px">डाउनलोड न दिखे तो Share / Save दबाएँ</div></div></div>';
+  var B='height:50px;border-radius:12px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;box-sizing:border-box;margin:0;padding:0 8px;';
+  var more=queue.length>1?' · और '+(queue.length-1)+' फाइल बाकी':'';
+  o.innerHTML='<div style="background:#fff;border-radius:22px;max-width:390px;width:100%;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.45);color:#141a26">'
+   +'<div style="background:linear-gradient(115deg,#0a4fc4,#0b6cf0);color:#fff;padding:16px 48px;display:flex;align-items:center;justify-content:center;position:relative;gap:12px;font-weight:700;font-size:22px">'
+   +'<svg width="38" height="38" viewBox="0 0 38 38"><circle cx="19" cy="19" r="19" fill="#fff"/><path d="M10 19.5l6.5 6.5L28 13" fill="none" stroke="#0a5ad8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+   +'<span>फाइल तैयार है</span>'
+   +'<button type="button" data-c aria-label="बंद करें" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:8px">✕</button></div>'
+   +'<div style="padding:18px 16px 16px">'
+   +'<div style="display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid #dde4f0">'
+   +'<svg width="52" height="62" viewBox="0 0 52 62" style="flex:none"><path d="M4 6a6 6 0 0 1 6-6h26l16 16v40a6 6 0 0 1-6 6H10a6 6 0 0 1-6-6z" fill="#e53935"/><path d="M36 0l16 16H42a6 6 0 0 1-6-6z" fill="#ff8a80"/><text x="26" y="44" text-anchor="middle" font-family="Arial" font-weight="700" font-size="15" fill="#fff">PDF</text></svg>'
+   +'<div style="min-width:0"><div style="font-weight:700;font-size:17px;word-break:break-all;line-height:1.3">'+esc(it.name)+'</div>'
+   +'<div style="font-size:13px;color:#586377;margin-top:3px">(तैयार और डाउनलोड के लिए उपलब्ध)'+more+'</div></div></div>'
+   +'<div style="display:flex;gap:10px;margin-top:16px">'
+   +'<button type="button" data-o style="'+B+'flex:1;border:2px solid #0b57d0;background:#f4f8ff;color:#0b57d0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0b57d0" stroke-width="2.2"><path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.6"/></svg>देखें</button>'
+   +'<a data-g href="#" download style="'+B+'flex:1.35;border:0;background:linear-gradient(180deg,#0b66e8,#0a4fc4);color:#fff;box-shadow:0 4px 10px rgba(10,79,196,.35)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6.5 10l5.5 5.5 5.5-5.5M4 20h16"/></svg>डाउनलोड करें</a></div>'
+   +'<div style="display:flex;gap:10px;margin-top:10px">'
+   +'<button type="button" data-s style="'+B+'flex:1.3;border:1px solid #c3d5f6;background:#e8f0fd;color:#0b57d0"><svg width="22" height="22" viewBox="0 0 24 24" fill="#0b57d0"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8 11l8-5M8 13l8 5" stroke="#0b57d0" stroke-width="2"/></svg>Share / Save</button>'
+   +'<button type="button" data-c2 style="'+B+'flex:1;border:1px solid #d9c9f4;background:#efe6fb;color:#5b21b6"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b21b6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H5M11 5l-7 7 7 7"/></svg>वापस जाएं</button></div></div>'
+   +'<div style="background:#e6eefb;color:#0b57d0;font-size:14px;padding:12px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="22" height="22" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#0b57d0"/><rect x="10.8" y="10" width="2.4" height="8" rx="1" fill="#fff"/><circle cx="12" cy="6.8" r="1.5" fill="#fff"/></svg>1 बार से ज्यादा डाउनलोड काम नहीं करेगा</div></div>';
   (D.body||D.documentElement).appendChild(o);
   function done(){queue.shift();showing=false;try{o.remove()}catch(e){}setTimeout(next,0)}
-  o.querySelector('[data-x]').onclick=done;
+  o.querySelector('[data-c]').onclick=done;o.querySelector('[data-c2]').onclick=done;
   var ga=o.querySelector('[data-g]'),gu=URL.createObjectURL(it.blob);
   var nm=it.name,dot=nm.lastIndexOf('.'),cnt=(window.__apDlCnt=(window.__apDlCnt||0)+1);
   if(cnt>1)nm=(dot>0?nm.slice(0,dot):nm)+'-'+cnt+(dot>0?nm.slice(dot):'');
@@ -74,11 +86,11 @@ window.apDlInject=function(src){var sc='<script>('+window.apDlShimFn.toString()+
 </script>
 <script>
 /* DL-fix v3: ek baar purana service-worker/cache saaf karo taaki naya code chale */
-(function(){var K='ap_dlfix_v4';try{if(localStorage.getItem(K)!=='1'){localStorage.setItem(K,'1');var P=[];
+(function(){var K='ap_dlfix_v6';try{if(localStorage.getItem(K)!=='1'){localStorage.setItem(K,'1');var P=[];
  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)P.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}));
  if(window.caches)P.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}));
  Promise.all(P).catch(function(){}).then(function(){location.reload()});return}}catch(e){}
- document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent='✓ Download fix v4';d.style.cssText='position:fixed;right:8px;bottom:8px;z-index:2147483646;background:#0755c9;color:#fff;font:11px Arial;padding:4px 8px;border-radius:10px;opacity:.9;pointer-events:none';document.body.appendChild(d);setTimeout(function(){d.remove()},7000)});
+ document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.textContent='✓ Download fix v6';d.style.cssText='position:fixed;right:8px;bottom:8px;z-index:2147483646;background:#0755c9;color:#fff;font:11px Arial;padding:4px 8px;border-radius:10px;opacity:.9;pointer-events:none';document.body.appendChild(d);setTimeout(function(){d.remove()},7000)});
 })();
 </script>
 <style>

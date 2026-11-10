@@ -1,4 +1,4 @@
-/* All Card — service worker v10: app turant cache se khulta hai, Firebase/PDF libraries bhi offline ke liye cache */
+/* All Card — service worker v9: app turant cache se khulta hai, Firebase/PDF libraries bhi offline ke liye cache */
 const CACHE = "all-card-shell-v10";
 const CORE = ["./", "./index.html", "./manifest.json", "./favicon.png", "./icon-192.png", "./icon-512.png", "./icon-512-maskable.png"];
 const LIBS = [

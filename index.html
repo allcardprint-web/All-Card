@@ -121,6 +121,7 @@
 .service.passport{background:linear-gradient(130deg,#ff9a2e,#d9480f)}
 .service.photoedit{background:linear-gradient(130deg,#f2b632,#a85d0a)}.service.interest{background:linear-gradient(130deg,#16b873,#0a6b47)}.service.noncreamy{background:linear-gradient(130deg,#c9823f,#6b3a14)}.service.sadi{background:linear-gradient(130deg,#e0457b,#8c1d48)}
 .service.bill{background:linear-gradient(130deg,#0ea5c6,#0a5a73)}
+.service.loc{background:linear-gradient(130deg,#10b981,#065f46)}
 .apPop{position:fixed;inset:0;background:#0007;z-index:5000;display:flex;align-items:center;justify-content:center;padding:18px}
 .apPopBox{background:#fff;color:#172033;border-radius:16px;padding:20px 18px;max-width:340px;width:100%;box-shadow:0 12px 40px #0006;text-align:center;font-family:Arial,sans-serif}
 .apPopBox h3{margin:0 0 10px;color:#0556c4;font-size:19px}
@@ -153,6 +154,7 @@
 <button class="service noncreamy" data-action="noncreamy" data-name="RTPS DOCUMENT READY"><span class="glyph">📜</span><span><div class="title" data-i18n>RTPS DOCUMENT<br>READY</div><div class="sub" data-i18n>BC | OBC | RTPS<br>Crop | Signature</div></span><span class="arrow">›</span></button>
 <button class="service sadi" data-action="sadi" data-name="SADI AND RESUME"><span class="glyph">💒</span><span><div class="title" data-i18n>SADI AND<br>RESUME</div><div class="sub" data-i18n>Resume | Card Share<br>PDF | WhatsApp</div></span><span class="arrow">›</span></button>
 <button class="service bill" data-action="bill" data-name="BILL GENERATE"><span class="glyph">🧾</span><span><div class="title" data-i18n>BILL<br>GENERATE</div><div class="sub" data-i18n>Bill | Invoice<br>PDF | WhatsApp</div></span><span class="arrow">›</span></button>
+<button class="service loc" data-action="loc" data-name="LOCATION SHARING"><span class="glyph">📍</span><span><div class="title" data-i18n>LOCATION<br>SHARING</div><div class="sub" data-i18n>ON | OFF<br>Live Location</div></span><span class="arrow">›</span></button>
 </section>
 <section class="toolView" id="toolView" aria-hidden="true"><div class="toolBar"><button id="backDashboard" type="button">← Back</button><strong id="toolTitle">All Card</strong></div><iframe class="toolPageFrame" id="toolFrame" title="All Print service tool" sandbox="allow-scripts allow-downloads allow-modals allow-forms allow-same-origin"></iframe></section>
 <section class="coming" id="coming"></section>
@@ -585,7 +587,8 @@ const TH={
  interest:{a:'#16b873',d:'#0a6b47',l:'#6fe0b0',t:'#eefaf3',i:'🧮',br:'12px',box:'top',  hs:'none',pb:'12px',grad:1},
  sadi:{a:'#c2255c',d:'#821a3e',l:'#f783ac',t:'#fff0f6',i:'💒',br:'12px',box:'top',  hs:'none',pb:'10px',grad:1},
  noncreamy:{a:'#a8642b',d:'#6b3a14',l:'#e0a56e',t:'#fbf4ec',i:'📜',br:'12px',box:'top',  hs:'none',pb:'10px',grad:1},
- bill:{a:'#0e7490',d:'#0a4d63',l:'#5ccbe3',t:'#ecfafd',i:'🧾',br:'12px',box:'top',  hs:'none',pb:'10px',grad:1}
+ bill:{a:'#0e7490',d:'#0a4d63',l:'#5ccbe3',t:'#ecfafd',i:'🧾',br:'12px',box:'top',  hs:'none',pb:'10px',grad:1},
+ loc:{a:'#059669',d:'#065f46',l:'#6ee7b7',t:'#ecfdf5',i:'📍',br:'12px',box:'top',  hs:'none',pb:'10px',grad:1}
 };
 window.apThemes=TH;
 /* ===== Laptop: kisi bhi tool me file drag & drop (sahi upload box me apne aap chali jaati hai) ===== */
@@ -654,7 +657,7 @@ window.apThemeCss=key=>{
   if(T.v)c+=':root{--ac:'+a+';--bg:'+t+'}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ac:'+T.l+'}}:root[data-theme="dark"]{--ac:'+T.l+'}.box h2{color:var(--ac)}';
   /* card accent */
   const bx=T.box==='top'?'border-top:3px solid '+a+';':T.box==='left'?'border-left:4px solid '+a+';':'box-shadow:0 6px 22px '+ra(.14)+';';
-  const sel={aadhaar:'.c',voter:'.box',pan:'.box',manualpan:'.panel,details',apaar:'.box',ayushman:'.box',atm:'.panel',ippb:'.panel',kisan:'.box',passport:'.box',photoedit:'.box',interest:'.card',noncreamy:'.panel',sadi:'.panel',bill:'.panel'}[key];
+  const sel={aadhaar:'.c',voter:'.box',pan:'.box',manualpan:'.panel,details',apaar:'.box',ayushman:'.box',atm:'.panel',ippb:'.panel',kisan:'.box',passport:'.box',photoedit:'.box',interest:'.card',noncreamy:'.panel',sadi:'.panel',bill:'.panel',loc:'.panel'}[key];
   c+=sel+'{'+bx+'}';
   /* common: inputs focus + shared px-* buttons */
   c+='input:focus,select:focus,textarea:focus{border-color:'+a+';box-shadow:0 0 0 3px '+ra(.18)+'}';
@@ -700,10 +703,10 @@ let panSource="";/* pan -> tools/pan.html (on-demand) */
 function showTool(which, push=true){
   currentTool=which;
   document.getElementById('drawer').classList.remove('open');
-  document.getElementById('toolTitle').textContent=which==='aadhaar'?'🪪 Aadhaar Services':which==='voter'?'🗳️ Voter ID Services':which==='pan'?'▤ PAN Card Auto Cutter':which==='manualpan'?'✍️ Manual PAN':which==='ippb-atm'?'💳 IPPB ATM CARD':which==='apaar'?'🎓 APAAR ID Services':which==='ayushman'?'🌿 Ayushman Card':which==='kisan'?'🌾 Kisan Card':which==='passport'?'📷 Passport Photo':which==='photoedit'?'📝 Photo & PDF Text Editor':which==='interest'?'🧮 Interest Calculator Pro':which==='noncreamy'?'📜 RTPS DOCUMENT READY':which==='sadi'?'💒 SADI AND RESUME':which==='bill'?'🧾 BILL GENERATE':'🏦 IPPB PASSBOOK';
+  document.getElementById('toolTitle').textContent=which==='aadhaar'?'🪪 Aadhaar Services':which==='voter'?'🗳️ Voter ID Services':which==='pan'?'▤ PAN Card Auto Cutter':which==='manualpan'?'✍️ Manual PAN':which==='ippb-atm'?'💳 IPPB ATM CARD':which==='apaar'?'🎓 APAAR ID Services':which==='ayushman'?'🌿 Ayushman Card':which==='kisan'?'🌾 Kisan Card':which==='passport'?'📷 Passport Photo':which==='photoedit'?'📝 Photo & PDF Text Editor':which==='interest'?'🧮 Interest Calculator Pro':which==='noncreamy'?'📜 RTPS DOCUMENT READY':which==='sadi'?'💒 SADI AND RESUME':which==='bill'?'🧾 BILL GENERATE':which==='loc'?'📍 LOCATION SHARING':'🏦 IPPB PASSBOOK';
   // Har open par naya source load karein: purane tool ka iframe/state reuse na ho.
   toolFrame.srcdoc='<body style="font-family:Arial;padding:40px;text-align:center;color:#0755c9"><h3>Loading…</h3></body>';
-  const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport',photoedit:'photoedit',interest:'interest',noncreamy:'noncreamy',sadi:'sadi',bill:'bill','ippb-atm':'atm'}[which]||'ippb';
+  const __tf={aadhaar:'aadhaar',voter:'voter',pan:'pan',manualpan:'manualpan',apaar:'apaar',ayushman:'ayushman',kisan:'kisan',passport:'passport',photoedit:'photoedit',interest:'interest',noncreamy:'noncreamy',sadi:'sadi',bill:'bill',loc:'loc','ippb-atm':'atm'}[which]||'ippb';
   toolView.setAttribute('data-theme',__tf);
   window.apLoadTool(__tf).then(src=>{if(currentTool===which){let __s=window.apThemeInject?window.apThemeInject(__tf,src):src;if(__tf==='interest'){const __u=G.cur||{};const __n=String(__u.name||__u.uid||__u.mobile||'User');__s=__s.replace('<head>','<head><script>window.__apUser='+JSON.stringify(__n).replace(/</g,'\\u003c')+';<\/script>')}toolFrame.srcdoc=(window.apI18nInject?window.apI18nInject(__s):__s)}}).catch(()=>{if(currentTool===which)toolFrame.srcdoc='<body style="font-family:Arial;padding:30px;text-align:center"><h3>Tool load nahi hua</h3><p>Internet check karke dobara kholein.</p></body>'});
   toolView.classList.add('show');toolView.setAttribute('aria-hidden','false');
@@ -730,6 +733,7 @@ document.querySelectorAll('[data-action]').forEach(btn=>btn.addEventListener('cl
   else if(btn.dataset.action==='noncreamy')showTool('noncreamy');
   else if(btn.dataset.action==='sadi')showTool('sadi');
   else if(btn.dataset.action==='bill')showTool('bill');
+  else if(btn.dataset.action==='loc')showTool('loc');
   else if(btn.dataset.action==='voter' || btn.dataset.name==='Voter ID Services')showTool('voter');
   else if(btn.dataset.action==='ippb')showTool('ippb');
   else if(btn.dataset.name==='PAN Card Services')showTool('pan');
@@ -788,10 +792,10 @@ SB.waLink=(mobile,msg)=>{let m=String(mobile||'').replace(/\D/g,'');if(m.length=
 SB.copy=async t=>{try{await navigator.clipboard.writeText(t);return true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove();return ok}};
 
 /* ---------- Access control: kaun sa user kaun sa section chala sakta hai ---------- */
-SB.SECS=[{k:'aadhaar',n:'🪪 Aadhaar Services'},{k:'pan',n:'▤ PAN Card Services',sub:[{k:'pan_uti',n:'UTI PAN'},{k:'pan_nsdl',n:'NSDL PAN'},{k:'pan_manual',n:'Manual PAN'}]},{k:'voter',n:'🗳️ Voter ID Services'},{k:'apaar',n:'🎓 APAAR ID Services'},{k:'ayushman',n:'🌿 Ayushman Card'},{k:'ippb',n:'🏦 IPPB Passbook'},{k:'ippb-atm',n:'💳 IPPB ATM Card'},{k:'print-manager',n:'🖨️ Print Manager'},{k:'abha',n:'ABHA Card (jald aayega)'},{k:'eshram',n:'E-Shram & Labour Card (jald aayega)'},{k:'dl',n:'Driving Licence & RC (jald aayega)'},{k:'farmer',n:'🌾 Farmer / Kisan Card'},{k:'passport',n:'📷 Passport Photo'},{k:'photoedit',n:'📝 Photo & PDF Text Editor'},{k:'interest',n:'🧮 Interest Calculator Pro'},{k:'noncreamy',n:'📜 RTPS DOCUMENT READY'},{k:'sadi',n:'💒 SADI AND RESUME'},{k:'bill',n:'🧾 BILL GENERATE'}];
+SB.SECS=[{k:'aadhaar',n:'🪪 Aadhaar Services'},{k:'pan',n:'▤ PAN Card Services',sub:[{k:'pan_uti',n:'UTI PAN'},{k:'pan_nsdl',n:'NSDL PAN'},{k:'pan_manual',n:'Manual PAN'}]},{k:'voter',n:'🗳️ Voter ID Services'},{k:'apaar',n:'🎓 APAAR ID Services'},{k:'ayushman',n:'🌿 Ayushman Card'},{k:'ippb',n:'🏦 IPPB Passbook'},{k:'ippb-atm',n:'💳 IPPB ATM Card'},{k:'print-manager',n:'🖨️ Print Manager'},{k:'abha',n:'ABHA Card (jald aayega)'},{k:'eshram',n:'E-Shram & Labour Card (jald aayega)'},{k:'dl',n:'Driving Licence & RC (jald aayega)'},{k:'farmer',n:'🌾 Farmer / Kisan Card'},{k:'passport',n:'📷 Passport Photo'},{k:'photoedit',n:'📝 Photo & PDF Text Editor'},{k:'interest',n:'🧮 Interest Calculator Pro'},{k:'noncreamy',n:'📜 RTPS DOCUMENT READY'},{k:'sadi',n:'💒 SADI AND RESUME'},{k:'bill',n:'🧾 BILL GENERATE'},{k:'loc',n:'📍 LOCATION SHARING'}];
 SB.ALLK=SB.SECS.flatMap(x=>[x.k].concat((x.sub||[]).map(y=>y.k))).concat(['apaaredit']);
-SB.NEWK=['photoedit','interest'];SB.NEWK3=['noncreamy'];SB.NEWK4=['sadi'];SB.NEWK5=['bill'];/* naye sections: purani saved list me bhi default ON (jab tak admin dobara save na kare) */
-SB.fixP=(l,v)=>{let r=l;if(!(v>=2))r=r.concat(SB.NEWK.filter(k=>!r.includes(k)));if(!(v>=3))r=r.concat(SB.NEWK3.filter(k=>!r.includes(k)));if(!(v>=4))r=r.concat(SB.NEWK4.filter(k=>!r.includes(k)));if(!(v>=5))r=r.concat(SB.NEWK5.filter(k=>!r.includes(k)));return r};
+SB.NEWK=['photoedit','interest'];SB.NEWK3=['noncreamy'];SB.NEWK4=['sadi'];SB.NEWK5=['bill'];SB.NEWK6=['loc'];/* naye sections: purani saved list me bhi default ON (jab tak admin dobara save na kare) */
+SB.fixP=(l,v)=>{let r=l;if(!(v>=2))r=r.concat(SB.NEWK.filter(k=>!r.includes(k)));if(!(v>=3))r=r.concat(SB.NEWK3.filter(k=>!r.includes(k)));if(!(v>=4))r=r.concat(SB.NEWK4.filter(k=>!r.includes(k)));if(!(v>=5))r=r.concat(SB.NEWK5.filter(k=>!r.includes(k)));if(!(v>=6))r=r.concat(SB.NEWK6.filter(k=>!r.includes(k)));return r};
 SB.defP=d=>{const s=(d&&d.settings)||{};return Array.isArray(s.defPerms)?SB.fixP(s.defPerms,s.defPermsV):SB.ALLK};
 SB.perms=(u,d)=>Array.isArray(u.perms)?SB.fixP(u.perms,u.permsV):SB.defP(d);
 SB.permBoxes=sel=>SB.SECS.map(x=>'<label class="sbPm"><input type="checkbox" class="sbPerm" value="'+x.k+'" '+(sel.includes(x.k)?'checked':'')+'> '+x.n+'</label>'+(x.sub?'<div class="sbPmSub">'+x.sub.map(y=>'<label class="sbPm"><input type="checkbox" class="sbPerm" value="'+y.k+'" '+(sel.includes(y.k)?'checked':'')+'> '+y.n+'</label>').join('')+'</div>':'')).join('');
@@ -1010,8 +1014,8 @@ SB.act=async b=>{const a=b.dataset.sb,id=b.dataset.id;
   case 'pwmob':await SB.mutUser(id,u=>{u.ph=SB.hash(u.uid,u.uid);u.devs.forEach(x=>x.tok=null);SB.log(u,'Password = mobile number')},'✓ Password ab mobile number hai');break;
   case 'pmall':case 'pmnone':document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=(a==='pmall'));break;
   case 'pmdef':{const d=await SB.get(),L=SB.defP(d);document.querySelectorAll('#sbModal .sbPerm').forEach(i=>i.checked=L.includes(i.value));break}
-  case 'pmsave':{const L=[...document.querySelectorAll('#sbModal .sbPerm:checked')].map(i=>i.value);await SB.mutUser(id,u=>{u.perms=L;u.permsV=5;SB.log(u,'Access badla: '+L.filter(k=>SB.SECS.some(x=>x.k===k)).length+' section')},'✓ Access save ho gaya');break}
-  case 'dpsave':{const L=[...document.querySelectorAll('#sbDefPerm .sbPerm:checked')].map(i=>i.value);await SB.tx(async d=>{d.settings.defPerms=L;d.settings.defPermsV=5});admToast('✓ Default access save ho gaya');break}
+  case 'pmsave':{const L=[...document.querySelectorAll('#sbModal .sbPerm:checked')].map(i=>i.value);await SB.mutUser(id,u=>{u.perms=L;u.permsV=6;SB.log(u,'Access badla: '+L.filter(k=>SB.SECS.some(x=>x.k===k)).length+' section')},'✓ Access save ho gaya');break}
+  case 'dpsave':{const L=[...document.querySelectorAll('#sbDefPerm .sbPerm:checked')].map(i=>i.value);await SB.tx(async d=>{d.settings.defPerms=L;d.settings.defPermsV=6});admToast('✓ Default access save ho gaya');break}
   case 'maxd':await SB.mutUser(id,u=>{u.maxDev=+b.dataset.n;if(u.devs.length>u.maxDev){u.devs.sort((a,c)=>(c.last||0)-(a.last||0));u.devs=u.devs.slice(0,u.maxDev)}SB.log(u,'Device limit = '+u.maxDev)},'✓ Device limit set ho gayi');break;
   case 'devdel':await SB.mutUser(id,u=>{u.devs=u.devs.filter(x=>x.id!==b.dataset.v);SB.log(u,'Admin ne ek device hataya')},'✓ Device hata diya');break;
   case 'devrst':if(!confirm('Device reset karein? User naye device se login kar payega (purana device logout ho jayega).'))return;
@@ -2039,6 +2043,230 @@ renderHist();
 </scr@@ipt>
 </body>
 </html>
+</script>
+<script type="text/plain" id="tool-loc"><!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LOCATION SHARING</title>
+<style>
+:root{--bg:#ecfdf5;--card:#fff;--field:#f3fbf7;--tx:#10231b;--mut:#5a6f66;--bd:#cfe8dc;--ac:#059669;--ac2:#fff;--ok:#12703a;--warn:#b45309;--bad:#b3261e;--sh:0 1px 3px rgba(6,60,40,.08),0 6px 18px rgba(6,60,40,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1612;--card:#12231c;--field:#182c24;--tx:#e4f3ec;--mut:#8fa99c;--bd:#264437;--ac:#34d399;--ac2:#05261a;--ok:#6ee7a7;--warn:#fbbf24;--bad:#f87171;--sh:none;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.55 "Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",sans-serif}
+[hidden]{display:none!important}
+.wrap{max-width:640px;margin:0 auto;padding:12px 12px 40px}
+.panel{background:var(--card);border:1px solid var(--bd);border-top:3px solid var(--ac);border-radius:14px;padding:14px;margin:12px 0;box-shadow:var(--sh)}
+.panel h2{margin:0 0 10px;font-size:16px;color:var(--ac)}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sw .tt b{font-size:17px}
+.sw .tt small{display:block;color:var(--mut);font-size:13px}
+.tg{position:relative;width:62px;height:34px;flex:none}
+.tg input{opacity:0;width:100%;height:100%;position:absolute;inset:0;margin:0;cursor:pointer;z-index:2}
+.tg i{position:absolute;inset:0;background:#b7c6be;border-radius:34px;transition:.2s}
+.tg i:after{content:"";position:absolute;left:4px;top:4px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tg input:checked+i{background:var(--ac)}
+.tg input:checked+i:after{transform:translateX(28px)}
+.badge{display:inline-block;padding:3px 12px;border-radius:999px;font-size:13px;font-weight:700}
+.b-ok{background:#dff5e6;color:#12703a}.b-warn{background:#fff1d6;color:#9a5b00}.b-bad{background:#fde6e3;color:#b3261e}.b-off{background:#e6ece9;color:#4c5f56}
+.row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--bd);font-size:14px}
+.row:last-child{border-bottom:0}
+.row span:first-child{color:var(--mut)}
+.row b{text-align:right;word-break:break-word}
+.btn{height:44px;border:1px solid var(--ac);background:var(--ac);color:var(--ac2);border-radius:12px;font:inherit;font-weight:700;padding:0 16px;cursor:pointer;margin:6px 6px 0 0}
+.btn.alt{background:transparent;color:var(--ac)}
+ul{margin:6px 0 0;padding-left:20px;font-size:14px;color:var(--tx)}
+li{margin:4px 0}
+.msg{margin-top:10px;font-size:14px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="panel">
+    <div class="sw">
+      <div class="tt"><b>📍 Location Sharing</b><small id="sub">शेयरिंग बंद है</small></div>
+      <label class="tg"><input type="checkbox" id="tg" aria-label="Location Sharing ON/OFF"><i></i></label>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div id="acts"></div>
+  </section>
+
+  <section class="panel">
+    <h2>📡 अभी की स्थिति</h2>
+    <div class="row"><span>शेयरिंग</span><b id="rSh">—</b></div>
+    <div class="row"><span>स्थिति</span><b id="rSt">—</b></div>
+    <div class="row"><span>इंटरनेट</span><b id="rNet">—</b></div>
+    <div class="row"><span>आख़िरी अपडेट (Admin को)</span><b id="rLast">—</b></div>
+    <div class="row"><span>आपकी लोकेशन</span><b id="rLoc">—</b></div>
+    <div class="row"><span>सटीकता</span><b id="rAcc">—</b></div>
+    <div id="mapbox" style="margin-top:8px" hidden><button class="btn alt" id="bMap" type="button">🗺 Map में देखें</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>ℹ️ ज़रूरी जानकारी</h2>
+    <ul>
+      <li><b>ON</b> करते ही आपकी लाइव लोकेशन (अक्षांश/देशांतर और समय) <b>Admin Panel</b> पर दिखेगी।</li>
+      <li><b>OFF</b> करते ही शेयरिंग बंद हो जाएगी और Admin के पास से आपकी लोकेशन हटा दी जाएगी।</li>
+      <li>अपडेट सिर्फ तब जाते हैं जब app खुला हो, फोन का GPS चालू हो, Location permission मिली हो और इंटरनेट चल रहा हो।</li>
+      <li>GPS बंद करने पर अपडेट रुक जाते हैं; GPS चालू करते ही (शेयरिंग ON हो तो) अपने-आप फिर शुरू हो जाते हैं।</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+function L(){try{return window.parent&&window.parent.apLoc?window.parent.apLoc:null}catch(e){return null}}
+function ago(ms){
+ if(!ms)return '—';
+ var s=Math.max(0,Math.round((Date.now()-ms)/1000));
+ var t=new Date(ms),hh=('0'+t.getHours()).slice(-2),mm=('0'+t.getMinutes()).slice(-2),ss=('0'+t.getSeconds()).slice(-2);
+ var a=s<60?s+' सेकंड पहले':s<3600?Math.floor(s/60)+' मिनट पहले':Math.floor(s/3600)+' घंटे पहले';
+ return hh+':'+mm+':'+ss+' ('+a+')';
+}
+function badge(cls,t){return '<span class="badge '+cls+'">'+t+'</span>'}
+var last={};
+$('tg').onchange=function(){
+ var l=L();if(!l){this.checked=false;return}
+ if(this.checked){
+  if(!confirm('Location Sharing ON करने पर आपकी लाइव लोकेशन Admin को दिखेगी।\n\nON करें?')){this.checked=false;return}
+  l.set(true);
+ }else{
+  l.set(false);
+ }
+ render();
+};
+function render(){
+ var l=L(),s=l?l.state():null;
+ if(!s){$('msg').textContent='Location सुविधा अभी उपलब्ध नहीं है।';return}
+ var tg=$('tg');if(tg.checked!==s.on)tg.checked=s.on;
+ $('sub').textContent=s.on?'शेयरिंग चालू है':'शेयरिंग बंद है';
+ $('rSh').innerHTML=s.on?badge('b-ok','ON'):badge('b-off','OFF');
+ var st='',msg='',cls='';
+ if(!s.on){st=badge('b-off','बंद');msg='';}
+ else if(s.st==='ok'){st=badge('b-ok','लाइव ✔');msg='आपकी लोकेशन Admin को जा रही है।';cls='ok'}
+ else if(s.st==='gps'){st=badge('b-warn','GPS बंद / लोकेशन नहीं मिल रही');msg='⚠ फोन का GPS (Location) चालू करें। चालू होते ही शेयरिंग अपने-आप फिर शुरू हो जाएगी।';cls='warn'}
+ else if(s.st==='perm'){st=badge('b-bad','Permission बंद');msg='⚠ Location permission बंद है। उसे Allow करें।';cls='bad'}
+ else if(s.st==='login'){st=badge('b-warn','लॉगिन चाहिए');msg='शेयरिंग के लिए दोबारा लॉगिन करें।';cls='warn'}
+ else{st=badge('b-warn','लोकेशन खोज रहे हैं…');msg='';}
+ $('rSt').innerHTML=st;
+ $('rNet').innerHTML=s.net?badge('b-ok','चालू'):badge('b-bad','बंद — अपडेट रुका हुआ');
+ if(s.on&&!s.net){msg='⚠ इंटरनेट बंद है, इंटरनेट आने पर अपडेट फिर शुरू होंगे।';cls='warn'}
+ if(s.on&&s.err==='permission-denied'){msg='⚠ Server ने लोकेशन सेव नहीं की। एक बार लॉगिन दोबारा करके देखें।';cls='bad'}
+ var m=$('msg');m.textContent=msg;m.style.color=cls==='ok'?'var(--ok)':cls==='warn'?'var(--warn)':cls==='bad'?'var(--bad)':'inherit';
+ $('rLast').textContent=s.on?ago(s.sentAt):'—';
+ $('rLoc').textContent=(s.on&&s.lat!=null)?s.lat.toFixed(5)+', '+s.lng.toFixed(5):'—';
+ $('rAcc').textContent=(s.on&&s.acc!=null)?'± '+s.acc+' मी.':'—';
+ var mb=$('mapbox');mb.hidden=!(s.on&&s.lat!=null);
+ var acts=$('acts'),key=[s.on,s.st,s.android].join('|');
+ if(last.k!==key){
+  last.k=key;acts.innerHTML='';
+  if(s.on&&s.android&&s.st==='gps'){var b=document.createElement('button');b.className='btn';b.type='button';b.textContent='📍 GPS चालू करें';b.onclick=function(){l.openGps()};acts.appendChild(b)}
+  if(s.on&&s.android&&s.st==='perm'){var c=document.createElement('button');c.className='btn';c.type='button';c.textContent='⚙ Permission खोलें';c.onclick=function(){l.openApp()};acts.appendChild(c)}
+ }
+ last.lat=s.lat;last.lng=s.lng;
+}
+$('bMap').onclick=function(){if(last.lat!=null)window.open('https://www.google.com/maps?q='+last.lat+','+last.lng,'_blank')};
+render();
+setInterval(render,1000);
+})();
+</scr@@ipt>
+</body>
+</html>
+</script>
+<script>
+/* ===== Location Sharing engine (poore app me chalta hai, section band hone par bhi) ===== */
+(function(){
+  var KEY='ap_loc_on_';
+  var MIN_MOVE_M=50, MIN_GAP_MS=30000, HEARTBEAT_MS=180000, STALE_MS=90000, PROBE_GAP_MS=8000;
+  var E={uid:'',on:false,wasOn:false,st:'off',lat:null,lng:null,acc:null,fixAt:0,sentAt:0,sentSt:'',sent:null,err:'',watch:null,probing:false,probeAt:0,pushing:false};
+  function sess(){try{return (typeof SB!=='undefined'&&SB.sess&&SB.sess())||null}catch(e){return null}}
+  function fsdb(){try{return (typeof apFirestore!=='undefined'&&apFirestore)||(window.firebase&&firebase.firestore())||null}catch(e){return null}}
+  function info(){try{if(window.AndroidBridge&&AndroidBridge.locInfo)return JSON.parse(AndroidBridge.locInfo())}catch(e){}return null}
+  function flagOn(uid){try{return localStorage.getItem(KEY+uid)==='1'}catch(e){return false}}
+  function setFlag(uid,v){try{localStorage.setItem(KEY+uid,v?'1':'0')}catch(e){}}
+  function dist(a,b,c,d){var R=6371000,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r*Math.cos((a+c)/2*r);return Math.sqrt(x*x+y*y)*R}
+  function onPos(p){
+    E.lat=p.coords.latitude;E.lng=p.coords.longitude;E.acc=Math.round(p.coords.accuracy||0);
+    E.fixAt=Date.now();E.err='';E.st='ok';
+  }
+  function onErr(e){
+    if(e&&e.code===1)E.st='perm';else E.st='gps';
+  }
+  function startWatch(){
+    if(E.watch!=null||!navigator.geolocation)return;
+    try{E.watch=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000})}catch(e){E.watch=null}
+  }
+  function stopWatch(){
+    if(E.watch!=null){try{navigator.geolocation.clearWatch(E.watch)}catch(e){}E.watch=null}
+  }
+  function probe(){
+    if(E.probing||!navigator.geolocation)return;
+    if(Date.now()-E.probeAt<PROBE_GAP_MS)return;
+    E.probing=true;E.probeAt=Date.now();
+    navigator.geolocation.getCurrentPosition(function(p){E.probing=false;onPos(p);stopWatch();startWatch()},function(e){E.probing=false;onErr(e)},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+  }
+  function push(st){
+    var f=fsdb(),s=sess();
+    if(!f||!s||!s.uid||E.pushing)return;
+    E.pushing=true;
+    var on=E.on;
+    var d={mobile:s.uid,on:on,lat:on&&E.lat!=null?E.lat:null,lng:on&&E.lng!=null?E.lng:null,acc:on&&E.acc!=null?E.acc:null,at:on?(E.fixAt||Date.now()):Date.now(),st:st};
+    f.doc('locations/'+s.uid).set(d).then(function(){
+      E.sentAt=Date.now();E.sentSt=st;E.err='';
+      E.sent=(d.lat!=null)?{lat:d.lat,lng:d.lng}:null;
+    }).catch(function(e){E.err=(e&&e.code)||'error'}).then(function(){E.pushing=false});
+  }
+  function tick(){
+    var s=sess();
+    if(!s||!s.uid){stopWatch();E.on=false;E.wasOn=false;E.st='login';E.uid='';return}
+    if(E.uid!==s.uid){stopWatch();E.uid=s.uid;E.sentAt=0;E.sentSt='';E.sent=null;E.lat=null;E.lng=null;E.acc=null;E.fixAt=0;E.err='';E.wasOn=false}
+    E.on=flagOn(s.uid);
+    if(!E.on){
+      stopWatch();
+      if(E.wasOn&&navigator.onLine)push('off');
+      if(E.wasOn&&!navigator.onLine){/* internet aate hi off likha jayega */}else E.wasOn=false;
+      E.st='off';
+      return;
+    }
+    E.wasOn=true;
+    var i=info();
+    if(i&&i.perm===false){stopWatch();E.st='perm'}
+    else if(i&&i.gps===false){stopWatch();E.st='gps'}
+    else{
+      if(E.watch==null)startWatch();
+      if(E.st==='ok'&&E.fixAt&&Date.now()-E.fixAt>STALE_MS)E.st='gps';
+      if(E.st!=='ok')probe();
+    }
+    if(!navigator.onLine)return;
+    var now=Date.now(),age=now-E.sentAt;
+    if(E.st==='ok'){
+      var moved=E.sent&&E.lat!=null?dist(E.sent.lat,E.sent.lng,E.lat,E.lng):1e9;
+      if(E.sentSt!=='ok'||(moved>=MIN_MOVE_M&&age>=MIN_GAP_MS)||age>=HEARTBEAT_MS)push('ok');
+    }else if(E.sentSt!==E.st&&(E.st==='gps'||E.st==='perm')){
+      push(E.st);
+    }
+  }
+  window.apLoc={
+    state:function(){return{on:E.on,st:E.st,lat:E.lat,lng:E.lng,acc:E.acc,fixAt:E.fixAt,sentAt:E.sentAt,err:E.err,net:navigator.onLine!==false,android:!!(window.AndroidBridge&&AndroidBridge.locInfo)}},
+    set:function(v){
+      var s=sess();if(!s||!s.uid)return;
+      setFlag(s.uid,!!v);
+      if(!v){E.on=false;stopWatch();E.st='off';E.sentSt='';E.wasOn=true;tick()}
+      else{E.sentSt='';E.st='gps';E.on=true;tick();probe()}
+    },
+    openGps:function(){try{AndroidBridge.openLocationSettings()}catch(e){}},
+    openApp:function(){try{AndroidBridge.openAppSettings()}catch(e){}}
+  };
+  setInterval(tick,3000);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)tick()});
+  window.addEventListener('online',tick);
+  setTimeout(tick,1500);
+})();
+
 </script>
 <script type="text/plain" id="tool-sadi"><!DOCTYPE html>
 <html lang="hi">
@@ -10140,7 +10368,7 @@ window.apSaveBlob=function(blob,name){var go=function(){var u=URL.createObjectUR
 /* Dashboard design: Admin (publicConfig/dashboard) jo set kare wahi dikhe */
 (function(){
  var CK='ap_c_dash',NM={'ABHA Card':'abha','E-Shram & Labour Card':'eshram','Driving Licence & RC':'dl','Farmer / Kisan Services':'kisan'};
- var COL={aadhaar:['#eaf2ff','#d3e4ff','#1d4ed8'],pan:['#e6f6ff','#cdebfb','#0e8ac8'],voter:['#f3ecff','#e3d6fb','#7c3aed'],apaar:['#e9f9ec','#d3f0d9','#16a34a'],ayushman:['#fff1e6','#fddcc2','#ea580c'],ippb:['#e3f6f6','#c9ecec','#0f8b8d'],'print-manager':['#e8eeff','#d3ddfb','#2f4fd8'],'ippb-atm':['#e4efff','#cfe2fb','#2563eb'],abha:['#e8f9ef','#d0f0dc','#16a34a'],eshram:['#f4edff','#e6d8fb','#9333ea'],dl:['#eefae8','#d9f2cd','#22a447'],kisan:['#fdf5df','#f8e7b4','#a16207'],passport:['#fff0e4','#fdd9bd','#ea580c'],photoedit:['#fdf5df','#f8e7b4','#b7791f'],interest:['#e6f9ef','#cdf0dd','#0f9d58'],noncreamy:['#faeee0','#f1d9bf','#a8642b'],sadi:['#fdeaf1','#f8d0e0','#c2255c'],bill:['#e3f7fb','#c6edf6','#0e7490']};
+ var COL={aadhaar:['#eaf2ff','#d3e4ff','#1d4ed8'],pan:['#e6f6ff','#cdebfb','#0e8ac8'],voter:['#f3ecff','#e3d6fb','#7c3aed'],apaar:['#e9f9ec','#d3f0d9','#16a34a'],ayushman:['#fff1e6','#fddcc2','#ea580c'],ippb:['#e3f6f6','#c9ecec','#0f8b8d'],'print-manager':['#e8eeff','#d3ddfb','#2f4fd8'],'ippb-atm':['#e4efff','#cfe2fb','#2563eb'],abha:['#e8f9ef','#d0f0dc','#16a34a'],eshram:['#f4edff','#e6d8fb','#9333ea'],dl:['#eefae8','#d9f2cd','#22a447'],kisan:['#fdf5df','#f8e7b4','#a16207'],passport:['#fff0e4','#fdd9bd','#ea580c'],photoedit:['#fdf5df','#f8e7b4','#b7791f'],interest:['#e6f9ef','#cdf0dd','#0f9d58'],noncreamy:['#faeee0','#f1d9bf','#a8642b'],sadi:['#fdeaf1','#f8d0e0','#c2255c'],bill:['#e3f7fb','#c6edf6','#0e7490'],loc:['#e4f8ef','#c4eedb','#047857']};
  function tk(b){var a=b.dataset.action;return a==='coming'?NM[b.dataset.name]:a}
  function apply(c){c=c||{};var im=c.theme==='image';document.body.classList.toggle('dashImg',im);
   var f=document.getElementById('footer');if(f){if(f.dataset.o===undefined)f.dataset.o=f.innerHTML;f.innerHTML=im?'🛡️ All Card Services – Digital India':f.dataset.o}

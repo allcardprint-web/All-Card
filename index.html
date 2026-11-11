@@ -2102,6 +2102,7 @@ li{margin:4px 0}
     <div class="row"><span>आख़िरी अपडेट (Admin को)</span><b id="rLast">—</b></div>
     <div class="row"><span>आपकी लोकेशन</span><b id="rLoc">—</b></div>
     <div class="row"><span>सटीकता</span><b id="rAcc">—</b></div>
+    <div class="row"><span>बैटरी</span><b id="rBat">—</b></div>
     <div id="mapbox" style="margin-top:8px" hidden><button class="btn alt" id="bMap" type="button">🗺 Map में देखें</button></div>
   </section>
 
@@ -2110,7 +2111,8 @@ li{margin:4px 0}
     <ul>
       <li><b>ON</b> करते ही आपकी लाइव लोकेशन (अक्षांश/देशांतर और समय) <b>Admin Panel</b> पर दिखेगी।</li>
       <li><b>OFF</b> करते ही शेयरिंग बंद हो जाएगी और Admin के पास से आपकी लोकेशन हटा दी जाएगी।</li>
-      <li>अपडेट सिर्फ तब जाते हैं जब app खुला हो, फोन का GPS चालू हो, Location permission मिली हो और इंटरनेट चल रहा हो।</li>
+      <li><b>बैकग्राउंड में भी चलेगा:</b> ON रहने तक app बंद होने पर भी लोकेशन और बैटरी % Admin को जाती रहेगी। इस दौरान फोन में एक <b>notification</b> दिखता रहेगा, OFF करते ही वह हट जाएगा।</li>
+      <li>अपडेट तभी जाते हैं जब फोन का GPS चालू हो, Location permission मिली हो और इंटरनेट चल रहा हो।</li>
       <li>GPS बंद करने पर अपडेट रुक जाते हैं; GPS चालू करते ही (शेयरिंग ON हो तो) अपने-आप फिर शुरू हो जाते हैं।</li>
     </ul>
   </section>
@@ -2160,12 +2162,14 @@ function render(){
  $('rLast').textContent=s.on?ago(s.sentAt):'—';
  $('rLoc').textContent=(s.on&&s.lat!=null)?s.lat.toFixed(5)+', '+s.lng.toFixed(5):'—';
  $('rAcc').textContent=(s.on&&s.acc!=null)?'± '+s.acc+' मी.':'—';
+ $('rBat').textContent=(s.on&&s.bat!=null)?(s.chg?'⚡ ':'🔋 ')+s.bat+'%':'—';
  var mb=$('mapbox');mb.hidden=!(s.on&&s.lat!=null);
- var acts=$('acts'),key=[s.on,s.st,s.android].join('|');
+ var acts=$('acts'),key=[s.on,s.st,s.android,s.bg].join('|');
  if(last.k!==key){
   last.k=key;acts.innerHTML='';
   if(s.on&&s.android&&s.st==='gps'){var b=document.createElement('button');b.className='btn';b.type='button';b.textContent='📍 GPS चालू करें';b.onclick=function(){l.openGps()};acts.appendChild(b)}
   if(s.on&&s.android&&s.st==='perm'){var c=document.createElement('button');c.className='btn';c.type='button';c.textContent='⚙ Permission खोलें';c.onclick=function(){l.openApp()};acts.appendChild(c)}
+  if(s.on&&s.bg){var d=document.createElement('button');d.className='btn alt';d.type='button';d.textContent='🔋 Battery सेटिंग (बैकग्राउंड के लिए)';d.onclick=function(){l.openBattery()};acts.appendChild(d)}
  }
  last.lat=s.lat;last.lng=s.lng;
 }
@@ -2178,31 +2182,34 @@ setInterval(render,1000);
 </html>
 </script>
 <script>
-/* ===== Location Sharing engine (poore app me chalta hai, section band hone par bhi) ===== */
+/* ===== Location Sharing engine (poore app me chalta hai, section band hone par bhi) =====
+   Android app (naya APK): background service + notification, app band hone par bhi chalta hai.
+   Browser / purana APK: sirf jab page khula ho. */
 (function(){
   var KEY='ap_loc_on_';
   var MIN_MOVE_M=50, MIN_GAP_MS=30000, HEARTBEAT_MS=180000, STALE_MS=90000, PROBE_GAP_MS=8000;
-  var E={uid:'',on:false,wasOn:false,st:'off',lat:null,lng:null,acc:null,fixAt:0,sentAt:0,sentSt:'',sent:null,err:'',watch:null,probing:false,probeAt:0,pushing:false};
+  var E={uid:'',on:false,wasOn:false,st:'off',lat:null,lng:null,acc:null,bat:null,chg:null,fixAt:0,sentAt:0,sentSt:'',sent:null,err:'',watch:null,probing:false,probeAt:0,pushing:false,bgTryAt:0,bgRun:false};
   function sess(){try{return (typeof SB!=='undefined'&&SB.sess&&SB.sess())||null}catch(e){return null}}
   function fsdb(){try{return (typeof apFirestore!=='undefined'&&apFirestore)||(window.firebase&&firebase.firestore())||null}catch(e){return null}}
   function info(){try{if(window.AndroidBridge&&AndroidBridge.locInfo)return JSON.parse(AndroidBridge.locInfo())}catch(e){}return null}
+  function hasBg(){try{return !!(window.AndroidBridge&&typeof AndroidBridge.bgStart==='function'&&typeof AndroidBridge.bgState==='function')}catch(e){return false}}
+  function bgState(){try{return JSON.parse(AndroidBridge.bgState())}catch(e){return null}}
+  function cfg(){var c={};try{c=(typeof AP_FIREBASE_CONFIG!=='undefined'&&AP_FIREBASE_CONFIG)||{}}catch(e){}return{key:c.apiKey||'AIzaSyDU8uqPNCren-qZlIy89gsj2w8aLhh3yMk',proj:c.projectId||'all-print-card'}}
   function flagOn(uid){try{return localStorage.getItem(KEY+uid)==='1'}catch(e){return false}}
   function setFlag(uid,v){try{localStorage.setItem(KEY+uid,v?'1':'0')}catch(e){}}
   function dist(a,b,c,d){var R=6371000,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r*Math.cos((a+c)/2*r);return Math.sqrt(x*x+y*y)*R}
+  /* battery (browser) */
+  try{if(navigator.getBattery){navigator.getBattery().then(function(b){function u(){E.bat=Math.round(b.level*100);E.chg=!!b.charging}u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u)}).catch(function(){})}}catch(e){}
   function onPos(p){
     E.lat=p.coords.latitude;E.lng=p.coords.longitude;E.acc=Math.round(p.coords.accuracy||0);
     E.fixAt=Date.now();E.err='';E.st='ok';
   }
-  function onErr(e){
-    if(e&&e.code===1)E.st='perm';else E.st='gps';
-  }
+  function onErr(e){if(e&&e.code===1)E.st='perm';else E.st='gps'}
   function startWatch(){
     if(E.watch!=null||!navigator.geolocation)return;
     try{E.watch=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000})}catch(e){E.watch=null}
   }
-  function stopWatch(){
-    if(E.watch!=null){try{navigator.geolocation.clearWatch(E.watch)}catch(e){}E.watch=null}
-  }
+  function stopWatch(){if(E.watch!=null){try{navigator.geolocation.clearWatch(E.watch)}catch(e){}E.watch=null}}
   function probe(){
     if(E.probing||!navigator.geolocation)return;
     if(Date.now()-E.probeAt<PROBE_GAP_MS)return;
@@ -2214,21 +2221,50 @@ setInterval(render,1000);
     if(!f||!s||!s.uid||E.pushing)return;
     E.pushing=true;
     var on=E.on;
-    var d={mobile:s.uid,on:on,lat:on&&E.lat!=null?E.lat:null,lng:on&&E.lng!=null?E.lng:null,acc:on&&E.acc!=null?E.acc:null,at:on?(E.fixAt||Date.now()):Date.now(),st:st};
+    var d={mobile:s.uid,on:on,lat:on&&E.lat!=null?E.lat:null,lng:on&&E.lng!=null?E.lng:null,acc:on&&E.acc!=null?E.acc:null,at:on?(E.fixAt||Date.now()):Date.now(),st:st,bat:on&&E.bat!=null?E.bat:null,chg:on&&E.chg!=null?E.chg:null};
     f.doc('locations/'+s.uid).set(d).then(function(){
       E.sentAt=Date.now();E.sentSt=st;E.err='';
       E.sent=(d.lat!=null)?{lat:d.lat,lng:d.lng}:null;
     }).catch(function(e){E.err=(e&&e.code)||'error'}).then(function(){E.pushing=false});
   }
+  /* Android: background service ko shuru karna (login token ke sath) */
+  function startBg(uid){
+    if(Date.now()-E.bgTryAt<15000)return;
+    E.bgTryAt=Date.now();
+    var u=null;try{u=firebase.auth().currentUser}catch(e){}
+    if(!u||!u.refreshToken)return;
+    var c=cfg();
+    try{AndroidBridge.bgStart(uid,c.key,c.proj,u.refreshToken)}catch(e){}
+  }
+  function tickAndroid(s){
+    E.on=flagOn(s.uid);
+    var bs=bgState()||{};
+    E.bgRun=!!bs.running;
+    if(E.on){
+      E.wasOn=true;
+      var i=info();
+      if(i&&i.perm===false){E.st='perm';return}
+      if(!bs.running){E.st='gps';startBg(s.uid);return}
+      E.st=bs.st||'gps';E.lat=bs.lat;E.lng=bs.lng;E.acc=bs.acc;E.fixAt=bs.fixAt||0;E.sentAt=bs.sentAt||0;E.err=bs.err||'';E.bat=bs.bat;E.chg=bs.chg;
+    }else{
+      if(bs.running){try{AndroidBridge.bgStop()}catch(e){}}
+      E.st='off';
+      if(E.wasOn&&navigator.onLine){push('off');E.wasOn=false}
+    }
+  }
   function tick(){
     var s=sess();
-    if(!s||!s.uid){stopWatch();E.on=false;E.wasOn=false;E.st='login';E.uid='';return}
+    if(!s||!s.uid){
+      stopWatch();
+      if(hasBg()){var b0=bgState();if(b0&&b0.running){try{AndroidBridge.bgStop()}catch(e){}}}
+      E.on=false;E.wasOn=false;E.st='login';E.uid='';return;
+    }
     if(E.uid!==s.uid){stopWatch();E.uid=s.uid;E.sentAt=0;E.sentSt='';E.sent=null;E.lat=null;E.lng=null;E.acc=null;E.fixAt=0;E.err='';E.wasOn=false}
+    if(hasBg()){tickAndroid(s);return}
     E.on=flagOn(s.uid);
     if(!E.on){
       stopWatch();
-      if(E.wasOn&&navigator.onLine)push('off');
-      if(E.wasOn&&!navigator.onLine){/* internet aate hi off likha jayega */}else E.wasOn=false;
+      if(E.wasOn&&navigator.onLine){push('off');E.wasOn=false}
       E.st='off';
       return;
     }
@@ -2251,15 +2287,21 @@ setInterval(render,1000);
     }
   }
   window.apLoc={
-    state:function(){return{on:E.on,st:E.st,lat:E.lat,lng:E.lng,acc:E.acc,fixAt:E.fixAt,sentAt:E.sentAt,err:E.err,net:navigator.onLine!==false,android:!!(window.AndroidBridge&&AndroidBridge.locInfo)}},
+    state:function(){return{on:E.on,st:E.st,lat:E.lat,lng:E.lng,acc:E.acc,bat:E.bat,chg:E.chg,fixAt:E.fixAt,sentAt:E.sentAt,err:E.err,net:navigator.onLine!==false,android:!!(window.AndroidBridge&&AndroidBridge.locInfo),bg:hasBg(),bgRun:E.bgRun}},
     set:function(v){
       var s=sess();if(!s||!s.uid)return;
       setFlag(s.uid,!!v);
-      if(!v){E.on=false;stopWatch();E.st='off';E.sentSt='';E.wasOn=true;tick()}
-      else{E.sentSt='';E.st='gps';E.on=true;tick();probe()}
+      if(!v){
+        E.on=false;stopWatch();E.st='off';E.sentSt='';E.wasOn=true;
+        if(hasBg()){try{AndroidBridge.bgStop()}catch(e){}}
+        if(navigator.onLine){push('off');E.wasOn=false}
+      }else{
+        E.sentSt='';E.st='gps';E.on=true;E.bgTryAt=0;tick();if(!hasBg())probe();
+      }
     },
     openGps:function(){try{AndroidBridge.openLocationSettings()}catch(e){}},
-    openApp:function(){try{AndroidBridge.openAppSettings()}catch(e){}}
+    openApp:function(){try{AndroidBridge.openAppSettings()}catch(e){}},
+    openBattery:function(){try{AndroidBridge.openBatterySettings()}catch(e){}}
   };
   setInterval(tick,3000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)tick()});

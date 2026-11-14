@@ -2087,7 +2087,7 @@ li{margin:4px 0}
 
   <section class="panel">
     <div class="sw">
-      <div class="tt"><b>📍 Location Sharing</b><small id="sub">शेयरिंग बंद है</small></div>
+      <div class="tt"><b>📍 Location Sharing</b><small id="sub">बंद है</small></div>
       <label class="tg"><input type="checkbox" id="tg" aria-label="Location Sharing ON/OFF"><i></i></label>
     </div>
     <div class="msg" id="msg"></div>
@@ -2096,10 +2096,10 @@ li{margin:4px 0}
 
   <section class="panel">
     <h2>📡 अभी की स्थिति</h2>
-    <div class="row"><span>शेयरिंग</span><b id="rSh">—</b></div>
+    <div class="row"><span>अनुमति (Sharing)</span><b id="rSh">—</b></div>
     <div class="row"><span>स्थिति</span><b id="rSt">—</b></div>
     <div class="row"><span>इंटरनेट</span><b id="rNet">—</b></div>
-    <div class="row"><span>आख़िरी अपडेट (Admin को)</span><b id="rLast">—</b></div>
+    <div class="row"><span>आख़िरी बार Admin को भेजी</span><b id="rLast">—</b></div>
     <div class="row"><span>आपकी लोकेशन</span><b id="rLoc">—</b></div>
     <div class="row"><span>सटीकता</span><b id="rAcc">—</b></div>
     <div class="row"><span>बैटरी</span><b id="rBat">—</b></div>
@@ -2109,11 +2109,12 @@ li{margin:4px 0}
   <section class="panel">
     <h2>ℹ️ ज़रूरी जानकारी</h2>
     <ul>
-      <li><b>ON</b> करते ही आपकी लाइव लोकेशन (अक्षांश/देशांतर और समय) <b>Admin Panel</b> पर दिखेगी।</li>
-      <li><b>OFF</b> करते ही शेयरिंग बंद हो जाएगी और Admin के पास से आपकी लोकेशन हटा दी जाएगी।</li>
-      <li><b>बैकग्राउंड में भी चलेगा:</b> ON रहने तक app बंद होने पर भी लोकेशन और बैटरी % Admin को जाती रहेगी। इस दौरान फोन में एक <b>notification</b> दिखता रहेगा, OFF करते ही वह हट जाएगा।</li>
-      <li>अपडेट तभी जाते हैं जब फोन का GPS चालू हो, Location permission मिली हो और इंटरनेट चल रहा हो।</li>
-      <li>GPS बंद करने पर अपडेट रुक जाते हैं; GPS चालू करते ही (शेयरिंग ON हो तो) अपने-आप फिर शुरू हो जाते हैं।</li>
+      <li><b>ON</b> करने का मतलब: Admin जब चाहे आपकी <b>Current</b> या <b>Live</b> लोकेशन माँग सकता है।</li>
+      <li>अपने-आप कुछ भी लगातार नहीं चलता। लोकेशन सिर्फ तब जाती है जब Admin request भेजे।</li>
+      <li><b>Current</b> पर एक बार लोकेशन जाती है और एक छोटा notification आता है।</li>
+      <li><b>Live</b> पर Admin की चुनी हुई अवधि तक लोकेशन जाती है और <b>तभी तक</b> notification दिखता है; समय पूरा होते ही notification हट जाता है।</li>
+      <li><b>App बंद होने पर भी</b> request मिलेगी, इसके लिए Location को <b>“हमेशा Allow”</b> रखें। फोन का GPS चालू और इंटरनेट चल रहा होना चाहिए (App को Force stop न करें)।</li>
+      <li><b>OFF</b> करते ही request सुनना बंद हो जाता है और Admin के पास से आपकी लोकेशन हटा दी जाती है।</li>
     </ul>
   </section>
 </div>
@@ -2134,7 +2135,7 @@ var last={};
 $('tg').onchange=function(){
  var l=L();if(!l){this.checked=false;return}
  if(this.checked){
-  if(!confirm('Location Sharing ON करने पर आपकी लाइव लोकेशन Admin को दिखेगी।\n\nON करें?')){this.checked=false;return}
+  if(!confirm('Location Sharing ON करने पर Admin आपकी Current / Live लोकेशन माँग सकेगा।\n\nON करें?')){this.checked=false;return}
   l.set(true);
  }else{
   l.set(false);
@@ -2145,31 +2146,33 @@ function render(){
  var l=L(),s=l?l.state():null;
  if(!s){$('msg').textContent='Location सुविधा अभी उपलब्ध नहीं है।';return}
  var tg=$('tg');if(tg.checked!==s.on)tg.checked=s.on;
- $('sub').textContent=s.on?'शेयरिंग चालू है':'शेयरिंग बंद है';
+ $('sub').textContent=s.on?'चालू है — Admin के request का इंतज़ार':'बंद है';
  $('rSh').innerHTML=s.on?badge('b-ok','ON'):badge('b-off','OFF');
  var st='',msg='',cls='';
- if(!s.on){st=badge('b-off','बंद');msg='';}
- else if(s.st==='ok'){st=badge('b-ok','लाइव ✔');msg='आपकी लोकेशन Admin को जा रही है।';cls='ok'}
- else if(s.st==='gps'){st=badge('b-warn','GPS बंद / लोकेशन नहीं मिल रही');msg='⚠ फोन का GPS (Location) चालू करें। चालू होते ही शेयरिंग अपने-आप फिर शुरू हो जाएगी।';cls='warn'}
+ var rem=s.until?Math.max(0,Math.ceil((s.until-Date.now())/60000)):0;
+ if(!s.on){st=badge('b-off','बंद')}
  else if(s.st==='perm'){st=badge('b-bad','Permission बंद');msg='⚠ Location permission बंद है। उसे Allow करें।';cls='bad'}
- else if(s.st==='login'){st=badge('b-warn','लॉगिन चाहिए');msg='शेयरिंग के लिए दोबारा लॉगिन करें।';cls='warn'}
- else{st=badge('b-warn','लोकेशन खोज रहे हैं…');msg='';}
+ else if(s.st==='gps'&&s.mode){st=badge('b-warn','GPS बंद / लोकेशन नहीं मिल रही');msg='⚠ फोन का GPS (Location) चालू करें।';cls='warn'}
+ else if(s.mode==='live'){st=badge('b-ok','🔴 LIVE चालू — '+rem+' मिनट बाकी');msg='Admin आपकी Live लोकेशन देख रहे हैं।';cls='ok'}
+ else if(s.mode==='current'){st=badge('b-ok','📌 Current भेजी जा रही है');msg='आपकी Current लोकेशन Admin को भेजी जा रही है।';cls='ok'}
+ else if(s.st==='login'){st=badge('b-warn','लॉगिन चाहिए');msg='दोबारा लॉगिन करें।';cls='warn'}
+ else{st=badge('b-off','Admin के request का इंतज़ार')}
  $('rSt').innerHTML=st;
- $('rNet').innerHTML=s.net?badge('b-ok','चालू'):badge('b-bad','बंद — अपडेट रुका हुआ');
- if(s.on&&!s.net){msg='⚠ इंटरनेट बंद है, इंटरनेट आने पर अपडेट फिर शुरू होंगे।';cls='warn'}
- if(s.on&&s.err==='permission-denied'){msg='⚠ Server ने लोकेशन सेव नहीं की। एक बार लॉगिन दोबारा करके देखें।';cls='bad'}
+ $('rNet').innerHTML=s.net?badge('b-ok','चालू'):badge('b-bad','बंद');
+ if(s.on&&!s.net&&!msg){msg='⚠ इंटरनेट बंद है। इंटरनेट आने पर request मिलेगी।';cls='warn'}
+ if(s.on&&s.err==='permission-denied'){msg='⚠ Server ने लोकेशन सेव नहीं की (Firestore rules Publish हुई हैं या नहीं जाँचें)।';cls='bad'}
  var m=$('msg');m.textContent=msg;m.style.color=cls==='ok'?'var(--ok)':cls==='warn'?'var(--warn)':cls==='bad'?'var(--bad)':'inherit';
- $('rLast').textContent=s.on?ago(s.sentAt):'—';
+ $('rLast').textContent=(s.on&&s.sentAt)?ago(s.sentAt):'—';
  $('rLoc').textContent=(s.on&&s.lat!=null)?s.lat.toFixed(5)+', '+s.lng.toFixed(5):'—';
  $('rAcc').textContent=(s.on&&s.acc!=null)?'± '+s.acc+' मी.':'—';
  $('rBat').textContent=(s.on&&s.bat!=null)?(s.chg?'⚡ ':'🔋 ')+s.bat+'%':'—';
- var mb=$('mapbox');mb.hidden=!(s.on&&s.lat!=null);
- var acts=$('acts'),key=[s.on,s.st,s.android,s.bg].join('|');
+ $('mapbox').hidden=!(s.on&&s.lat!=null);
+ var acts=$('acts'),key=[s.on,s.st,s.android,s.bgPerm].join('|');
  if(last.k!==key){
   last.k=key;acts.innerHTML='';
   if(s.on&&s.android&&s.st==='gps'){var b=document.createElement('button');b.className='btn';b.type='button';b.textContent='📍 GPS चालू करें';b.onclick=function(){l.openGps()};acts.appendChild(b)}
+  if(s.on&&s.native&&s.bgPerm===false){var h=document.createElement('button');h.className='btn';h.type='button';h.textContent='📍 “हमेशा Allow” करें (App बंद होने पर)';h.onclick=function(){l.openBg()};acts.appendChild(h)}
   if(s.on&&s.android&&s.st==='perm'){var c=document.createElement('button');c.className='btn';c.type='button';c.textContent='⚙ Permission खोलें';c.onclick=function(){l.openApp()};acts.appendChild(c)}
-  if(s.on&&s.bg){var d=document.createElement('button');d.className='btn alt';d.type='button';d.textContent='🔋 Battery सेटिंग (बैकग्राउंड के लिए)';d.onclick=function(){l.openBattery()};acts.appendChild(d)}
  }
  last.lat=s.lat;last.lng=s.lng;
 }
@@ -2182,126 +2185,187 @@ setInterval(render,1000);
 </html>
 </script>
 <script>
-/* ===== Location Sharing engine (poore app me chalta hai, section band hone par bhi) =====
-   Android app (naya APK): background service + notification, app band hone par bhi chalta hai.
-   Browser / purana APK: sirf jab page khula ho. */
+/* ===== Location Sharing (Admin ke command par) =====
+   User ON karta hai = Admin ko apni Current / Live location maangne ki ijazat.
+   Kuch bhi apne-aap lagataar nahi chalta. Admin "Current" dabaye to ek baar location jaati hai,
+   "Live" dabaye to chuni hui der tak jaati hai (Android app me tab tak notification dikhta hai). */
 (function(){
-  var KEY='ap_loc_on_';
-  var MIN_MOVE_M=50, MIN_GAP_MS=30000, HEARTBEAT_MS=180000, STALE_MS=90000, PROBE_GAP_MS=8000;
-  var E={uid:'',on:false,wasOn:false,st:'off',lat:null,lng:null,acc:null,bat:null,chg:null,fixAt:0,sentAt:0,sentSt:'',sent:null,err:'',watch:null,probing:false,probeAt:0,pushing:false,bgTryAt:0,bgRun:false};
+  var KEY='ap_loc_on_', CMD='ap_loc_cmd_';
+  var CMD_TTL_MS=15*60000, STALE_MS=90000, LIVE_MOVE_M=10, LIVE_GAP_MS=10000, LIVE_BEAT_MS=30000;
+  var E={uid:'',on:false,wasOn:false,st:'idle',mode:'',until:0,lat:null,lng:null,acc:null,bat:null,chg:null,fixAt:0,sentAt:0,sentSt:'',sent:null,err:'',watch:null,unsub:null,sub:'',pushing:false,curDone:true,ncAt:0,credAt:0,cfgAt:0,pushInit:false,tokSent:'',tokAt:0,pushOk:false,bgPerm:null};
   function sess(){try{return (typeof SB!=='undefined'&&SB.sess&&SB.sess())||null}catch(e){return null}}
   function fsdb(){try{return (typeof apFirestore!=='undefined'&&apFirestore)||(window.firebase&&firebase.firestore())||null}catch(e){return null}}
   function info(){try{if(window.AndroidBridge&&AndroidBridge.locInfo)return JSON.parse(AndroidBridge.locInfo())}catch(e){}return null}
-  function hasBg(){try{return !!(window.AndroidBridge&&typeof AndroidBridge.bgStart==='function'&&typeof AndroidBridge.bgState==='function')}catch(e){return false}}
+  function hasNative(){try{return !!(window.AndroidBridge&&typeof AndroidBridge.cmdStart==='function'&&typeof AndroidBridge.bgState==='function')}catch(e){return false}}
   function bgState(){try{return JSON.parse(AndroidBridge.bgState())}catch(e){return null}}
   function cfg(){var c={};try{c=(typeof AP_FIREBASE_CONFIG!=='undefined'&&AP_FIREBASE_CONFIG)||{}}catch(e){}return{key:c.apiKey||'AIzaSyDU8uqPNCren-qZlIy89gsj2w8aLhh3yMk',proj:c.projectId||'all-print-card'}}
   function flagOn(uid){try{return localStorage.getItem(KEY+uid)==='1'}catch(e){return false}}
   function setFlag(uid,v){try{localStorage.setItem(KEY+uid,v?'1':'0')}catch(e){}}
+  function lastCmd(uid){try{return parseInt(localStorage.getItem(CMD+uid)||'0',10)||0}catch(e){return 0}}
+  function markCmd(uid,id){try{localStorage.setItem(CMD+uid,String(id))}catch(e){}}
   function dist(a,b,c,d){var R=6371000,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r*Math.cos((a+c)/2*r);return Math.sqrt(x*x+y*y)*R}
-  /* battery (browser) */
   try{if(navigator.getBattery){navigator.getBattery().then(function(b){function u(){E.bat=Math.round(b.level*100);E.chg=!!b.charging}u();b.addEventListener('levelchange',u);b.addEventListener('chargingchange',u)}).catch(function(){})}}catch(e){}
-  function onPos(p){
-    E.lat=p.coords.latitude;E.lng=p.coords.longitude;E.acc=Math.round(p.coords.accuracy||0);
-    E.fixAt=Date.now();E.err='';E.st='ok';
-  }
-  function onErr(e){if(e&&e.code===1)E.st='perm';else E.st='gps'}
-  function startWatch(){
-    if(E.watch!=null||!navigator.geolocation)return;
-    try{E.watch=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000,timeout:20000})}catch(e){E.watch=null}
-  }
-  function stopWatch(){if(E.watch!=null){try{navigator.geolocation.clearWatch(E.watch)}catch(e){}E.watch=null}}
-  function probe(){
-    if(E.probing||!navigator.geolocation)return;
-    if(Date.now()-E.probeAt<PROBE_GAP_MS)return;
-    E.probing=true;E.probeAt=Date.now();
-    navigator.geolocation.getCurrentPosition(function(p){E.probing=false;onPos(p);stopWatch();startWatch()},function(e){E.probing=false;onErr(e)},{enableHighAccuracy:true,timeout:10000,maximumAge:0});
-  }
-  function push(st){
+
+  function onPos(p){E.lat=p.coords.latitude;E.lng=p.coords.longitude;E.acc=Math.round(p.coords.accuracy||0);E.fixAt=Date.now();E.err='';E.st='ok'}
+  function onErr(e){E.st=(e&&e.code===1)?'perm':'gps'}
+
+  /* Firestore me apni location likhna */
+  function push(st,lv,done){
     var f=fsdb(),s=sess();
     if(!f||!s||!s.uid||E.pushing)return;
     E.pushing=true;
-    var on=E.on;
-    var d={mobile:s.uid,on:on,lat:on&&E.lat!=null?E.lat:null,lng:on&&E.lng!=null?E.lng:null,acc:on&&E.acc!=null?E.acc:null,at:on?(E.fixAt||Date.now()):Date.now(),st:st,bat:on&&E.bat!=null?E.bat:null,chg:on&&E.chg!=null?E.chg:null};
+    var on=!!E.on;
+    var d={mobile:s.uid,on:on,lat:on&&E.lat!=null?E.lat:null,lng:on&&E.lng!=null?E.lng:null,acc:on&&E.acc!=null?E.acc:null,at:on?(E.fixAt||Date.now()):Date.now(),st:st,bat:on&&E.bat!=null?E.bat:null,chg:on&&E.chg!=null?E.chg:null,lv:(on&&lv)?lv:null};
     f.doc('locations/'+s.uid).set(d).then(function(){
-      E.sentAt=Date.now();E.sentSt=st;E.err='';
-      E.sent=(d.lat!=null)?{lat:d.lat,lng:d.lng}:null;
+      E.sentAt=Date.now();E.sentSt=st;E.err='';E.sent=(d.lat!=null)?{lat:d.lat,lng:d.lng}:null;if(done)done();
     }).catch(function(e){E.err=(e&&e.code)||'error'}).then(function(){E.pushing=false});
   }
-  /* Android: background service ko shuru karna (login token ke sath) */
-  function startBg(uid){
-    if(Date.now()-E.bgTryAt<15000)return;
-    E.bgTryAt=Date.now();
-    var u=null;try{u=firebase.auth().currentUser}catch(e){}
-    if(!u||!u.refreshToken)return;
-    var c=cfg();
-    try{AndroidBridge.bgStart(uid,c.key,c.proj,u.refreshToken)}catch(e){}
+
+  /* Admin ka command sunna */
+  function unsubscribe(){if(E.unsub){try{E.unsub()}catch(e){}}E.unsub=null;E.sub=''}
+  function subscribe(uid){
+    if(E.sub===uid)return;
+    unsubscribe();
+    var f=fsdb();if(!f)return;
+    E.sub=uid;
+    try{E.unsub=f.doc('locCmd/'+uid).onSnapshot(function(s){if(s.exists)handle(s.data())},function(e){E.err=(e&&e.code)||'error'})}
+    catch(e){E.sub=''}
   }
-  function tickAndroid(s){
-    E.on=flagOn(s.uid);
-    var bs=bgState()||{};
-    E.bgRun=!!bs.running;
-    if(E.on){
-      E.wasOn=true;
-      var i=info();
-      if(i&&i.perm===false){E.st='perm';return}
-      if(!bs.running){E.st='gps';startBg(s.uid);return}
-      E.st=bs.st||'gps';E.lat=bs.lat;E.lng=bs.lng;E.acc=bs.acc;E.fixAt=bs.fixAt||0;E.sentAt=bs.sentAt||0;E.err=bs.err||'';E.bat=bs.bat;E.chg=bs.chg;
-    }else{
-      if(bs.running){try{AndroidBridge.bgStop()}catch(e){}}
-      E.st='off';
-      if(E.wasOn&&navigator.onLine){push('off');E.wasOn=false}
+  function handle(c){
+    var uid=E.uid;if(!uid||!c||!c.id)return;
+    if(c.id<=lastCmd(uid))return;
+    markCmd(uid,c.id);
+    if(hasNative()){var li=0;try{li=Number(AndroidBridge.lastCmdId())||0}catch(x){}if(c.id<=li)return}
+    var now=Date.now();
+    if(c.type==='stop'){stopSession();return}
+    if(!flagOn(uid))return;
+    if(c.type==='current'){
+      if(now-(c.at||c.id)>CMD_TTL_MS)return;
+      runCurrent();
+    }else if(c.type==='live'){
+      if(!c.until||c.until<=now)return;
+      runLive(c.until);
+    }
+  }
+  function startNative(mode,until){
+    var u=null;try{u=firebase.auth().currentUser}catch(e){}
+    if(!u||!u.refreshToken){E.err='login';return false}
+    var c=cfg(),ok=false;
+    try{ok=AndroidBridge.cmdStart(mode,until||0,E.uid,c.key,c.proj,u.refreshToken)}catch(e){}
+    if(!ok){var i=info();E.st=(i&&i.perm===false)?'perm':'gps'}
+    return ok;
+  }
+  function stopSession(){
+    if(E.watch!=null){try{navigator.geolocation.clearWatch(E.watch)}catch(e){}E.watch=null}
+    if(hasNative()){var b=bgState();if(b&&b.running){try{AndroidBridge.bgStop()}catch(e){}}}
+    E.mode='';E.until=0;
+  }
+  function runCurrent(){
+    stopSession();
+    E.mode='current';E.until=Date.now()+45000;
+    if(hasNative()){startNative('current',0);return}
+    if(!navigator.geolocation){E.st='gps';E.mode='';push('gps',0);return}
+    navigator.geolocation.getCurrentPosition(function(p){onPos(p);E.mode='';push('ok',0)},function(e){onErr(e);E.mode='';push(E.st,0)},{enableHighAccuracy:true,timeout:25000,maximumAge:0});
+  }
+  function runLive(until){
+    stopSession();
+    E.mode='live';E.until=until;E.sentSt='';E.sent=null;
+    if(hasNative()){startNative('live',until);return}
+    if(!navigator.geolocation){E.st='gps';return}
+    try{E.watch=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:3000,timeout:20000})}catch(e){E.watch=null}
+  }
+
+  /* Android: app band hone par bhi command ke liye taiyari (login phone me, push token Firestore me) */
+  function prep(uid){
+    var now=Date.now(),u=null;
+    try{u=firebase.auth().currentUser}catch(e){}
+    if(u&&u.refreshToken&&now-E.credAt>300000){
+      var c=cfg();
+      try{AndroidBridge.saveCreds(uid,c.key,c.proj,u.refreshToken);E.credAt=now}catch(e){}
+    }
+    var f=fsdb();if(!f)return;
+    if(!E.pushInit&&now-E.cfgAt>30000){
+      E.cfgAt=now;
+      f.doc('appCfg/push').get().then(function(s){
+        if(s.exists&&s.data().appId){
+          var c2=cfg(),sender='';
+          try{sender=(AP_FIREBASE_CONFIG&&AP_FIREBASE_CONFIG.messagingSenderId)||''}catch(e){}
+          try{AndroidBridge.pushInit(s.data().appId,c2.key,c2.proj,sender||'206572139177');E.pushInit=true}catch(e){}
+        }
+      }).catch(function(){});
+    }
+    if(E.pushInit){
+      var t='';try{t=AndroidBridge.pushToken()}catch(e){}
+      if(t&&t!==E.tokSent&&now-E.tokAt>5000){
+        E.tokAt=now;
+        f.doc('locTok/'+uid).set({token:t,at:now}).then(function(){E.tokSent=t;E.pushOk=true}).catch(function(){});
+      }
     }
   }
   function tick(){
     var s=sess();
-    if(!s||!s.uid){
-      stopWatch();
-      if(hasBg()){var b0=bgState();if(b0&&b0.running){try{AndroidBridge.bgStop()}catch(e){}}}
-      E.on=false;E.wasOn=false;E.st='login';E.uid='';return;
-    }
-    if(E.uid!==s.uid){stopWatch();E.uid=s.uid;E.sentAt=0;E.sentSt='';E.sent=null;E.lat=null;E.lng=null;E.acc=null;E.fixAt=0;E.err='';E.wasOn=false}
-    if(hasBg()){tickAndroid(s);return}
+    if(!s||!s.uid){stopSession();unsubscribe();if(hasNative()){try{AndroidBridge.clearCreds()}catch(x){}}E.on=false;E.wasOn=false;E.st='login';E.uid='';E.credAt=0;E.pushOk=false;return}
+    if(E.uid!==s.uid){stopSession();unsubscribe();E.uid=s.uid;E.lat=null;E.lng=null;E.acc=null;E.fixAt=0;E.sentAt=0;E.sentSt='';E.sent=null;E.err='';E.wasOn=false;E.mode=''}
     E.on=flagOn(s.uid);
     if(!E.on){
-      stopWatch();
-      if(E.wasOn&&navigator.onLine){push('off');E.wasOn=false}
-      E.st='off';
+      unsubscribe();stopSession();E.st='off';
+      if(hasNative()&&E.wasOn){try{AndroidBridge.clearCreds()}catch(x){}E.credAt=0;E.pushOk=false;var ff=fsdb();if(ff&&navigator.onLine)ff.doc('locTok/'+s.uid).set({token:'',at:Date.now()}).catch(function(){});E.tokSent=''}
+      if(E.wasOn&&navigator.onLine){push('off',0);E.wasOn=false}
       return;
     }
     E.wasOn=true;
+    subscribe(s.uid);
+    var now=Date.now();
     var i=info();
-    if(i&&i.perm===false){stopWatch();E.st='perm'}
-    else if(i&&i.gps===false){stopWatch();E.st='gps'}
-    else{
-      if(E.watch==null)startWatch();
-      if(E.st==='ok'&&E.fixAt&&Date.now()-E.fixAt>STALE_MS)E.st='gps';
-      if(E.st!=='ok')probe();
+    if(hasNative()){
+      prep(s.uid);
+      E.bgPerm=(i&&i.bg!==undefined)?i.bg:null;
+      var b=bgState();
+      if(b&&b.running){
+        E.mode=b.mode||E.mode;E.until=b.until||E.until;E.st=b.st||'gps';
+        if(b.lat!=null){E.lat=b.lat;E.lng=b.lng;E.acc=b.acc;E.fixAt=b.fixAt||E.fixAt}
+        E.bat=b.bat;E.chg=b.chg;E.sentAt=b.sentAt||E.sentAt;E.err=b.err||'';
+      }else{
+        if(E.mode&&now>E.until+3000)E.mode='';
+        if(!E.mode)E.st=(i&&i.perm===false)?'perm':'idle';
+      }
+      return;
     }
-    if(!navigator.onLine)return;
-    var now=Date.now(),age=now-E.sentAt;
-    if(E.st==='ok'){
-      var moved=E.sent&&E.lat!=null?dist(E.sent.lat,E.sent.lng,E.lat,E.lng):1e9;
-      if(E.sentSt!=='ok'||(moved>=MIN_MOVE_M&&age>=MIN_GAP_MS)||age>=HEARTBEAT_MS)push('ok');
-    }else if(E.sentSt!==E.st&&(E.st==='gps'||E.st==='perm')){
-      push(E.st);
+    /* browser / purana app: sirf jab page khula ho */
+    if(E.mode==='live'){
+      if(now>=E.until){stopSession();if(navigator.onLine)push('idle',0);E.st='idle';return}
+      if(i&&i.perm===false){E.st='perm'}
+      if(E.st==='ok'&&E.fixAt&&now-E.fixAt>STALE_MS)E.st='gps';
+      if(!navigator.onLine)return;
+      var age=now-E.sentAt;
+      if(E.st==='ok'){
+        var moved=E.sent&&E.lat!=null?dist(E.sent.lat,E.sent.lng,E.lat,E.lng):1e9;
+        if(E.sentSt!=='ok'||(moved>=LIVE_MOVE_M&&age>=LIVE_GAP_MS)||age>=LIVE_BEAT_MS)push('ok',E.until);
+      }else if(E.sentSt!==E.st&&(E.st==='gps'||E.st==='perm'))push(E.st,E.until);
+    }else if(!E.mode){
+      E.st=(i&&i.perm===false)?'perm':'idle';
     }
   }
+
   window.apLoc={
-    state:function(){return{on:E.on,st:E.st,lat:E.lat,lng:E.lng,acc:E.acc,bat:E.bat,chg:E.chg,fixAt:E.fixAt,sentAt:E.sentAt,err:E.err,net:navigator.onLine!==false,android:!!(window.AndroidBridge&&AndroidBridge.locInfo),bg:hasBg(),bgRun:E.bgRun}},
+    state:function(){return{on:E.on,st:E.st,mode:E.mode,until:E.until,lat:E.lat,lng:E.lng,acc:E.acc,bat:E.bat,chg:E.chg,fixAt:E.fixAt,sentAt:E.sentAt,err:E.err,net:navigator.onLine!==false,android:!!(window.AndroidBridge&&AndroidBridge.locInfo),native:hasNative(),pushOk:E.pushOk,bgPerm:E.bgPerm}},
     set:function(v){
       var s=sess();if(!s||!s.uid)return;
       setFlag(s.uid,!!v);
+      E.uid=s.uid;
       if(!v){
-        E.on=false;stopWatch();E.st='off';E.sentSt='';E.wasOn=true;
-        if(hasBg()){try{AndroidBridge.bgStop()}catch(e){}}
-        if(navigator.onLine){push('off');E.wasOn=false}
+        E.on=false;unsubscribe();stopSession();E.st='off';
+        if(navigator.onLine){push('off',0);E.wasOn=false}else E.wasOn=true;
       }else{
-        E.sentSt='';E.st='gps';E.on=true;E.bgTryAt=0;tick();if(!hasBg())probe();
+        E.on=true;E.wasOn=true;E.st='idle';E.sentSt='';
+        subscribe(s.uid);
+        E.credAt=0;if(hasNative())prep(s.uid);
+        if(navigator.onLine)push('idle',0);
       }
     },
     openGps:function(){try{AndroidBridge.openLocationSettings()}catch(e){}},
     openApp:function(){try{AndroidBridge.openAppSettings()}catch(e){}},
-    openBattery:function(){try{AndroidBridge.openBatterySettings()}catch(e){}}
+    openBg:function(){try{AndroidBridge.requestBgLocation()}catch(e){}}
   };
   setInterval(tick,3000);
   document.addEventListener('visibilitychange',function(){if(!document.hidden)tick()});

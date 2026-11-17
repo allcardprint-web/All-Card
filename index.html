@@ -269,10 +269,11 @@ function pmTx(store,mode,fn){return pmOpenDB().then(db=>new Promise((resolve,rej
 async function savePrintManagerFile(name,blob,tool){try{await pmTx('files','readwrite',s=>s.add({name,blob,tool:tool||'Card',added:Date.now()}))}catch(e){console.warn('Print Manager save failed',e)}}
 async function pmGetFiles(){try{return await pmTx('files','readonly',s=>s.getAll())||[]}catch(e){return[]}}
 async function pmGetCards(){try{const r=await pmTx('cards','readonly',s=>s.getAll())||[];return r.sort((a,b)=>b.added-a.added)}catch(e){return[]}}
-function pmThumb(blob,w){return new Promise(res=>{try{const u=URL.createObjectURL(blob),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=w;c.height=Math.max(1,Math.round(w*im.naturalHeight/im.naturalWidth));c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>res(b),'image/jpeg',.8)};im.onerror=()=>{URL.revokeObjectURL(u);res(null)};im.src=u}catch(e){res(null)}})}
+function pmThumb(blob,w){if(window.createImageBitmap)return createImageBitmap(blob,{resizeWidth:w,resizeQuality:'medium'}).then(bm=>new Promise(res=>{const c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;c.getContext('2d').drawImage(bm,0,0);try{bm.close()}catch(e){}c.toBlob(b=>res(b),'image/jpeg',.8)})).catch(()=>pmThumbSlow(blob,w));return pmThumbSlow(blob,w)}
+function pmThumbSlow(blob,w){return new Promise(res=>{try{const u=URL.createObjectURL(blob),im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=w;c.height=Math.max(1,Math.round(w*im.naturalHeight/im.naturalWidth));c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>res(b),'image/jpeg',.8)};im.onerror=()=>{URL.revokeObjectURL(u);res(null)};im.src=u}catch(e){res(null)}})}
 /* NEW: tools call this with HD front + back blobs (no download happens) */
-async function savePrintManagerPair(tool,label,frontBlob,backBlob){
- const [ft,bt]=await Promise.all([pmThumb(frontBlob,420),pmThumb(backBlob,420)]);
+async function savePrintManagerPair(tool,label,frontBlob,backBlob,ft0,bt0){
+ const [ft,bt]=(ft0&&bt0)?[ft0,bt0]:await Promise.all([pmThumb(frontBlob,420),pmThumb(backBlob,420)]);
  await pmTx('cards','readwrite',s=>s.add({tool:tool||'Card',label:label||'',front:frontBlob,back:backBlob,ft,bt,added:Date.now()}));
  if(document.getElementById('printManagerView').classList.contains('show'))renderPrintManager();
  return true}
@@ -313,7 +314,7 @@ async function renderPrintManager(){
 function pmPaint(){document.querySelectorAll('#pmList .pmItem[data-id]').forEach(el=>{const i=pmSel.indexOf(Number(el.dataset.id));el.classList.toggle('sel',i>=0);el.querySelector('.no').textContent=i>=0?i+1:''});pmUpdateBar()}
 async function pmDelete(ids){await pmTx('cards','readwrite',s=>{ids.forEach(i=>s.delete(i))});pmSel=pmSel.filter(i=>!ids.includes(i));renderPrintManager()}
 function pmSave(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
-function pmDownloadPair(c){const base=(c.label||c.tool||'card').replace(/[^\w\-]+/g,'_');if(c.front)pmSave(c.front,base+'_front.png');if(c.back)setTimeout(()=>pmSave(c.back,base+'_back.png'),400)}
+function pmDownloadPair(c){const base=(c.label||c.tool||'card').replace(/[^\w\-]+/g,'_'),ex=b=>b&&b.type==='image/jpeg'?'.jpg':'.png';if(c.front)pmSave(c.front,base+'_front'+ex(c.front));if(c.back)setTimeout(()=>pmSave(c.back,base+'_back'+ex(c.back)),400)}
 /* ---- A4 layout: 5 rows x (front | back), upar se line-by-line ---- */
 const PM_L={W:210,H:297,cw:86,ch:54,x1:16.5,x2:107.5,top:6,pitch:57.75,rows:5};
 function pmSelected(){return pmSel.map(id=>pmCards.find(c=>c.id===id)).filter(Boolean)}
@@ -4102,15 +4103,18 @@ function askSize(title){
 }
 function jb(c,q){return toBlob(c,'image/jpeg',q)}
 async function fitJpeg(src,target){
- /* kam se kam encode: pehle size ka andaza (sqrt rule) se scale, phir thodi quality search */
+ /* FAST: chhota probe se andaza -> 1-3 encode (pehle 5-10 baar poora page encode hota tha) */
  const sc=s=>{const c=document.createElement("canvas");c.width=Math.max(40,Math.round(src.width*s));c.height=Math.max(40,Math.round(src.height*s));const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(src,0,0,c.width,c.height);return c};
- let b=await jb(src,.9);if(b.size<=target)return{blob:b,c:src};
- let c=src,s=1;b=await jb(c,.72);
- for(let n=0;n<5&&b.size>target;n++){s*=Math.max(.1,Math.min(.95,Math.sqrt(target/b.size)*.97));c=sc(s);b=await jb(c,.72)}
- if(b.size>target){let q=.72;for(let n=0;n<4&&b.size>target;n++){q-=.1;b=await jb(c,Math.max(.25,q))}return{blob:b,c}}
- let lo=.72,hi=.92,best=b;
- for(let i=0;i<4;i++){const m=(lo+hi)/2,t=await jb(c,m);if(t.size<=target){best=t;lo=m}else hi=m}
- return{blob:best,c};
+ const px=src.width*src.height,ps=Math.min(1,Math.sqrt(300000/px)),pc=ps<1?sc(ps):src,pb=await jb(pc,.8);
+ const est=pb.size/(pc.width*pc.height)*px*.85;
+ let s,q=.82,b;
+ if(est<target*1.2){b=await jb(src,.9);if(b.size<=target)return{blob:b,c:src};s=Math.max(.08,Math.min(.97,Math.sqrt(target/b.size)*.96))}
+ else s=Math.max(.08,Math.min(.97,Math.sqrt(target/est)));
+ let c=sc(s);b=await jb(c,q);
+ for(let n=0;n<4&&b.size>target;n++){s=Math.max(.08,s*Math.max(.1,Math.min(.97,Math.sqrt(target/b.size)*.97)));c=sc(s);b=await jb(c,q)}
+ if(b.size>target){for(q=.7;q>=.3&&b.size>target;q-=.12)b=await jb(c,q);return{blob:b,c}}
+ if(b.size<target*.8){const t=await jb(c,.92);if(t.size<=target)b=t}
+ return{blob:b,c};
 }
 
 function run(kind){
@@ -4417,15 +4421,18 @@ function sheet(){
 }
 const jb=(c,q)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));
 async function fitJpeg(src,target){
- /* kam se kam encode: pehle size ka andaza (sqrt rule) se scale, phir thodi quality search */
+ /* FAST: chhota probe se andaza -> 1-3 encode (pehle 5-10 baar poora page encode hota tha) */
  const sc=s=>{const c=document.createElement("canvas");c.width=Math.max(40,Math.round(src.width*s));c.height=Math.max(40,Math.round(src.height*s));const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(src,0,0,c.width,c.height);return c};
- let b=await jb(src,.9);if(b.size<=target)return{blob:b,c:src};
- let c=src,s=1;b=await jb(c,.72);
- for(let n=0;n<5&&b.size>target;n++){s*=Math.max(.1,Math.min(.95,Math.sqrt(target/b.size)*.97));c=sc(s);b=await jb(c,.72)}
- if(b.size>target){let q=.72;for(let n=0;n<4&&b.size>target;n++){q-=.1;b=await jb(c,Math.max(.25,q))}return{blob:b,c}}
- let lo=.72,hi=.92,best=b;
- for(let i=0;i<4;i++){const m=(lo+hi)/2,t=await jb(c,m);if(t.size<=target){best=t;lo=m}else hi=m}
- return{blob:best,c};
+ const px=src.width*src.height,ps=Math.min(1,Math.sqrt(300000/px)),pc=ps<1?sc(ps):src,pb=await jb(pc,.8);
+ const est=pb.size/(pc.width*pc.height)*px*.85;
+ let s,q=.82,b;
+ if(est<target*1.2){b=await jb(src,.9);if(b.size<=target)return{blob:b,c:src};s=Math.max(.08,Math.min(.97,Math.sqrt(target/b.size)*.96))}
+ else s=Math.max(.08,Math.min(.97,Math.sqrt(target/est)));
+ let c=sc(s);b=await jb(c,q);
+ for(let n=0;n<4&&b.size>target;n++){s=Math.max(.08,s*Math.max(.1,Math.min(.97,Math.sqrt(target/b.size)*.97)));c=sc(s);b=await jb(c,q)}
+ if(b.size>target){for(q=.7;q>=.3&&b.size>target;q-=.12)b=await jb(c,q);return{blob:b,c}}
+ if(b.size<target*.8){const t=await jb(c,.92);if(t.size<=target)b=t}
+ return{blob:b,c};
 }
 function askSize(title){
  return new Promise(res=>{
@@ -4693,15 +4700,18 @@ function compose(){const c=cvn(photoC.width,photoC.height),x=c.getContext("2d");
  if(sig&&sig.fin){const w=S.w*c.width,h=w*sig.fin.height/sig.fin.width;x.imageSmoothingQuality="high";x.drawImage(sig.fin,S.x*c.width,S.y*c.height,w,h)}return c}
 const jb=(c,q)=>new Promise(r=>c.toBlob(r,"image/jpeg",q));
 async function fitJpeg(src,target){
- /* kam se kam encode: pehle size ka andaza (sqrt rule) se scale, phir thodi quality search */
+ /* FAST: chhota probe se andaza -> 1-3 encode (pehle 5-10 baar poora page encode hota tha) */
  const sc=s=>{const c=document.createElement("canvas");c.width=Math.max(40,Math.round(src.width*s));c.height=Math.max(40,Math.round(src.height*s));const x=c.getContext("2d");x.imageSmoothingQuality="high";x.drawImage(src,0,0,c.width,c.height);return c};
- let b=await jb(src,.9);if(b.size<=target)return{blob:b,c:src};
- let c=src,s=1;b=await jb(c,.72);
- for(let n=0;n<5&&b.size>target;n++){s*=Math.max(.1,Math.min(.95,Math.sqrt(target/b.size)*.97));c=sc(s);b=await jb(c,.72)}
- if(b.size>target){let q=.72;for(let n=0;n<4&&b.size>target;n++){q-=.1;b=await jb(c,Math.max(.25,q))}return{blob:b,c}}
- let lo=.72,hi=.92,best=b;
- for(let i=0;i<4;i++){const m=(lo+hi)/2,t=await jb(c,m);if(t.size<=target){best=t;lo=m}else hi=m}
- return{blob:best,c};
+ const px=src.width*src.height,ps=Math.min(1,Math.sqrt(300000/px)),pc=ps<1?sc(ps):src,pb=await jb(pc,.8);
+ const est=pb.size/(pc.width*pc.height)*px*.85;
+ let s,q=.82,b;
+ if(est<target*1.2){b=await jb(src,.9);if(b.size<=target)return{blob:b,c:src};s=Math.max(.08,Math.min(.97,Math.sqrt(target/b.size)*.96))}
+ else s=Math.max(.08,Math.min(.97,Math.sqrt(target/est)));
+ let c=sc(s);b=await jb(c,q);
+ for(let n=0;n<4&&b.size>target;n++){s=Math.max(.08,s*Math.max(.1,Math.min(.97,Math.sqrt(target/b.size)*.97)));c=sc(s);b=await jb(c,q)}
+ if(b.size>target){for(q=.7;q>=.3&&b.size>target;q-=.12)b=await jb(c,q);return{blob:b,c}}
+ if(b.size<target*.8){const t=await jb(c,.92);if(t.size<=target)b=t}
+ return{blob:b,c};
 }
 function askSize(title){return new Promise(res=>{
  $("ps_szt").textContent=title;$("ps_szv").value=200;$("ps_szu").value="KB";$("ps_sz").classList.add("on");$("ps_szv").focus();
@@ -4999,10 +5009,10 @@ $("go").onclick=run;$("pdf").onchange=run;$("ty").onchange=run;
 $("pw").oninput=()=>{clearTimeout(tmr);tmr=setTimeout(run,800);};
 </scr@@ipt>
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
@@ -5244,10 +5254,10 @@ $("saveCardsBtn").onclick=saveVoterCards;
 </scr@@ipt>
 
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
@@ -5264,10 +5274,10 @@ const $=id=>document.getElementById(id),msg=t=>$('msg').textContent=t||'';pdfjsL
 function find(y0f,y1f){const W=pageCv.width,H=pageCv.height,k=4,w=Math.floor(W/k),h=Math.floor(H/k),s=document.createElement('canvas');s.width=w;s.height=h;const sc=s.getContext('2d',{willReadFrequently:true});sc.drawImage(pageCv,0,0,w,h);const d=sc.getImageData(0,0,w,h).data,ya=Math.floor(h*y0f),yb=Math.floor(h*y1f),m=(x,y)=>{let i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2];return Math.min(r,g,b)<245&&Math.max(r,g,b)-Math.min(r,g,b)>18},col=new Array(w).fill(0);for(let y=ya;y<yb;y++)for(let x=0;x<w;x++)if(m(x,y))col[x]++;let runs=[],st=-1,last=0,gap=0,th=(yb-ya)*.06;for(let x=0;x<w;x++){if(col[x]>th){if(st<0)st=x;gap=0;last=x}else if(st>=0&&++gap>Math.max(2,w*.004)){runs.push([st,last]);st=-1}}if(st>=0)runs.push([st,last]);runs.sort((a,b)=>(b[1]-b[0])-(a[1]-a[0]));let two=runs.slice(0,2).sort((a,b)=>a[0]-b[0]);if(two.length<2)return null;return two.map(([a,b])=>{let best=[0,ya,yb-1],cs=-1,ce=-1,miss=0;for(let y=ya;y<=yb;y++){let on=false;if(y<yb){let c=0;for(let x=a;x<=b;x++)if(m(x,y))c++;on=c>(b-a)*.4}if(on){if(cs<0)cs=y;ce=y;miss=0}else if(cs>=0&&(++miss>3||y>=yb)){if(ce-cs>best[0])best=[ce-cs,cs,ce];cs=-1;miss=0}}return{x:a*k,y:best[1]*k,w:(b-a+1)*k,h:(best[2]-best[1]+1)*k}})}function cut(){let r=__panAdm()||find(.68,1)||find(0,1);if(!r){msg('Card auto detect nahi hua. UTI/NSDL type badal kar try karein.');return}const mk=b=>{let c=document.createElement('canvas');c.width=CW;c.height=CH;let x=c.getContext('2d');x.imageSmoothingQuality='high';let t=b.ex?0:Math.round(b.w*.004);x.fillStyle='#fff';x.fillRect(0,0,CW,CH);x.drawImage(pageCv,b.x+t,b.y+t,Math.max(1,b.w-2*t),Math.max(1,b.h-2*t),0,0,CW,CH);return c};front=mk(r[0]);back=mk(r[1]);for(const [id,c] of [['cf',front],['cb',back]]){let o=$(id);o.width=c.width;o.height=c.height;o.getContext('2d').drawImage(c,0,0)}$('out').classList.remove('hide');msg('Ho gaya ('+(type==='uti'?'UTI':'NSDL')+' layout).')}function sheet(){let c=document.createElement('canvas');c.width=Math.round(210*MM);c.height=Math.round(297*MM);let x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);let gap=Math.round(8*MM),sx=Math.round((c.width-2*CW-gap)/2),sy=Math.round(15*MM);x.drawImage(front,sx,sy);x.drawImage(back,sx+CW+gap,sy);x.strokeStyle='#999';x.lineWidth=2;x.setLineDash([12,10]);x.strokeRect(sx-4,sy-4,CW+8,CH+8);x.strokeRect(sx+CW+gap-4,sy-4,CW+8,CH+8);return c}function download(filename,data){let url=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));let a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}const blob=(c,t,q)=>new Promise(r=>c.toBlob(r,t,q));$('dlf').onclick=async()=>download('pan_front.png',await blob(front,'image/png'));$('dlb').onclick=async()=>download('pan_back.png',await blob(back,'image/png'));$('sv').onclick=()=>{if(!front||!back)return;__btnRun($('sv'),async()=>{await __pmSave('PAN Card',(fname||'').replace(/\.[^.]+$/,''),await __cvBlob(front),await __cvBlob(back));});};$('a4').onclick=()=>{let j=new jspdf.jsPDF({unit:'mm',format:'a4'});j.addImage(sheet().toDataURL('image/jpeg',.95),'JPEG',0,0,210,297);download('pan_card_A4.pdf',j.output('blob'))};$('prt').onclick=()=>{let im=new Image();im.onload=()=>{$('printArea').replaceChildren(im);window.print()};im.src=sheet().toDataURL('image/jpeg',.95)};
 </scr@@ipt>
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
@@ -6093,10 +6103,10 @@ renderSaved();
 </scr@@ipt>
 
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
@@ -6297,10 +6307,10 @@ renderSaved();
 </scr@@ipt>
 
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
@@ -7191,10 +7201,10 @@ init();
 </scr@@ipt>
 
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
@@ -7288,28 +7298,27 @@ function renderHDCanvasBase(k){k=k||1;
 
 // Print/PDF only: arrange front and back at PVC-card proportions side-by-side on A4.
 function renderHDCanvas(){
- const full=renderHDCanvasBase(),W=full.width,H=full.height;
+ /* FAST: front/back seedha card size (1011x638 @300dpi) par banta hai, poora 2480x3508 canvas 2 baar nahi */
  const out=document.createElement("canvas");out.width=2480;out.height=3508;
  const ctx=out.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,out.width,out.height);
- const R={f:[.08858,.09679,.82200,.37025],b:[.08606,.50059,.82620,.34768]};
  const cardW=Math.round(out.width*85.6/210),cardH=Math.round(out.width*54/210),gap=60;
  const startX=Math.round((out.width-(cardW*2+gap))/2),topY=110;
- ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
- ctx.drawImage(full,R.f[0]*W,R.f[1]*H,R.f[2]*W,R.f[3]*H,startX,topY,cardW,cardH);
- ctx.drawImage(full,R.b[0]*W,R.b[1]*H,R.b[2]*W,R.b[3]*H,startX+cardW+gap,topY,cardW,cardH);
+ const [f,b]=__ippbCrops(1,cardW);
+ ctx.drawImage(f,startX,topY,cardW,cardH);
+ ctx.drawImage(b,startX+cardW+gap,topY,cardW,cardH);
  return out;
 }
 
 $("printBtn").onclick=()=>{
  try{
-  const c=renderHDCanvas(),url=c.toDataURL("image/png");
+  const c=renderHDCanvas(),url=c.toDataURL("image/jpeg",.92);
   const old=document.getElementById("ippbPrintFrame");if(old)old.remove();
   const frame=document.createElement("iframe");frame.id="ippbPrintFrame";frame.style.cssText="position:fixed;left:0;top:0;width:1px;height:1px;border:0;opacity:0;";document.body.appendChild(frame);
   const d=frame.contentDocument;d.open();d.write('<!doctype html><html><head><meta charset="utf-8"><title>IPPB Passbook Print</title><style>@page{size:A4 portrait;margin:0}html,body{margin:0;padding:0;width:210mm;height:297mm}img{display:block;width:210mm;height:297mm;object-fit:fill}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><img src="'+url+'"></body></html>');d.close();
   frame.onload=()=>setTimeout(()=>{try{frame.contentWindow.focus();frame.contentWindow.print();}catch(e){alert("Print nahi khul paya. Chrome menu se Print chunein.");}},500);
  }catch(e){alert(e.message||"Print preview nahi khul paya.");}
 };
-$("pdfBtn").onclick=async()=>{const btn=$("pdfBtn"),old=btn.textContent;btn.textContent="HD PDF ban raha hai...";btn.disabled=true;try{if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("PDF library load nahi hui. Internet chalu karke dobara try karein.");const c=renderHDCanvas();const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});pdf.addImage(c.toDataURL("image/jpeg",1),"JPEG",0,0,210,297,undefined,"SLOW");pdf.save("IPPB-Passbook-A4-HD.pdf");}catch(e){alert(e.message||"PDF download nahi ho paya.");}finally{btn.textContent=old;btn.disabled=false;}};
+$("pdfBtn").onclick=async()=>{const btn=$("pdfBtn"),old=btn.textContent;btn.textContent="HD PDF ban raha hai...";btn.disabled=true;try{if(!window.jspdf||!window.jspdf.jsPDF)throw new Error("PDF library load nahi hui. Internet chalu karke dobara try karein.");const c=renderHDCanvas();const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});pdf.addImage(c.toDataURL("image/jpeg",.92),"JPEG",0,0,210,297,undefined,"FAST");pdf.save("IPPB-Passbook-A4-HD.pdf");}catch(e){alert(e.message||"PDF download nahi ho paya.");}finally{btn.textContent=old;btn.disabled=false;}};
 $("clearBtn").onclick=()=>{["nameIn","accIn","cifIn"].forEach(id=>$(id).value="");$("qrIn").value="";uploadedQR=null;$("qrOut").removeAttribute("src");$("qrOut").style.display="none";update();};
 $("saveBtn").onclick=()=>{try{const c=renderHDCanvasBase();const a=document.createElement("a");a.download="IPPB-Passbook-Filled-HD.png";a.href=c.toDataURL("image/png");a.click();}catch(e){alert(e.message||"Image save nahi ho payi.");}};
 </scr@@ipt>
@@ -7331,26 +7340,44 @@ $("saveBtn").onclick=()=>{try{const c=renderHDCanvasBase();const a=document.crea
 }catch(e){}})();
 </scr@@ipt>
 <script>
-async function __pmSave(tool,label,f,b){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b);}
-const __cvBlob=c=>new Promise((r,j)=>c.toBlob(x=>x?r(x):j(new Error("Image ban nahi payi")),"image/png"));
+async function __pmSave(tool,label,f,b,ft,bt){const P=window.parent;if(!P||!P.savePrintManagerPair)throw new Error("Print Manager nahi mila. All Print dashboard se tool kholiye.");await P.savePrintManagerPair(tool,label,f,b,ft,bt);}
+const __cvBlob=c=>new Promise((r,j)=>{try{/* FAST: JPEG .95 (PNG encode phone par bahut slow tha); white par flatten */const o=document.createElement("canvas");o.width=c.width;o.height=c.height;const x=o.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,o.width,o.height);x.drawImage(c,0,0);o.toBlob(y=>y?r(y):j(new Error("Image ban nahi payi")),"image/jpeg",.95)}catch(e){j(e)}});const __thumb=(c,w)=>new Promise(r=>{try{w=w||420;const t=document.createElement("canvas");t.width=w;t.height=Math.max(1,Math.round(w*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);t.toBlob(b=>r(b||null),"image/jpeg",.8)}catch(e){r(null)}});
 const __urlBlob=async u=>await (await fetch(u)).blob();
-function __dl(blob,name){const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function __dl(blob,name){if(blob&&blob.type==="image/jpeg")name=String(name).replace(/\.png$/i,".jpg");const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
 function __toast(t,bad){const o=document.getElementById("pxToast");if(o)o.remove();const d=document.createElement("div");d.id="pxToast";d.className="px-toast";if(bad)d.style.background="#b91c1c";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
 async function __admReady(){try{await window.parent.apAdminReady}catch(e){}}
 function __admData(){try{return window.parent.apAdminData||null}catch(e){return null}}
 function __admCrop(k){const D=__admData();return D&&D.crops&&D.crops[k]||null}
 function __cropFrac(c,r){const o=document.createElement("canvas");o.width=Math.max(1,Math.round(r.w*c.width));o.height=Math.max(1,Math.round(r.h*c.height));o.getContext("2d").drawImage(c,Math.round(r.x*c.width),Math.round(r.y*c.height),o.width,o.height,0,0,o.width,o.height);return o}
 async function __btnRun(btn,fn){const old=btn.textContent;btn.disabled=true;btn.textContent="Saving HD...";try{await fn();btn.textContent="\u2713 Card save ho gaya";__toast("\u2713 Card save ho gaya! Print Manager me dekhein.");}catch(e){btn.textContent=old;__toast("Save nahi hua: "+(e.message||e),true);}setTimeout(()=>{btn.disabled=false;btn.textContent=old;},2400);}
-function __ippbCrops(k,ow){ow=ow||2048;const oh=Math.round(ow*1292/2048);const full=renderHDCanvasBase(k),W=full.width,H=full.height,R=[[.08858,.09679,.82200,.37025],[.08606,.50059,.82620,.34768]];
- return R.map(r=>{const c=document.createElement("canvas");c.width=ow;c.height=oh;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,ow,oh);x.imageSmoothingQuality="high";x.drawImage(full,r[0]*W,r[1]*H,r[2]*W,r[3]*H,0,0,ow,oh);return c;});}
-let __pt=null;function __ippbPreview(){clearTimeout(__pt);__pt=setTimeout(()=>{try{const [f,b]=__ippbCrops(.5,1100);[["pxF",f],["pxB",b]].forEach(([id,c])=>{const t=document.getElementById(id);t.width=1100;t.height=Math.round(1100*c.height/c.width);t.getContext("2d").drawImage(c,0,0,t.width,t.height);});}catch(e){}},120);}
+function __paintOv(ctx,W,H){
+ if(uploadedQR){const qx=W*.6265,qy=H*.5165,qw=W*.255,qh=H*.178;ctx.fillStyle="#fff";ctx.fillRect(qx,qy,qw,qh);ctx.save();const side=Math.min(qw,qh)*.90,ix=qx+(qw-side)/2,iy=qy+(qh-side)/2;ctx.imageSmoothingEnabled=false;ctx.fillStyle="#fff";ctx.fillRect(ix,iy,side,side);ctx.drawImage(uploadedQR,ix,iy,side,side);ctx.restore();}
+ ctx.fillStyle="#000";ctx.strokeStyle="#000";ctx.lineJoin="round";ctx.lineWidth=4.2;ctx.textBaseline="middle";
+ const name=$("nameIn").value.toUpperCase().trim().replace(/\s+/g,"  ");
+ ctx.font="900 64px Arial, sans-serif";ctx.textAlign="left";
+ const nameX=W*.289+ctx.measureText("        ").width,nameY=H*.2675,maxNameW=W*.575-ctx.measureText("        ").width;
+ if(name){ctx.strokeText(name,nameX,nameY,maxNameW);ctx.fillText(name,nameX,nameY,maxNameW);}
+ const acc=$("accIn").value.replace(/\D/g,"").slice(0,12);ctx.font="900 64px Arial, sans-serif";ctx.textAlign="center";
+ const ax=W*.3145,ay=H*.29925,aw=W*.548;
+ for(let i=0;i<12;i++){if(acc[i]){const x=ax+aw*(i+.5)/12;ctx.strokeText(acc[i],x,ay,aw/12*.92);ctx.fillText(acc[i],x,ay,aw/12*.92);}}
+ const cif=$("cifIn").value.replace(/\D/g,"").slice(0,10),cx=W*.3145,cy=H*.33425,cw=W*.453;
+ for(let i=0;i<10;i++){if(cif[i]){const x=cx+cw*(i+.5)/10;ctx.strokeText(cif[i],x,cy,cw/10*.92);ctx.fillText(cif[i],x,cy,cw/10*.92);}}
+}
+/* FAST: sirf front/back ka hissa seedha banta hai (pehle poora 2480x3508 canvas + PNG banta tha) */
+function __ippbCrops(k,ow){ow=ow||1600;const oh=Math.round(ow*1292/2048),W=2480,H=3508,img=$("template"),nw=img.naturalWidth,nh=img.naturalHeight;
+ if(!img.complete||!nw)throw new Error("Template abhi load nahi hua.");
+ const R=[[.08858,.09679,.82200,.37025],[.08606,.50059,.82620,.34768]];
+ return R.map(r=>{const c=document.createElement("canvas");c.width=ow;c.height=oh;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,ow,oh);x.imageSmoothingEnabled=true;x.imageSmoothingQuality=(k&&k<1)?"low":"high";
+  x.drawImage(img,r[0]*nw,r[1]*nh,r[2]*nw,r[3]*nh,0,0,ow,oh);
+  const sx=ow/(r[2]*W),sy=oh/(r[3]*H);x.save();x.setTransform(sx,0,0,sy,-r[0]*W*sx,-r[1]*H*sy);__paintOv(x,W,H);x.restore();return c;});}
+let __pt=null;function __ippbPreview(){clearTimeout(__pt);__pt=setTimeout(()=>{try{const [f,b]=__ippbCrops(.5,800);[["pxF",f],["pxB",b]].forEach(([id,c])=>{const t=document.getElementById(id);t.width=c.width;t.height=c.height;t.getContext("2d").drawImage(c,0,0);});}catch(e){}},120);}
 ["nameIn","accIn","cifIn","qrIn"].forEach(id=>{const e=document.getElementById(id);e.addEventListener("input",__ippbPreview);e.addEventListener("change",()=>{__ippbPreview();setTimeout(__ippbPreview,800);});});
 document.getElementById("clearBtn").addEventListener("click",()=>setTimeout(__ippbPreview,100));
 window.addEventListener("load",()=>{__ippbPreview();setTimeout(__ippbPreview,800);});__ippbPreview();
 const __nm=()=>(document.getElementById("nameIn").value||"").trim();
 document.getElementById("dlf").onclick=()=>{const [f]=__ippbCrops();__cvBlob(f).then(b=>__dl(b,"ippb_front.png"));};
 document.getElementById("dlb").onclick=()=>{const [,b]=__ippbCrops();__cvBlob(b).then(x=>__dl(x,"ippb_back.png"));};
-document.getElementById("saveBtn").onclick=function(){__btnRun(this,async()=>{const [f,b]=__ippbCrops();await __pmSave("IPPB Passbook",__nm(),await __cvBlob(f),await __cvBlob(b));});};
+document.getElementById("saveBtn").onclick=function(){__btnRun(this,async()=>{const [f,b]=__ippbCrops();const [fb,bb,ft,bt]=await Promise.all([__cvBlob(f),__cvBlob(b),__thumb(f,420),__thumb(b,420)]);await __pmSave("IPPB Passbook",__nm(),fb,bb,ft,bt);});};
 </scr@@ipt>
 </body></html></script>
 <script type="text/plain" id="tool-kisan"><!DOCTYPE html>
@@ -7723,13 +7750,13 @@ $("b1").addEventListener("click",async()=>{
   try{
     updateCard();window.scrollTo(0,0);await new Promise(r=>setTimeout(r,80));
     const cap=async el=>{
-      const k=Math.max(2,2022/el.offsetWidth);
-      const c=await html2canvas(el,{scale:k,backgroundColor:null,useCORS:true,logging:false,scrollX:0,scrollY:0});
-      return c.toDataURL("image/png");
+      const k=Math.max(1.5,1800/el.offsetWidth);
+      const c=await html2canvas(el,{scale:k,backgroundColor:"#ffffff",useCORS:true,logging:false,scrollX:0,scrollY:0});
+      return c.toDataURL("image/jpeg",.95);
     };
     const f=await cap($("front")),bk=await cap($("back"));
     const pdf=new jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"});
-    pdf.addImage(f,"PNG",X1,PY,PVC_W,PVC_H);pdf.addImage(bk,"PNG",X2,PY,PVC_W,PVC_H);
+    pdf.addImage(f,"JPEG",X1,PY,PVC_W,PVC_H,undefined,"FAST");pdf.addImage(bk,"JPEG",X2,PY,PVC_W,PVC_H,undefined,"FAST");
     pdf.save("Kisan_Card_PVC.pdf");
   }catch(err){note("PDF nahi bani ("+(err.message||err)+"). Print (A4) dabakar 'Save as PDF' chunein.")}
   b.disabled=false;b.textContent="1. A4 PDF Download";
@@ -7751,37 +7778,42 @@ $("b2").addEventListener("click",async()=>{
 // 3. Save (is browser me + Print Manager me)
 function getSaved(){try{return JSON.parse(localStorage.getItem("kisan_cards")||"[]")}catch(e){return[]}}
 function setSaved(a){try{localStorage.setItem("kisan_cards",JSON.stringify(a));return true}catch(e){return false}}
-async function capBlob(el){
-  const k=Math.max(2,2022/el.offsetWidth);
-  const c=await html2canvas(el,{scale:k,backgroundColor:null,useCORS:true,logging:false,scrollX:0,scrollY:0});
-  return new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Image ban nahi payi")),"image/png"));
+function inPM(){try{const P=window.parent;return !!(P&&P!==window&&P.savePrintManagerPair)}catch(e){return false}}
+/* FAST: 1600px, JPEG .95 (PNG + 2022px bahut slow tha); thumbnail saath me */
+async function capBoth(el){
+  const k=Math.max(1.5,1600/el.offsetWidth);
+  const c=await html2canvas(el,{scale:k,backgroundColor:"#ffffff",useCORS:true,logging:false,scrollX:0,scrollY:0});
+  const blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error("Image ban nahi payi")),"image/jpeg",.95));
+  const t=document.createElement("canvas");t.width=420;t.height=Math.max(1,Math.round(420*c.height/c.width));t.getContext("2d").drawImage(c,0,0,t.width,t.height);
+  const thumb=await new Promise(r=>t.toBlob(b=>r(b||null),"image/jpeg",.8));
+  return {blob,thumb};
 }
 $("b3").addEventListener("click",async()=>{
   const b=$("b3"),old=b.textContent;
   updateCard();
+  if(inPM()){
+    /* Print Manager ke andar: card sirf Print Manager me save hota hai, tool ke niche koi Saved list nahi */
+    b.disabled=true;b.textContent="Saving HD...";
+    try{
+      window.scrollTo(0,0);await new Promise(r=>setTimeout(r,60));
+      const [F,B]=await Promise.all([capBoth($("front")),capBoth($("back"))]);
+      await window.parent.savePrintManagerPair("Kisan",$("name").value.trim()||"Kisan Card",F.blob,B.blob,F.thumb,B.thumb);
+      note("Card Print Manager me save ho gaya ✓");
+    }catch(err){note("Save nahi hua: "+(err.message||err))}
+    b.disabled=false;b.textContent=old;
+    return;
+  }
   const st={t:new Date().toLocaleString("en-GB"),tpl:$("templateSelect").value,photo:photoURL,qr:qrURL,
     f:{name:$("name").value,father:$("father").value,dob:$("dobCalendar").value,mobile:$("mobile").value,aadhaar:$("aadhaar").value,farmerid:$("farmerid").value,address:$("address").value},
     land:[...$("landRows").children].map(x=>x.getRaw())};
   const a=getSaved();a.unshift(st);
   const localOk=setSaved(a);
   if(localOk)renderSaved();
-  const P=window.parent;
-  if(P&&P!==window&&P.savePrintManagerPair){
-    b.disabled=true;b.textContent="Saving HD...";
-    try{
-      window.scrollTo(0,0);await new Promise(r=>setTimeout(r,80));
-      const fb=await capBlob($("front")),bb=await capBlob($("back"));
-      await P.savePrintManagerPair("Kisan",$("name").value.trim()||"Kisan Card",fb,bb);
-      note("Card Print Manager me bhi save ho gaya ✓");
-    }catch(err){note("Save nahi hua: "+(err.message||err))}
-    b.disabled=false;b.textContent=old;
-  }else{
-    note(localOk?"Card save ho gaya ✓":"Browser storage full hai, purane saved card delete karein.");
-  }
+  note(localOk?"Card save ho gaya ✓":"Browser storage full hai, purane saved card delete karein.");
 });
 function renderSaved(){
   const a=getSaved(),s=$("saved");
-  if(!a.length){s.style.display="none";return}
+  if(!a.length||inPM()){s.style.display="none";return}
   s.style.display="block";
   s.innerHTML="<h2>Saved Cards</h2>"+a.map((r,i)=>'<div class="sv">'+(r.photo?'<img src="'+r.photo+'" alt="">':'')+'<span><b>'+esc(r.f.name||"(naam nahi)")+'</b><br>'+esc(r.t)+'</span><button class="sm" data-l="'+i+'">Load</button><button class="sm" data-d="'+i+'">✕</button></div>').join("");
 }

@@ -33,3 +33,19 @@ Upload: sirf index.html aur service-worker.js replace karna kaafi hai.
 UPDATE 2: Android/PWA me iframe ke andar se dobara download silently fail hota tha.
 Ab har tool ki download request main page (top) ko bheji jaati hai aur wahin se save hoti hai.
 Installed app (PWA) me har download par ek "डाउनलोड करें" tap-box aata hai (guaranteed save); browser me seedha download hota hai.
+
+
+SPEED FIX (IPPB Passbook / RTPS BC-OBC / sabhi Card Save + Download)
+====================================================================
+Upload: sirf index.html aur service-worker.js (cache v11) replace karein. APK live link se apne-aap naya index.html le leta hai;
+APK ke andar wali offline copy bhi update kar di gayi hai (versionName 1.6).
+
+1) IPPB PASSBOOK Save: pehle poora 2480x3508 canvas + 2 badi PNG (2-3 MB each) banti thi. Ab sirf front/back ka hissa seedha
+   1600px me banta hai, JPEG .95 (~350 KB) me save hota hai aur thumbnail saath me jata hai. Print / A4 PDF bhi isi tarah halke.
+2) Print Manager: thumbnail ab createImageBitmap se bante hain (badi image dobara decode nahi hoti).
+3) Sabhi card tools (Aadhaar, Voter, PAN, APAAR, Ayushman, ATM, IPPB): Save/Download PNG ki jagah JPEG .95 (white background par),
+   isliye bahut tez. Download ka naam .jpg aata hai.
+4) RTPS DOCUMENT READY (BC / OBC Sapath Patra, RTPS Crop, Photo+Signature): size-fit (KB) ab chhote probe se andaza lagakar
+   1-3 encode me ho jata hai (pehle 5-10 baar poora page encode hota tha).
+5) KISAN: Card Save ab sirf Print Manager me save hota hai; tool ke niche "Saved Cards" wala hissa nahi dikhta.
+   A4 PDF aur Save dono ab JPEG + 1600px par, tez.

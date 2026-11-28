@@ -49,3 +49,11 @@ APK ke andar wali offline copy bhi update kar di gayi hai (versionName 1.6).
    1-3 encode me ho jata hai (pehle 5-10 baar poora page encode hota tha).
 5) KISAN: Card Save ab sirf Print Manager me save hota hai; tool ke niche "Saved Cards" wala hissa nahi dikhta.
    A4 PDF aur Save dono ab JPEG + 1600px par, tez.
+
+
+E-SHRAM CARD (naya section)
+===========================
+Dashboard ke "E-Shram & Labour Card" me ab Voter/PAN jaisa tool khulta hai: e-Shram PDF upload karte hi Front/Back apne-aap cut hokar preview me dikhta hai.
+Neeche 3 button ek line me: 1. A4 PDF | 2. Print | 3. E-Shram Card Save (Print Manager me save). Saath me Front/Back Download.
+Card Type: Normal Size ya PVC (85.6 x 53.98 mm). Admin ka Crop Setup > "E-Shram Card (PDF)" set ho to wahi crop use hota hai.
+Upload: sirf index.html aur service-worker.js (cache v12) replace karein.

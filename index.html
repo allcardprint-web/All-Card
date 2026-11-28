@@ -5406,8 +5406,7 @@ function findBox(ctx, W, H, fx0, fx1, fy0, fy1, fallback) {
 const ESH_F=[0.19333,0.055,0.615,0.2925], ESH_B=[0.19333,0.3575,0.615,0.294];
 function detectCards() { if(__eshramAdm())return;
   const W = pageCanvas.width, H = pageCanvas.height;
-  const i = 6; /* border/shadow ki patli line hatane ke liye */
-  const m = r => ({ x: Math.round(r[0]*W)+i, y: Math.round(r[1]*H)+i, w: Math.round(r[2]*W)-i*2, h: Math.round(r[3]*H)-i*2 });
+  const m = r => ({ x: Math.round(r[0]*W), y: Math.round(r[1]*H), w: Math.round(r[2]*W), h: Math.round(r[3]*H) });
   frontCrop = m(ESH_F); backCrop = m(ESH_B);
 }
 
@@ -10736,9 +10735,16 @@ window.apSaveBlob=function(blob,name){var go=function(){var u=URL.createObjectUR
  var CK='ap_c_dash',NM={'ABHA Card':'abha','E-Shram & Labour Card':'eshram','Driving Licence & RC':'dl','Farmer / Kisan Services':'kisan'};
  var COL={aadhaar:['#eaf2ff','#d3e4ff','#1d4ed8'],pan:['#e6f6ff','#cdebfb','#0e8ac8'],voter:['#f3ecff','#e3d6fb','#7c3aed'],apaar:['#e9f9ec','#d3f0d9','#16a34a'],ayushman:['#fff1e6','#fddcc2','#ea580c'],ippb:['#e3f6f6','#c9ecec','#0f8b8d'],'print-manager':['#e8eeff','#d3ddfb','#2f4fd8'],'ippb-atm':['#e4efff','#cfe2fb','#2563eb'],abha:['#e8f9ef','#d0f0dc','#16a34a'],eshram:['#f4edff','#e6d8fb','#9333ea'],dl:['#eefae8','#d9f2cd','#22a447'],kisan:['#fdf5df','#f8e7b4','#a16207'],passport:['#fff0e4','#fdd9bd','#ea580c'],photoedit:['#fdf5df','#f8e7b4','#b7791f'],interest:['#e6f9ef','#cdf0dd','#0f9d58'],noncreamy:['#faeee0','#f1d9bf','#a8642b'],sadi:['#fdeaf1','#f8d0e0','#c2255c'],bill:['#e3f7fb','#c6edf6','#0e7490'],loc:['#e4f8ef','#c4eedb','#047857']};
  function tk(b){var a=b.dataset.action;return a==='coming'?NM[b.dataset.name]:a}
+ function enOf(h){try{var D=(window.apI18nData||{}).D||[],n=h.replace(/<br\s*\/?>/gi,'<br>');for(var i=0;i<D.length;i++){if(D[i][2]&&(D[i][2]===n||D[i][2]===h))return D[i][0]}}catch(e){}return h}
+ function subIt(b,k,subs){if(k!=='loc')return;var t=b.querySelector('.sub');if(!t)return;if(t.dataset.o===undefined)t.dataset.o=enOf(t.innerHTML);var v=subs&&typeof subs[k]==='string'?subs[k].trim():'';
+  if(v){if(t.textContent!==v||t.getAttribute('translate')!=='no'){t.setAttribute('translate','no');t.textContent=v}}
+  else if(t.getAttribute('translate')==='no'){t.removeAttribute('translate');t.innerHTML=t.dataset.o}}
+ function nameIt(b,k,names){var t=b.querySelector('.title');if(!t)return;if(t.dataset.o===undefined)t.dataset.o=enOf(t.innerHTML);var nm=names&&k&&typeof names[k]==='string'?names[k].trim():'';
+  if(nm){if(t.textContent!==nm||t.getAttribute('translate')!=='no'){t.setAttribute('translate','no');t.textContent=nm}}
+  else if(t.getAttribute('translate')==='no'){t.removeAttribute('translate');t.innerHTML=t.dataset.o}}
  function apply(c){c=c||{};var im=c.theme==='image';document.body.classList.toggle('dashImg',im);
   var f=document.getElementById('footer');if(f){if(f.dataset.o===undefined)f.dataset.o=f.innerHTML;f.innerHTML=im?'🛡️ All Card Services – Digital India':f.dataset.o}
-  document.querySelectorAll('#services .service').forEach(function(b){var k=tk(b),g=b.querySelector('.glyph');if(!g)return;
+  document.querySelectorAll('#services .service').forEach(function(b){var k=tk(b),g=b.querySelector('.glyph');nameIt(b,k,c.names);subIt(b,k,c.subs);if(!g)return;
    if(g.dataset.o===undefined)g.dataset.o=g.innerHTML;var u=im&&c.imgs&&k&&c.imgs[k];
    if(u){g.innerHTML='';var i=new Image();i.alt='';i.src=u;g.appendChild(i)}else g.innerHTML=g.dataset.o;
    var v=COL[k];['--c1','--c2','--ac'].forEach(function(n,j){if(im&&v)b.style.setProperty(n,v[j]);else b.style.removeProperty(n)})})}

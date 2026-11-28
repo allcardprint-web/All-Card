@@ -57,3 +57,6 @@ Dashboard ke "E-Shram & Labour Card" me ab Voter/PAN jaisa tool khulta hai: e-Sh
 Neeche 3 button ek line me: 1. A4 PDF | 2. Print | 3. E-Shram Card Save (Print Manager me save). Saath me Front/Back Download.
 Card Type: Normal Size ya PVC (85.6 x 53.98 mm). Admin ka Crop Setup > "E-Shram Card (PDF)" set ho to wahi crop use hota hai.
 Upload: sirf index.html aur service-worker.js (cache v12) replace karein.
+
+
+Voter ID aur E-Shram: Card Type (Normal/PVC) option hata diya; card hamesha PVC size (85.6 x 53.98 mm) me automatic banta hai.

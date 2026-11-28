@@ -5088,11 +5088,6 @@ __admReady().then(__fillTypes);
     <div id="status" role="status" aria-live="polite">PDF process ho rahi hai…<div class="progress"><span></span></div></div>
   </div>
 
-  <div class="box types">
-    <b>Card Type:</b><br><br>
-    <label><input type="radio" name="type" value="normal" checked> 1. Normal Size (Auto)</label>
-    <label><input type="radio" name="type" value="pvc"> 2. PVC Card Size (85.6 × 53.98 mm)</label>
-  </div>
 
   <div class="px-box" id="out">
     <div class="px-row"><div class="px-col"><div class="px-lbl">Front preview</div><div id="frontBox"></div><button type="button" class="px-btn s" id="dlFront">Front Download</button></div><div class="px-col"><div class="px-lbl">Back preview</div><div id="backBox"></div><button type="button" class="px-btn s" id="dlBack">Back Download</button></div></div>
@@ -5121,7 +5116,6 @@ drop.ondrop = e => {
   const f = e.dataTransfer.files[0];
   if (f) handleFile(f);
 };
-document.querySelectorAll('input[name="type"]').forEach(r => r.onchange = () => pageCanvas && build());
 
 async function handleFile(file) {
   $("msg").textContent = "";
@@ -5197,7 +5191,7 @@ function cut(box, type) {
 }
 
 function build() {
-  const type = document.querySelector('input[name="type"]:checked').value;
+  const type = "pvc"; /* hamesha PVC size (85.6 x 53.98 mm) */
   frontOut = cut(frontCrop, type);
   backOut = cut(backCrop, type);
   $("frontBox").replaceChildren(frontOut);
@@ -5326,11 +5320,6 @@ function __voterAdm(){const AC=__admCrop("voter");if(!(AC&&AC.front&&AC.back))re
     <div id="status" role="status" aria-live="polite">PDF process ho rahi hai…<div class="progress"><span></span></div></div>
   </div>
 
-  <div class="box types">
-    <b>Card Type:</b><br><br>
-    <label><input type="radio" name="type" value="normal" checked> 1. Normal Size (Auto)</label>
-    <label><input type="radio" name="type" value="pvc"> 2. PVC Card Size (85.6 × 53.98 mm)</label>
-  </div>
 
   <div class="px-box" id="out">
     <div class="px-row"><div class="px-col"><div class="px-lbl">Front preview</div><div id="frontBox"></div><button type="button" class="px-btn s" id="dlFront">Front Download</button></div><div class="px-col"><div class="px-lbl">Back preview</div><div id="backBox"></div><button type="button" class="px-btn s" id="dlBack">Back Download</button></div></div>
@@ -5359,7 +5348,6 @@ drop.ondrop = e => {
   const f = e.dataTransfer.files[0];
   if (f) handleFile(f);
 };
-document.querySelectorAll('input[name="type"]').forEach(r => r.onchange = () => pageCanvas && build());
 
 async function handleFile(file) {
   $("msg").textContent = "";
@@ -5434,7 +5422,7 @@ function cut(box, type) {
 }
 
 function build() {
-  const type = document.querySelector('input[name="type"]:checked').value;
+  const type = "pvc"; /* hamesha PVC size (85.6 x 53.98 mm) */
   frontOut = cut(frontCrop, type);
   backOut = cut(backCrop, type);
   $("frontBox").replaceChildren(frontOut);
